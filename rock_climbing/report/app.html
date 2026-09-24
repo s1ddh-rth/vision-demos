@@ -103,7 +103,7 @@ pre.log{background:#090b0e;border:1px solid var(--line);border-radius:10px;paddi
 <div class="wrap">
   <div class="top">
     <div class="brand"><span class="dot"></span>CLIMB VISION JUDGE</div>
-    <span class="live" id="srv">dashboard</span>
+    <span style="display:flex;align-items:center;gap:10px"><a class="btn" href="/guide">How to run</a><span class="live" id="srv">dashboard</span></span>
   </div>
   <div class="eyebrow">Upload a climb, pick the route, get a report</div>
   <h1>Judge a climb</h1>
@@ -277,14 +277,20 @@ function paint(j) {
 
 // ── runs ──
 async function loadRuns() {
-  const runs = await (await fetch("/api/runs")).json();
+  // newest first from the API: keep one card per clip + route colour, count the rest
+  const all = await (await fetch("/api/runs")).json(), seen = new Map();
+  for (const r of all) {
+    const k = `${r.clip}|${r.color}`;
+    if (seen.has(k)) seen.get(k).older++; else seen.set(k, { ...r, older: 0 });
+  }
+  const runs = [...seen.values()];
   $("runs").innerHTML = runs.length ? runs.map(r => {
     const d = new Date(r.created), res = r.result || "no report";
     return `<div class="card rc">
       <div class="th" style="background-image:url('/runs/${encodeURI(r.id)}/holds.png')"><span class="badge res ${r.result ? esc(r.result) : "na"}">${esc(res)}</span></div>
       <div class="bd">
         <div><div class="name">${esc(r.clip)}</div>
-          <div class="dim mono" style="font-size:11.5px">${d.toLocaleString()} · ${esc(r.color || "?")}${r.grade ? " · " + esc(r.grade) : ""}</div></div>
+          <div class="dim mono" style="font-size:11.5px">${d.toLocaleString()} · ${esc(r.color || "?")}${r.grade ? " · " + esc(r.grade) : ""}${r.older ? ` · +${r.older} older run${r.older > 1 ? "s" : ""}` : ""}</div></div>
         <div class="kv">
           <div><span class="eyebrow">Result</span><b>${esc(r.result || "–")}</b></div>
           <div><span class="eyebrow">Feet</span><b>${r.feet_grade ? esc(r.feet_grade) : "–"}${r.feet_score != null ? `<small class="dim" style="font-size:11px"> ${r.feet_score}</small>` : ""}</b></div>

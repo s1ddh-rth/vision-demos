@@ -163,6 +163,28 @@ table.pl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
 .dy-map-card{position:sticky;top:12px}
 @media (max-width:900px){.dy-grid{grid-template-columns:1fr}.dy-map-card{position:static}}
 @media (max-width:620px){.dy-stats{grid-template-columns:1fr 1fr}.dc{grid-template-columns:1fr}.dc .thumb{width:100%;height:160px}}
+/* reward & rl */
+.rw-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.rw-grid > div{min-width:0}
+.chart{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:6px 6px 2px;position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart.click{cursor:pointer}
+.rw-total{display:flex;align-items:baseline;gap:10px;margin:16px 0 8px}
+.rw-total .v{font-family:var(--mono);font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.tb{display:grid;grid-template-columns:78px 1fr 58px;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:5px}
+.tb .trk{position:relative;height:12px;background:var(--bg2);border:1px solid var(--line);border-radius:4px}
+.tb .trk .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--tx3)}
+.tb .trk i{position:absolute;top:1px;bottom:1px;border-radius:3px}
+.tb .w{color:var(--tx3);font-size:9px}
+.rl-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.rl-stats .m .v{font-size:15px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--tx2);font-family:var(--mono);font-size:12px;padding:5px 12px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--line2)}
+.seg button.on{background:var(--accg);color:var(--acc)}
+.rl-map-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 8px}
+@media (max-width:900px){.rw-grid{grid-template-columns:1fr}}
+@media (max-width:620px){.rl-stats{grid-template-columns:1fr 1fr}.tb{grid-template-columns:66px 1fr 50px}.rw-total .v{font-size:36px}}
 /* coach */
 .coach{font-size:17px;line-height:1.6;border-left:3px solid var(--acc);padding:4px 0 4px 16px}
 footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--tx3)}
@@ -439,8 +461,130 @@ html += `<section class="sec card" id="dyno">
   </div>` : `<div class="clean" style="border-color:var(--line2);background:var(--bg2)"><div class="big" style="color:var(--tx2)">No dyno candidates</div><div class="muted" style="margin-top:6px">No gaps on this route were analysed for a dyno.</div></div>`}
 </section>`;
 
+// ---------- reward & rl
+const RW = (D.reward && typeof D.reward === 'object') ? D.reward : null;
+const RL = (D.rl && typeof D.rl === 'object') ? D.rl : null;
+const rwCurve = (RW && Array.isArray(RW.curve)) ? RW.curve.filter(p => Array.isArray(p) && p[0] != null && p[1] != null && !isNaN(p[0]) && !isNaN(p[1])) : [];
+const rwEvents = (RW && Array.isArray(RW.events)) ? RW.events.filter(e => e && e.t != null && !isNaN(e.t)) : [];
+const rwTerms = (RW && RW.terms && typeof RW.terms === 'object') ? Object.entries(RW.terms).filter(([k,v]) => v != null && !isNaN(v)).sort((a,b) => Math.abs(b[1]) - Math.abs(a[1])) : [];
+const rwWeights = (RW && RW.weights) || {};
+const rlCurve = (RL && Array.isArray(RL.training_curve)) ? RL.training_curve.filter(p => Array.isArray(p) && p[0] != null && p[1] != null && !isNaN(p[1])) : [];
+const rlBeta = { human: (RL && Array.isArray(RL.human_beta)) ? RL.human_beta : [], agent: (RL && Array.isArray(RL.learned_beta)) ? RL.learned_beta : [] };
+const WHO_COL = {human:'#2fb8ff', agent:'#ffb020'};
+const NEED_DASH = {static:'', deadpoint:'0.014 0.008', dyno:'0.005 0.008', out_of_reach:'0.002 0.01'};
+const sgn = (v, d=2) => v == null || isNaN(v) ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+const termCol = v => v > 0 ? 'var(--ok)' : v < 0 ? 'var(--bad)' : 'var(--tx3)';
+const EV_COL = {zone:'#ffb020', top:'#35d07f', fall:'#ff4d5e', landing:'#35d07f', progress:'#2fb8ff'};
+const rwTotal = RW && RW.total != null ? RW.total : rwTerms.reduce((a,[,v]) => a + v, 0);
+function termBars(){
+  if (!rwTerms.length) return '<p class="dim" style="font-size:13px">No reward terms recorded.</p>';
+  const mx = Math.max(1e-6, ...rwTerms.map(([,v]) => Math.abs(v)));
+  return rwTerms.map(([k,v]) => { const w = Math.abs(v)/mx*50; const st = v >= 0 ? `left:50%;width:${w}%` : `left:${50-w}%;width:${w}%`;
+    return `<div class="tb" data-tip="${esc(k.replace(/_/g,' ')+' '+sgn(v)+(rwWeights[k]!=null?' · weight '+rwWeights[k]:''))}"><span>${esc(k.replace(/_/g,' '))}${rwWeights[k]!=null?` <span class="w">×${esc(rwWeights[k])}</span>`:''}</span>
+      <div class="trk"><span class="mid"></span><i style="${st};background:${termCol(v)}"></i></div><span style="color:${termCol(v)};text-align:right">${sgn(v)}</span></div>`; }).join('');
+}
+function rlStat(k, v, col){ return `<div class="m"><div class="k">${k}</div><div class="v"${col?` style="color:${col}"`:''}>${v}</div></div>`; }
+const hasRL = RL && (rlCurve.length || rlBeta.human.length || rlBeta.agent.length || RL.learned_return != null);
+html += `<section class="sec card" id="reward">
+  <div class="sec-h"><span class="num">06</span><h2>Reward &amp; RL</h2><span class="dim" style="font-size:13px">the climb as a return, and an agent that learned the route</span></div>
+  ${RW || hasRL ? `<div class="rw-grid">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px">Reward over the climb</div>
+      ${rwCurve.length ? `<div class="chart click" id="rwchart"></div><div class="legend" style="margin-top:8px"><span><i style="background:var(--acc)"></i>Cumulative return</span>${[...new Set(rwEvents.map(e=>e.term))].map(k=>`<span><i style="background:${EV_COL[k]||'#c28bff'};border-radius:50%"></i>${esc(String(k).replace(/_/g,' '))}</span>`).join('')}<span class="dim">click to seek</span></div>` : '<div class="noasset" style="padding:30px 10px">No reward curve for this run</div>'}
+      <div class="rw-total"><span class="v" style="color:${termCol(rwTotal)}">${RW?sgn(rwTotal,1):'—'}</span><span class="eyebrow">total return</span></div>
+      ${termBars()}
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px">RL agent vs you</div>
+      <p class="dim" style="font-size:12px;margin:0 0 10px">Hands-only route model: feet, body height and footholds are not simulated, so the agent's beta is optimistic. Read it as "what the reward favours", not a sequence to copy.</p>
+      ${hasRL ? `<div class="rl-stats">
+        ${rlStat('Algorithm', `<span style="font-size:12px">${esc(RL.algo||'—')}</span>`)}
+        ${rlStat('Episodes', RL.episodes!=null?Number(RL.episodes).toLocaleString():'—')}
+        ${rlStat('Greedy top-rate', RL.policy_top_rate!=null?Math.round(RL.policy_top_rate*100)+'%':'—', RL.policy_top_rate!=null?scoreCol(RL.policy_top_rate*100):'')}
+        ${rlStat('Moves you / agent', `<span style="color:${WHO_COL.human}">${RL.human_moves!=null?esc(RL.human_moves):rlBeta.human.length||'—'}</span> <span class="dim">/</span> <span style="color:${WHO_COL.agent}">${RL.learned_moves!=null?esc(RL.learned_moves):rlBeta.agent.length||'—'}</span>`)}
+        ${rlStat('Return you / agent', `<span style="color:${WHO_COL.human}">${num(RL.human_return,1)}</span> <span class="dim">/</span> <span style="color:${WHO_COL.agent}">${num(RL.learned_return,1)}</span>`)}
+        ${rlStat('States × actions', `${RL.state_space!=null?esc(RL.state_space):'—'} × ${RL.action_space!=null?esc(RL.action_space):'—'}`)}
+      </div>
+      ${rlCurve.length ? `<div class="eyebrow" style="margin:4px 0 6px">Training curve · mean return per episode${RL.seed!=null?' · seed '+esc(RL.seed):''}</div><div class="chart" id="rlchart"></div>` : ''}
+      <div class="rl-map-h"><span class="eyebrow">Beta on the route map</span>
+        <div class="seg" id="rlseg"><button data-m="human">You</button><button data-m="agent">Agent</button><button data-m="both" class="on">Both</button></div></div>
+      <div class="map" id="rlmap">${D.holds_image?`<img src="${esc(D.holds_image)}" alt="" onerror="this.style.display='none'">`:''}<div id="rlsvg" style="position:relative"></div></div>
+      <div class="legend" style="margin-top:10px"><span><i style="background:${WHO_COL.human}"></i>You</span><span><i style="background:${WHO_COL.agent}"></i>Agent</span><span class="dim">solid static · dashed deadpoint · dotted dyno</span></div>`
+      : '<div class="noasset" style="padding:30px 10px">No RL agent trained for this run</div>'}
+    </div>
+  </div>` : `<div class="clean" style="border-color:var(--line2);background:var(--bg2)"><div class="big" style="color:var(--tx2)">No reward data</div><div class="muted" style="margin-top:6px">This run was not scored with the reward model.</div></div>`}
+</section>`;
+function rlSvg(mode){
+  const P = pt => `${pt[0].toFixed(4)},${(pt[1]*AR).toFixed(4)}`;
+  let s = `<svg viewBox="0 0 1 ${AR.toFixed(4)}" preserveAspectRatio="none"><defs>` +
+    Object.entries(WHO_COL).map(([k,c]) => `<marker id="rl-ah-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="3.5" markerHeight="3.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`).join('') + `</defs>`;
+  (D.holds||[]).forEach(h => {
+    if (h.polygon && h.polygon.length > 2) s += `<polygon points="${h.polygon.map(P).join(' ')}" fill="rgba(47,184,255,.08)" stroke="rgba(47,184,255,.35)" stroke-width="0.002"/>`;
+    if (h.centroid_xy) { const [x,y] = h.centroid_xy; s += `<circle cx="${x}" cy="${y*AR}" r="0.008" fill="${rc}" stroke="#fff" stroke-width="0.002"/><text x="${x+0.013}" y="${y*AR+0.006}" font-size="0.022" fill="#cfe8ff" font-family="JetBrains Mono,monospace">${esc(h.id)}</text>`; }
+  });
+  const whos = mode === 'both' ? ['human','agent'] : [mode];
+  let labels = '';
+  whos.forEach(who => {
+    const col = WHO_COL[who], off = mode === 'both' ? (who === 'human' ? 0.008 : -0.008) : 0, seen = {};
+    rlBeta[who].forEach((m, i) => {
+      const a = holdById[m.from], b = holdById[m.to]; if (!b || !b.centroid_xy) return;
+      const n = i + 1, tipTxt = `${who==='human'?'You':'Agent'} · move ${n} · ${m.hand||'?'} hand #${m.from}→#${m.to} · ${String(m.needed||'?').replace(/_/g,' ')} · r ${sgn(m.reward)}`;
+      const [x2,y2] = b.centroid_xy;
+      if (!a || !a.centroid_xy || m.from === m.to) {
+        const r = 0.022 + (who === 'agent' ? 0.008 : 0);
+        s += `<circle cx="${x2}" cy="${y2*AR}" r="${r}" fill="none" stroke="${col}" stroke-width="0.004" data-tip="${esc(tipTxt)}"/>`;
+        labels += `<g data-tip="${esc(tipTxt)}"><circle cx="${x2+r}" cy="${y2*AR-r}" r="0.016" fill="#0b0d10" stroke="${col}" stroke-width="0.003"/><text x="${x2+r}" y="${y2*AR-r+0.0065}" text-anchor="middle" font-size="0.018" font-weight="700" fill="${col}" font-family="JetBrains Mono,monospace">${n}</text></g>`;
+        return;
+      }
+      const [x1,y1] = a.centroid_xy; const X1 = x1, Y1 = y1*AR, X2 = x2, Y2 = y2*AR;
+      const L = Math.hypot(X2-X1, Y2-Y1) || 1, ux = (X2-X1)/L, uy = (Y2-Y1)/L, nx = -uy*off, ny = ux*off, sh = 0.016;
+      const k = NEED_DASH[m.needed] != null ? m.needed : 'dyno', dash = NEED_DASH[k];
+      s += `<line x1="${X1+ux*sh+nx}" y1="${Y1+uy*sh+ny}" x2="${X2-ux*sh+nx}" y2="${Y2-uy*sh+ny}" stroke="${col}" stroke-width="0.005" stroke-opacity=".9" ${dash?`stroke-dasharray="${dash}"`:''} stroke-linecap="round" marker-end="url(#rl-ah-${who})" data-tip="${esc(tipTxt)}"/>`;
+      const key = m.from + '-' + m.to; seen[key] = (seen[key] || 0) + 1;
+      const f = 0.5 + (seen[key]-1)*0.16 * (who === 'human' ? 1 : -1), lx = X1+(X2-X1)*f+nx*2.2, ly = Y1+(Y2-Y1)*f+ny*2.2;
+      labels += `<g data-tip="${esc(tipTxt)}"><circle cx="${lx}" cy="${ly}" r="0.016" fill="#0b0d10" stroke="${col}" stroke-width="0.003"/><text x="${lx}" y="${ly+0.0065}" text-anchor="middle" font-size="0.018" font-weight="700" fill="${col}" font-family="JetBrains Mono,monospace">${n}</text></g>`;
+    });
+  });
+  return s + labels + '</svg>';
+}
+// pixel-sized line chart (re-rendered on resize so text stays legible on phones)
+function lineChart(el, pts, o){
+  const Wp = Math.max(260, el.clientWidth - 12), Hp = o.h || Math.round(Math.max(150, Math.min(220, Wp*0.42)));
+  const ml = 34, mr = 10, mt = 12, mb = 22, iw = Wp-ml-mr, ih = Hp-mt-mb;
+  const xs = pts.map(p=>p[0]), ys = pts.map(p=>p[1]).concat(o.extraY||[]);
+  const x0 = o.x0 != null ? o.x0 : Math.min(...xs), x1 = o.x1 != null ? o.x1 : Math.max(...xs);
+  let y0 = Math.min(0, ...ys), y1 = Math.max(0, ...ys); if (y1 - y0 < 1e-6) y1 = y0 + 1; const yp = (y1-y0)*0.08; y1 += yp; if (y0 < 0) y0 -= yp;
+  const X = v => ml + (x1===x0 ? 0 : (v-x0)/(x1-x0)*iw), Y = v => mt + ih - (v-y0)/(y1-y0)*ih;
+  const nt = 4, ticks = Array.from({length:nt+1}, (_,i) => y0 + (y1-y0)*i/nt);
+  let s = `<svg width="${Wp}" height="${Hp}" viewBox="0 0 ${Wp} ${Hp}" font-family="JetBrains Mono,monospace" font-size="10">`;
+  ticks.forEach(v => { s += `<line x1="${ml}" x2="${Wp-mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${ml-5}" y="${Y(v)+3}" text-anchor="end" fill="var(--tx3)">${Math.abs(y1-y0)>=8?Math.round(v):v.toFixed(1)}</text>`; });
+  if (y0 < 0) s += `<line x1="${ml}" x2="${Wp-mr}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--tx3)" stroke-width="1"/>`;
+  for (let i = 0; i <= 4; i++) { const v = x0 + (x1-x0)*i/4; s += `<text x="${X(v)}" y="${Hp-6}" text-anchor="${i===0?'start':i===4?'end':'middle'}" fill="var(--tx3)">${o.fmtX(v)}</text>`; }
+  (o.refs||[]).forEach(r => { if (r.v == null || isNaN(r.v)) return; s += `<line x1="${ml}" x2="${Wp-mr}" y1="${Y(r.v)}" y2="${Y(r.v)}" stroke="${r.c}" stroke-width="1.2" stroke-dasharray="4 4"/><text x="${ml+6}" y="${Y(r.v)-4}" text-anchor="start" fill="${r.c}">${esc(r.l)}</text>`; });
+  const d = pts.map((p,i) => (i?'L':'M') + X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1)).join('');
+  if (o.area) s += `<path d="${d}L${X(pts[pts.length-1][0]).toFixed(1)},${Y(Math.max(0,y0))}L${X(pts[0][0]).toFixed(1)},${Y(Math.max(0,y0))}Z" fill="${o.col}" fill-opacity=".12"/>`;
+  s += `<path d="${d}" fill="none" stroke="${o.col}" stroke-width="2" stroke-linejoin="round"/>`;
+  if (o.head) s += `<line id="${o.head}" x1="${ml}" x2="${ml}" y1="${mt}" y2="${mt+ih}" stroke="var(--acc)" stroke-width="1.5" style="display:none"/>`;
+  (o.marks||[]).forEach(m => { s += `<g data-t="${m.t}" data-tip="${esc(m.tip)}" style="cursor:pointer"><line x1="${X(m.t)}" x2="${X(m.t)}" y1="${mt}" y2="${mt+ih}" stroke="${m.c}" stroke-opacity=".35" stroke-dasharray="2 3"/><circle cx="${X(m.t)}" cy="${Y(m.y)}" r="5.5" fill="${m.c}" stroke="#0b0d10" stroke-width="2"/></g>`; });
+  el.innerHTML = s + '</svg>';
+  return { X, ml, iw, x0, x1 };
+}
+function curveAt(t){ let v = 0; for (const p of rwCurve) { if (p[0] <= t) v = p[1]; else break; } return v; }
+let rwGeo = null;
+function drawRL(){
+  const rc_ = document.getElementById('rwchart');
+  if (rc_ && rwCurve.length) rwGeo = lineChart(rc_, rwCurve, { x0:0, x1:Math.max(duration, rwCurve[rwCurve.length-1][0]), col:'#2fb8ff', area:true, fmtX:fmtT, head:'rwhead',
+    marks: rwEvents.map(e => ({ t:e.t, y:curveAt(e.t), c:EV_COL[e.term] || (e.value < 0 ? '#ff4d5e' : '#c28bff'), tip:`${fmtT(e.t)} · ${e.label||e.term} · ${sgn(e.value)}` })) });
+  const lc = document.getElementById('rlchart');
+  if (lc && rlCurve.length) lineChart(lc, rlCurve, { col:'#ffb020', h:150, fmtX:v => v >= 1000 ? (v/1000).toFixed(1)+'k' : Math.round(v),
+    extraY:[RL.human_return, RL.learned_return].filter(v => v != null), refs:[{v:RL.human_return, c:WHO_COL.human, l:'you '+num(RL.human_return,1)}] });
+  if (rwGeo) setRwHead(lastT);
+}
+let lastT = 0;
+function setRwHead(t){ lastT = t; const h = document.getElementById('rwhead'); if (!h || !rwGeo) return; const x = rwGeo.X(Math.max(rwGeo.x0, Math.min(rwGeo.x1, t))); h.setAttribute('x1', x); h.setAttribute('x2', x); h.style.display = t > 0 ? '' : 'none'; }
+
 // ---------- coach + footer
-html += `<section class="sec card"><div class="sec-h"><span class="num">06</span><h2>Coach note</h2></div>
+html += `<section class="sec card"><div class="sec-h"><span class="num">07</span><h2>Coach note</h2></div>
   <div class="coach">${D.coach?esc(D.coach):'<span class="dim">No coaching note generated for this run.</span>'}</div></section>`;
 const cost = D.cost || {}; const costTot = Object.values(cost).reduce((a,v)=>a+(+v||0),0);
 html += `<footer><span>Powered by VLM Run Gateway · SAM 3.1 · ViTPose+ · Qwen3.8</span>
@@ -463,7 +607,7 @@ ticks.innerHTML = th;
 
 function seek(t){ t = +t; if (isNaN(t)) return; if (vid) { try { vid.currentTime = Math.max(0,t); vid.play().catch(()=>{}); } catch(e){} vid.scrollIntoView({behavior:'smooth',block:'center'}); } setHead(t); }
 const head = document.getElementById('head'), prog = document.getElementById('prog'), cur = document.getElementById('cur');
-function setHead(t){ const p = pct(t); head.style.left = p + '%'; prog.style.width = p + '%'; cur.innerHTML = fmtT(t) + ' <small>/ ' + fmtT(duration) + '</small>'; }
+function setHead(t){ const p = pct(t); head.style.left = p + '%'; prog.style.width = p + '%'; cur.innerHTML = fmtT(t) + ' <small>/ ' + fmtT(duration) + '</small>'; setRwHead(t); }
 setHead(0);
 if (vid) {
   vid.addEventListener('loadedmetadata', () => { if (!D.frame_count && vid.duration) duration = vid.duration; });
@@ -486,6 +630,18 @@ if (cands.length) {
   document.querySelectorAll('.dc').forEach(el => el.addEventListener('click', () => selectDyno(+el.dataset.cid, true)));
   document.getElementById('dymap').addEventListener('click', e => { const a = e.target.closest('.dy-arrow'); if (a) { selectDyno(+a.dataset.cid, false); const card = document.querySelector('.dc[data-cid="'+a.dataset.cid+'"]'); if (card) card.scrollIntoView({behavior:'smooth',block:'nearest'}); } });
 }
+// reward & rl interactions
+drawRL();
+let rlMode = 'both';
+const rlsv = document.getElementById('rlsvg'); if (rlsv) rlsv.innerHTML = rlSvg(rlMode);
+const rlseg = document.getElementById('rlseg');
+if (rlseg) rlseg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; rlMode = b.dataset.m;
+  rlseg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); rlsv.innerHTML = rlSvg(rlMode); });
+const rwc = document.getElementById('rwchart');
+if (rwc) rwc.addEventListener('click', e => { const mk = e.target.closest('[data-t]'); if (mk) return seek(mk.dataset.t);
+  if (!rwGeo) return; const svg = rwc.querySelector('svg'); const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (svg.viewBox.baseVal.width / r.width);
+  const f = (px - rwGeo.ml) / rwGeo.iw; if (f < 0 || f > 1) return; seek(rwGeo.x0 + f * (rwGeo.x1 - rwGeo.x0)); });
+let rsz; window.addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(drawRL, 120); });
 document.addEventListener('mousemove', e => {
   const el = e.target.closest && e.target.closest('[data-tip]');
   if (!el) { tip.style.display = 'none'; return; }

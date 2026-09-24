@@ -30,6 +30,7 @@ INPUT = HERE / "data" / "input"
 UPLOADS = INPUT / "uploads"
 CURRENT = INPUT / "current"
 APP_HTML = HERE / "report" / "app.html"
+GUIDE_HTML = HERE / "report" / "guide.html"
 SUFFIXES = {".mov", ".mp4", ".m4v", ".avi"}
 FFMPEG_DIR = Path(sys.executable).parent / "Library" / "bin"
 ANSI = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07]*\x07|\r")
@@ -302,6 +303,8 @@ class Handler(BaseHTTPRequestHandler):
         path = unquote(urlparse(self.path).path)
         if path in ("/", "/index.html", "/app"):
             return self.send_file(APP_HTML, head)
+        if path in ("/guide", "/guide.html"):
+            return self.send_file(GUIDE_HTML, head)
         if path == "/favicon.ico":
             self.send_response(204)
             self.send_header("Content-Length", "0")

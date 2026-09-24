@@ -20,7 +20,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from src import dyno, safety
+from src import dyno, reward, rl, safety
 
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "data" / "output"
@@ -162,6 +162,25 @@ def main():
         print(f"[dyno] skipped: {e}")
         r["dyno"] = None
 
+    # 4b. reward on the recorded climb + a Q-learning agent on the same route model
+    r["reward"] = r["rl"] = None
+    try:
+        t = safety.load_track(run)
+        holds = safety.Holds(json.loads((run / "holds.json").read_text()), t.size)
+        scale = safety.body_scale(t)
+        r["reward"] = reward.score_demo(r, t, holds, scale)
+        rw = r["reward"]
+        top3 = sorted(rw["terms"].items(), key=lambda kv: -abs(kv[1]))[:3]
+        print(f"reward {rw['total']:+.2f} (" + ", ".join(f"{k} {v:+.2f}" for k, v in top3) + ")")
+        if r.get("dyno"):
+            env, human = rl.build(r, holds, scale, t)
+            r["rl"] = rl.train(env, human=human)
+            q = r["rl"]
+            print(f"rl    learned {q['learned_moves']} moves / {q['learned_return']:+.2f} vs human "
+                  f"{q['human_moves']} moves / {q['human_return']:+.2f} · top rate {q['policy_top_rate']:.0%}")
+    except Exception as e:  # noqa: BLE001
+        print(f"[reward/rl] skipped: {e}")
+
     # 5. overall coach note
     note = None
     if coach:
@@ -173,7 +192,12 @@ def main():
                                    "worst": [feet["placements"][i] for i in feet["worst"]]},
                    "dyno": None if not r.get("dyno") else [
                        {k: c.get(k) for k in ("from_hold", "to_hold", "needed", "climbed", "vlm")}
-                       for c in r["dyno"]["candidates"] if c.get("vlm")]}
+                       for c in r["dyno"]["candidates"] if c.get("vlm")],
+                   "rl": None if not r.get("rl") else {
+                       "note": "Q-learning agent on a hands-only model of this route, same reward",
+                       "learned_moves": r["rl"]["learned_moves"], "learned_return": r["rl"]["learned_return"],
+                       "human_moves": r["rl"]["human_moves"], "human_return": r["rl"]["human_return"],
+                       "learned_beta": [f"{b['hand']} #{b['from']}->#{b['to']}" for b in r["rl"]["learned_beta"]]}}
         try:
             res = coach.overall_coach(client, summary)
             if isinstance(res, dict):

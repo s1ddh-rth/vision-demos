@@ -82,6 +82,36 @@ Times are seconds from clip start.
     }]
   },
 
+  "reward": {                           // src/reward.py applied to the recorded climb; may be null
+    "weights": {"progress": 10.0, "zone": 3.0, "top": 10.0, "reach": -0.5, "dyno_risk": -1.0,
+                "campus": -0.2, "footwork": -0.1, "fall": -10.0, "landing": 1.0, "time": -0.01},
+    "total": 18.79,
+    "terms": {"progress": 6.334, "zone": 3.0, "top": 10.0, "reach": -0.406, "dyno_risk": 0.0,
+              "campus": 0.0, "footwork": -1.0, "fall": 0.0, "landing": 1.0, "time": -0.138},
+    "curve": [[6.01, -0.1], [6.21, -0.102]],          // [t, cumulative reward] at 5 Hz, start -> end of events
+    "events": [{"t": 6.97, "term": "progress", "value": 0.854,
+                "label": "right hand #7→#9: height 0.45"}],   // every non-zero scored event, time order
+    "hand_start": [7, 7],                             // [left, right] start holds
+    "hand_moves": [{"hand": "right", "from": 7, "to": 9, "anchor": 7, "t": 6.97,
+                    "gap_bl": 0.188, "needed": "static", "margin_bl": 0.839}]   // the human hand sequence
+  },
+
+  "rl": {                               // src/rl.py: Q-learning on a hands-only route model; may be null
+    "algo": "tabular Q-learning", "episodes": 4000, "seed": 7, "alpha": 0.2, "gamma": 0.97,
+    "epsilon": "1.0 -> 0.05 linear over 80% of episodes",
+    "state_space": "17x17 (left-hand hold, right-hand hold) = 289",
+    "action_space": "2 hands x 17 holds = 34 (masked to reachable)",
+    "move_s": 1.5, "max_steps": 40, "fail_p": {"deadpoint": 0.15, "dyno": 0.35},   // x (1 - margin/dyno_gain)
+    "training_curve": [[66, -7.852], [132, -6.005], [3960, 18.563]],   // [episode, mean return over the window], ~60 points
+    "learned_beta": [{"hand": "right", "from": 7, "to": 11, "needed": "static", "reward": 4.853}],
+    "learned_return": 18.747, "learned_moves": 4, "learned_topped": true,
+    "policy_top_rate": 1.0,             // greedy policy, 200 rollouts with the stochastic failure
+    "policy_mean_return": 18.747,
+    "human_beta": [{"hand": "left", "from": 16, "to": 17, "needed": "static", "reward": 9.985,
+                    "t": 19.79}],       // "inferred": true on a top match the pose could not see
+    "human_return": 18.691, "human_moves": 16   // the same env reward along the human's hand sequence
+  },
+
   "coach": "One-paragraph overall coaching note from the gateway VLM (may be null)",
   "cost": {"sam_pad": 0.012, "vlm": 0.004},
   "generated_at": "2026-09-24T20:40:00"

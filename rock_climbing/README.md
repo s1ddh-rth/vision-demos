@@ -300,6 +300,56 @@ The assumptions are explicit, in `ASSUME` at the top of the file.
 [IFSC top/zone/attempt scoring](https://gripped.com/indoor-climbing/boulder-world-cup-scoring-explained/),
 [silent feet](https://climbskill.rocks/footwork/silent-feet/).
 
+### Reward function and RL
+
+[`src/reward.py`](src/reward.py) is one reward function for climbing, used two
+ways: it scores the recorded climb (`reward` in `safety.json`), and it is the
+step reward of a small route model that a Q-learning agent learns to climb
+(`rl`, [`src/rl.py`](src/rl.py)). Height `h` runs from 0 at the lowest route
+hold to 1 at the top hold; distances are in body-lengths (bl). The weights are
+in `WEIGHTS` at the top of the file.
+
+| Term | Weight | When |
+|---|---|---|
+| progress | +10 × Δh | the higher hand's hold gets higher (or lower) |
+| zone | +3 | first time on the zone hold |
+| top | +10 | controlled top |
+| reach | −0.5 × (gap / static span)² | each hand move, gap from the other hand's hold |
+| dyno_risk | −1 × (1 − margin / dyno gain) | a move classed deadpoint or dyno |
+| campus | −0.2 per second | no foot on a hold while climbing (recorded climb only) |
+| footwork | −0.1 | each silent-feet readjust (recorded climb only) |
+| fall | −10 | each uncontrolled fall |
+| landing | +(landing score − 50) / 50 | each descent |
+| time | −0.01 per second | on the wall |
+
+**The route model.** The state is (left-hand hold, right-hand hold). An action
+moves one hand to any hold, and is legal only if the target is within static
+span + dyno gain of the other hand's hold (`dyno.classify` is not
+`out_of_reach`). It starts on the judge's start holds and ends on both hands on
+the top hold, or after 40 moves. Each move costs 1.5 s. Deadpoints and dynos
+fail with probability 0.15 or 0.35 × (1 − margin / dyno gain): a fall, −10, and
+the episode ends. So a big move saves time and progress steps but risks the
+fall.
+
+**What it leaves out.** Feet, body position, balance and momentum are gone; so
+is the third dimension, since the holds are 2D image positions. Reach comes
+only from the dyno envelope, which is measured from this climber's pose.
+
+**The agent.** Tabular Q-learning over 289 states × 34 actions (masked to
+reachable moves): ε-greedy decaying from 1.0 to 0.05, α = 0.2, γ = 0.97, 4000
+episodes with a fixed seed. It trains in about a second. The human's hand
+sequence from the video is replayed through the same env, so both are scored
+on the same reward.
+
+**On the test clip:** the recorded climb scores +18.8. Top (+10), progress
+(+6.3), zone (+3) and a clean landing (+1) outweigh footwork (−1.0), reach
+(−0.4) and time (−0.14). The agent tops in 4 moves (#7→#11, #7→#15, #11→#17,
+#15→#17), all static, for +18.75. The human's 16 moves score +18.69, and the
+greedy policy tops in 100% of 200 rollouts. The static span here is 0.73 bl, so
+no dyno ever pays for its risk: the learned beta is just longer static reaches.
+The small gap in return is the trade the reward sets between reach cost and
+time.
+
 ### Models and cost
 
 | Step | Model on the gateway |
@@ -367,6 +417,9 @@ nothing on pale grey or mint holds.
   out-of-reach per gap.
 - `report.html`: a self-contained report, plus a coaching note.
 - `app.py`: a local dashboard to upload, run and browse runs.
+- Reward function (`src/reward.py`) scored on the recorded climb, and a
+  tabular Q-learning agent (`src/rl.py`) on a hands-only route model, compared
+  with the human's beta.
 
 ## Where this goes next
 

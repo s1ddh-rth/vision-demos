@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to run · Climb Vision Judge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12; --bg2:#14171c; --card:#171b21; --card2:#1d222a; --line:#272d36; --line2:#323a45;
+  --tx:#e9edf2; --tx2:#9aa4b1; --tx3:#66707d;
+  --acc:#2fb8ff; --acc2:#1f7fff; --accg:rgba(47,184,255,.14);
+  --ok:#35d07f; --warn:#ffb020; --bad:#ff4d5e;
+  --okg:rgba(53,208,127,.14); --warng:rgba(255,176,32,.14); --badg:rgba(255,77,94,.14);
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --sans:"Space Grotesk",system-ui,-apple-system,Segoe UI,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:18px}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(1200px 500px at 80% -10%,rgba(31,127,255,.12),transparent 60%),var(--bg);min-height:100vh}
+a{color:var(--acc)}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 16px 60px}
+.mono,code{font-family:var(--mono)}
+code{font-size:.9em;background:var(--card2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:var(--tx)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--tx3)}
+.card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:14px;padding:18px}
+.muted{color:var(--tx2)} .dim{color:var(--tx3)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:26px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+.btn{font-family:var(--sans);font-weight:600;border-radius:10px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:8px 14px;cursor:pointer;font-size:13.5px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--acc)}
+h1{font-size:38px;line-height:1.05;margin:6px 0 8px;letter-spacing:-.03em}
+.layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:28px;margin-top:26px;align-items:start}
+nav.side{position:sticky;top:18px;display:flex;flex-direction:column;gap:2px;font-size:13.5px}
+nav.side a{color:var(--tx2);text-decoration:none;padding:7px 10px;border-radius:8px;border-left:2px solid transparent}
+nav.side a:hover{color:var(--tx);background:var(--card2)}
+nav.side a.on{color:var(--tx);border-left-color:var(--acc);background:var(--accg)}
+section{margin-bottom:34px}
+.sec-h{display:flex;align-items:center;gap:12px;margin:0 0 14px}
+.sec-h h2{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
+.sec-h .num{font-family:var(--mono);font-size:12px;color:var(--acc);border:1px solid var(--line2);border-radius:6px;padding:2px 7px}
+p{line-height:1.6;margin:0 0 10px;color:var(--tx2)}
+p b,li b{color:var(--tx);font-weight:600}
+ul,ol{margin:0;padding-left:20px;color:var(--tx2);line-height:1.6}
+li{margin-bottom:6px}
+.steps{display:flex;flex-direction:column;gap:12px}
+.step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px}
+.step .n{width:30px;height:30px;border-radius:50%;background:var(--accg);border:1px solid rgba(47,184,255,.45);color:var(--acc);font-family:var(--mono);font-weight:700;display:grid;place-items:center;font-size:13px}
+.step h3{margin:3px 0 8px;font-size:16px;font-weight:600}
+.cmd{position:relative;background:#0a0c0f;border:1px solid var(--line);border-radius:10px;margin:8px 0}
+.cmd pre{margin:0;padding:12px 84px 12px 14px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--tx)}
+.cmd pre .c{color:var(--tx3)}
+.copy{position:absolute;top:8px;right:8px;font-family:var(--mono);font-size:11px;background:var(--card2);border:1px solid var(--line2);color:var(--tx2);border-radius:7px;padding:4px 9px;cursor:pointer}
+.copy:hover{border-color:var(--acc);color:var(--tx)}
+.copy.ok{border-color:var(--ok);color:var(--ok)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.mini h3{margin:0 0 6px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.mini p{font-size:14px;margin:0}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);border:1px solid var(--line2);border-radius:99px;padding:2px 7px}
+.check{list-style:none;padding:0}
+.check li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+.check li:last-child{border-bottom:0}
+.check li::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-top:8px;box-shadow:0 0 8px rgba(53,208,127,.5)}
+.note{border-radius:10px;padding:11px 14px;font-size:14px;line-height:1.55;margin-top:10px}
+.note.warn{background:var(--warng);border:1px solid rgba(255,176,32,.4);color:var(--tx)}
+.note.info{background:var(--accg);border:1px solid rgba(47,184,255,.4);color:var(--tx)}
+.flow{counter-reset:f;list-style:none;padding:0}
+.flow li{counter-increment:f;position:relative;padding:8px 0 8px 36px;border-bottom:1px solid var(--line)}
+.flow li:last-child{border-bottom:0}
+.flow li::before{content:counter(f);position:absolute;left:0;top:8px;font-family:var(--mono);font-size:11px;color:var(--acc);border:1px solid var(--line2);border-radius:6px;padding:1px 6px}
+.ts dt{color:var(--tx);font-weight:600;margin-top:12px}
+.ts dt:first-child{margin-top:0}
+.ts dd{margin:4px 0 0;color:var(--tx2);line-height:1.55}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;gap:16px}
+  nav.side{position:sticky;top:0;z-index:5;flex-direction:row;overflow-x:auto;background:rgba(13,15,18,.94);backdrop-filter:blur(6px);padding:8px 0;margin:0 -16px;padding-left:16px;padding-right:16px;border-bottom:1px solid var(--line)}
+  nav.side a{white-space:nowrap;border-left:0;border-bottom:2px solid transparent;border-radius:6px}
+  nav.side a.on{border-bottom-color:var(--acc)}
+  html{scroll-padding-top:60px}
+  h1{font-size:30px}
+  .grid2{grid-template-columns:1fr}
+}
+@media (max-width:420px){.card{padding:14px}.cmd pre{font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="dot"></span>CLIMB VISION JUDGE</div>
+    <a class="btn" href="/">&larr; Dashboard</a>
+  </div>
+  <div class="eyebrow">Guide</div>
+  <h1>How to run</h1>
+  <div class="muted">Film a climb, run it through the dashboard, then read the report. Everything runs on your machine; only the SAM and Qwen calls go out to the VLM Run gateway.</div>
+
+  <div class="layout">
+    <nav class="side" id="nav">
+      <a href="#quick">Quick start</a>
+      <a href="#film">Filming checklist</a>
+      <a href="#dash">Using the dashboard</a>
+      <a href="#report">Reading the report</a>
+      <a href="#scout">Wall scout</a>
+      <a href="#share">Sharing it</a>
+      <a href="#cli">Command line</a>
+      <a href="#trouble">Troubleshooting</a>
+    </nav>
+
+    <main>
+      <section id="quick">
+        <div class="sec-h"><span class="num">01</span><h2>Quick start</h2></div>
+        <div class="card steps">
+          <div class="step"><div class="n">1</div><div>
+            <h3>Create the environment (once)</h3>
+            <p>From the <code>rock_climbing</code> folder:</p>
+            <div class="cmd"><pre>conda env create -f environment.yml</pre></div>
+          </div></div>
+          <div class="step"><div class="n">2</div><div>
+            <h3>Add your API key (once)</h3>
+            <p>Get a key from <a href="https://app.vlm.run" target="_blank" rel="noopener">app.vlm.run</a> (it is shown only once when created, so copy it right away). Copy the example env file to the repo root, one level above <code>rock_climbing</code>, then paste the key after <code>VLMRUN_API_KEY=</code>.</p>
+            <div class="cmd"><pre>cp ../.env.example ../.env</pre></div>
+            <p class="dim" style="font-size:13px">In Windows cmd: <code>copy ..\.env.example ..\.env</code></p>
+          </div></div>
+          <div class="step"><div class="n">3</div><div>
+            <h3>Start the dashboard</h3>
+            <div class="cmd"><pre>conda activate rock_climbing
+python app.py</pre></div>
+            <p>Then open <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a>. Use <code>--port</code> or <code>--host</code> to change where it listens.</p>
+          </div></div>
+        </div>
+      </section>
+
+      <section id="film">
+        <div class="sec-h"><span class="num">02</span><h2>Filming checklist</h2></div>
+        <div class="card">
+          <ul class="check">
+            <li><span><b>Keep the phone still.</b> Use a tripod, or prop it on a water bottle. The pipeline assumes one fixed camera: no panning or zooming.</span></li>
+            <li><span><b>Get the whole route in frame, top hold included.</b> On our test clip the top hold sat at the frame edge, so the hands left the frame on the match and the judge could not confirm a controlled top from pose alone.</span></li>
+            <li><span><b>Pick an easy route</b> with clearly coloured holds, so the climber reaches the top and every hold is visible.</span></li>
+            <li><span><b>Trim the clip</b> to the attempt: a few seconds before lift-off to a few seconds after landing. One clip is one attempt.</span></li>
+            <li><span><b>One climber in frame.</b> Pose tracking follows a single person.</span></li>
+            <li><span><b>Film in SDR if you can.</b> iPhone HDR clips come out washed out on Windows (detection still works, the render just looks pale).</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="dash">
+        <div class="sec-h"><span class="num">03</span><h2>Using the dashboard</h2></div>
+        <div class="card">
+          <ol class="flow">
+            <li><b>Upload or pick a clip.</b> Drop a <code>.mov</code>, <code>.mp4</code>, <code>.m4v</code> or <code>.avi</code>, or select one already on disk.</li>
+            <li><b>Hold colour chip.</b> The colour of the route being climbed (blue, green, yellow, red, purple, pink, orange, black, white).</li>
+            <li><b>Grade.</b> The route grade, e.g. <code>VB</code> or <code>V2</code>. It is shown in the report.</li>
+            <li><b>Use VLM credits.</b> The main pipeline (SAM 3.1 hold segmentation) always costs about <b>$0.025</b> per clip. With the toggle on, the report adds <b>~$0.006</b>: crash-pad segmentation, Qwen fall verdicts, dyno checks and a coach note. Off runs the report with <code>--no-vlm</code> (floor used as the landing zone, no verdicts or coach note).</li>
+            <li><b>RUN.</b> Progress steps show live: <span class="mono dim">Segmenting holds + pose (main.py)</span>, then <span class="mono dim">Judge, safety, dyno (safety_report.py)</span>.</li>
+            <li><b>Open report</b> when the run turns <span class="mono" style="color:var(--ok)">DONE</span>.</li>
+          </ol>
+          <div class="note info">The runs gallery keeps <b>one card per clip + colour</b>. <b>Re-run analysis</b> redoes only the judge, safety and dyno step (<code>safety_report.py</code>) on a finished run, without re-segmenting the video.</div>
+        </div>
+      </section>
+
+      <section id="report">
+        <div class="sec-h"><span class="num">04</span><h2>Reading the report</h2></div>
+        <div class="grid2">
+          <div class="card mini"><h3>Replay timeline</h3><p>The annotated video with lanes for judge events, falls and each foot's placements (green good, red poor). Click a tick to jump there.</p></div>
+          <div class="card mini"><h3>Judge</h3><p>IFSC-style <b>Start / Zone / Top</b>. Zone is the hold 60% up the route; Top is both hands on the last hold, <b>controlled</b> if held 1 s with still hips. Result: TOP, ZONE or NO SCORE.</p></div>
+          <div class="card mini"><h3>Landing safety</h3><p>Each landing is a fall, jump-off or downclimb, scored from 100: minus for stiff knees, feet off the pad, hand posting, feet out of sync, big fast drops. Drop is in body-lengths.</p></div>
+          <div class="card mini"><h3>Silent feet</h3><p>Each foot placement scored from 100 (readjusts, jitter, impact speed, precision). The mean is graded A (90+) to E (&lt;60), with the three worst placements shown.</p></div>
+          <div class="card mini"><h3>Dyno lab</h3><p>Moves between holds classed <b>static</b>, <b>deadpoint</b>, <b>dyno</b> or <b>out of reach</b> against this climber's reach envelope, with the margin left over and a VLM second opinion on up to 4.</p></div>
+          <div class="card mini"><h3>Reward &amp; RL</h3><p>Every moment of your climb scored by one reward function (progress, zone, top, reach, dyno risk, footwork, falls, time), shown as a curve and a per-term breakdown. A Q-learning agent then learns its own beta on a hands-only model of the same route under the same reward; compare its moves and return with yours. The model ignores feet and body height, so the agent is optimistic.</p></div>
+          <div class="card mini"><h3>Coach note</h3><p>A short text note from Qwen, written from the measured numbers. It is commentary, not an independent judge. Absent when VLM credits are off.</p></div>
+          <div class="card mini"><h3>A caveat</h3><p>Every threshold was tuned on one test clip. Use the numbers to compare your own attempts, not as absolute scores.</p></div>
+        </div>
+      </section>
+
+      <section id="scout">
+        <div class="sec-h"><span class="num">05</span><h2>Wall scout (photos)</h2></div>
+        <div class="card">
+          <p>Before filming, photograph the empty wall to see which colours SAM 3.1 separates cleanly and how many holds each route has. One SAM call per photo per colour (~$0.001 each). Output goes to <code>data/output/scout/&lt;timestamp&gt;/</code>.</p>
+          <div class="cmd"><pre>python scout.py                                   <span class="c"># data/input/photos/jpg</span>
+python scout.py &lt;photos_dir&gt; --colors blue,green,pink</pre></div>
+          <div class="note warn">iPhone <code>.HEIC</code> photos must be converted to JPG first; the env's ffmpeg can decode them, e.g. <code>ffmpeg -i IMG_0001.HEIC IMG_0001.jpg</code>.</div>
+        </div>
+      </section>
+
+      <section id="share">
+        <div class="sec-h"><span class="num">06</span><h2>Sharing it</h2></div>
+        <div class="card">
+          <p>A quick public link to the dashboard:</p>
+          <div class="cmd"><pre>cloudflared tunnel --url http://localhost:8000</pre></div>
+          <div class="note warn"><b>Anyone with that link can press RUN and spend your VLM credits.</b> Only tunnel the dashboard while you are demoing. To share results, serve a run's report folder instead:</div>
+          <div class="cmd"><pre>cd data/output/&lt;run&gt;
+python -m http.server 8080                        <span class="c"># http://localhost:8080/report.html</span>
+cloudflared tunnel --url http://localhost:8080</pre></div>
+        </div>
+      </section>
+
+      <section id="cli">
+        <div class="sec-h"><span class="num">07</span><h2>Command line</h2></div>
+        <div class="card">
+          <p>The dashboard runs these two scripts for you. Without it, put clips in <code>data/input/current/</code> and run:</p>
+          <div class="cmd"><pre>python main.py                              <span class="c"># holds + pose, route read</span>
+python safety_report.py                     <span class="c"># newest run under data/output/</span>
+python safety_report.py &lt;run_dir&gt;           <span class="c"># a specific run or clip subfolder</span>
+python safety_report.py &lt;run_dir&gt; --no-vlm  <span class="c"># no gateway calls</span></pre></div>
+          <p>Then open <code>report.html</code> in the run folder. Colour and grade come from <code>CVJ_HOLD_COLOR</code> and <code>CVJ_ROUTE_GRADE</code> (defaults <code>blue</code>, <code>VB</code>); <code>CVJ_INPUT_DIR</code> changes the input folder.</p>
+        </div>
+      </section>
+
+      <section id="trouble">
+        <div class="sec-h"><span class="num">08</span><h2>Troubleshooting</h2></div>
+        <div class="card">
+          <dl class="ts">
+            <dt><code>conda</code> is not recognised</dt>
+            <dd>Conda is not on your PATH. Open <b>Anaconda Prompt</b> from the Start menu and run the commands there.</dd>
+            <dt>Colours look washed out</dt>
+            <dd>An iPhone HDR clip: conda-forge ffmpeg cannot tone-map it on Windows. Detection is usually fine; film in SDR to fix the look.</dd>
+            <dt>"No input videos found"</dt>
+            <dd>No clip where <code>main.py</code> looks. Upload one on the dashboard, or put it in <code>data/input/current/</code>.</dd>
+            <dt>Detection looks off</dt>
+            <dd>Open <code>holds.png</code> in the run folder first: it shows the detected route on a clean frame, and nearly every bad result starts there (wrong colour, missed or extra holds).</dd>
+            <dt>Port 8000 is busy</dt>
+            <dd>Start on another port: <code>python app.py --port 8001</code>.</dd>
+          </dl>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<script>
+document.querySelectorAll('.cmd').forEach(function (box) {
+  var b = document.createElement('button');
+  b.className = 'copy'; b.type = 'button'; b.textContent = 'copy';
+  b.addEventListener('click', function () {
+    var text = box.querySelector('pre').innerText.split('\n')
+      .map(function (l) { return l.replace(/\s+#.*$/, ''); }).join('\n').trim();
+    var done = function () { b.textContent = 'copied'; b.classList.add('ok');
+      setTimeout(function () { b.textContent = 'copy'; b.classList.remove('ok'); }, 1400); };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+    function fallback() {
+      var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t);
+      t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove();
+    }
+  });
+  box.appendChild(b);
+});
+var links = Array.prototype.slice.call(document.querySelectorAll('#nav a'));
+var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+function spy() {
+  var y = window.scrollY + 90, cur = 0;
+  secs.forEach(function (s, i) { if (s && s.offsetTop <= y) cur = i; });
+  if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) cur = secs.length - 1;
+  links.forEach(function (a, i) { a.classList.toggle('on', i === cur); });
+}
+window.addEventListener('scroll', spy, { passive: true }); spy();
+</script>
+</body>
+</html>

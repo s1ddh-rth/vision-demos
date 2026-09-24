@@ -163,6 +163,28 @@ table.pl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
 .dy-map-card{position:sticky;top:12px}
 @media (max-width:900px){.dy-grid{grid-template-columns:1fr}.dy-map-card{position:static}}
 @media (max-width:620px){.dy-stats{grid-template-columns:1fr 1fr}.dc{grid-template-columns:1fr}.dc .thumb{width:100%;height:160px}}
+/* reward & rl */
+.rw-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.rw-grid > div{min-width:0}
+.chart{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:6px 6px 2px;position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart.click{cursor:pointer}
+.rw-total{display:flex;align-items:baseline;gap:10px;margin:16px 0 8px}
+.rw-total .v{font-family:var(--mono);font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.tb{display:grid;grid-template-columns:78px 1fr 58px;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:5px}
+.tb .trk{position:relative;height:12px;background:var(--bg2);border:1px solid var(--line);border-radius:4px}
+.tb .trk .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--tx3)}
+.tb .trk i{position:absolute;top:1px;bottom:1px;border-radius:3px}
+.tb .w{color:var(--tx3);font-size:9px}
+.rl-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.rl-stats .m .v{font-size:15px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--tx2);font-family:var(--mono);font-size:12px;padding:5px 12px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--line2)}
+.seg button.on{background:var(--accg);color:var(--acc)}
+.rl-map-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 8px}
+@media (max-width:900px){.rw-grid{grid-template-columns:1fr}}
+@media (max-width:620px){.rl-stats{grid-template-columns:1fr 1fr}.tb{grid-template-columns:66px 1fr 50px}.rw-total .v{font-size:36px}}
 /* coach */
 .coach{font-size:17px;line-height:1.6;border-left:3px solid var(--acc);padding:4px 0 4px 16px}
 footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--tx3)}
@@ -190,7 +212,7 @@ footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);display
 <div class="wrap" id="app"></div>
 <div class="tip" id="tip"></div>
 <script>
-const DATA = {"clip": "IMG_0508", "video": "IMG_0508_climb.mp4", "holds_image": "holds.png", "fps": 29.97, "frame_count": 965, "size": [608, 1080], "route": {"color": "blue", "grade": "VB", "holds": 6}, "holds": [{"id": 1, "centroid_xy": [0.3, 0.7], "polygon": [[0.28, 0.68], [0.33, 0.68], [0.33, 0.72], [0.28, 0.72]]}, {"id": 7, "centroid_xy": [0.4, 0.58], "polygon": [[0.38, 0.56], [0.43, 0.56], [0.43, 0.6], [0.38, 0.6]]}, {"id": 8, "centroid_xy": [0.52, 0.57], "polygon": [[0.5, 0.55], [0.55, 0.55], [0.55, 0.59], [0.5, 0.59]]}, {"id": 9, "centroid_xy": [0.46, 0.42], "polygon": [[0.44, 0.4], [0.49, 0.4], [0.49, 0.44], [0.44, 0.44]]}, {"id": 12, "centroid_xy": [0.6, 0.3], "polygon": [[0.58, 0.28], [0.63, 0.28], [0.63, 0.32], [0.58, 0.32]]}, {"id": 17, "centroid_xy": [0.5, 0.14], "polygon": [[0.47, 0.12], [0.54, 0.12], [0.54, 0.16], [0.47, 0.16]]}, {"id": 13, "centroid_xy": [0.66, 0.22], "polygon": [[0.64, 0.2], [0.68, 0.2], [0.68, 0.24], [0.64, 0.24]]}, {"id": 15, "centroid_xy": [0.38, 0.24], "polygon": [[0.36, 0.22], [0.4, 0.22], [0.4, 0.26], [0.36, 0.26]]}], "judge": {"result": "TOP", "attempts": 1, "start": {"t": 5.97, "frame": 179, "holds": [7, 8]}, "zone": {"hold": 9, "reached": true, "t": 9.1}, "top": {"hold": 17, "reached": true, "controlled": true, "t": 20.4, "hold_s": 1.2}, "events": [{"t": 5.97, "label": "Start: both hands on start holds, feet off the mat", "kind": "start"}, {"t": 9.1, "label": "Zone: hand controls hold #9", "kind": "zone"}, {"t": 20.4, "label": "Top: both hands matched on #17 for 1.2 s", "kind": "top"}]}, "pad": {"source": "sam3.1", "prompt": "crash pad", "polygons": [[[0.1, 0.86], [0.9, 0.85], [0.95, 0.98], [0.05, 0.99]]]}, "falls": [{"id": 1, "kind": "jump_off", "t_start": 21.6, "t_impact": 22.3, "frame_impact": 668, "drop_body_lengths": 1.2, "impact_speed_bl_s": 2.6, "knee_angle_min": {"left": 98, "right": 104}, "feet_on_pad": [true, true], "hands_posted": false, "landing_score": 91, "flags": [], "keyframe": "fall_1.jpg", "ankle_xy": [[0.42, 0.92], [0.55, 0.93]], "verdict": "Controlled drop from the top: soft two-foot landing, knees absorbing, rolled back onto the pad."}, {"id": 2, "kind": "fall", "t_start": 27.4, "t_impact": 28.0, "frame_impact": 839, "drop_body_lengths": 1.6, "impact_speed_bl_s": 3.8, "knee_angle_min": {"left": 158, "right": 121}, "feet_on_pad": [false, true], "hands_posted": true, "landing_score": 48, "flags": ["Stiff left knee", "Left foot off pad", "Hands posted behind"], "keyframe": "fall_2.jpg", "ankle_xy": [[0.07, 0.84], [0.19, 0.9]], "verdict": "Unplanned fall on the traverse: left foot caught the pad edge with a locked knee and the climber posted a hand behind \u2014 wrist and ankle risk."}], "feet": {"score": 78, "grade": "B", "placements": [{"foot": "left", "hold": 1, "t_on": 5.9, "t_off": 7.8, "readjusts": 0, "jitter": 0.004, "impact_speed": 0.6, "precision": 0.91, "score": 90}, {"foot": "right", "hold": 7, "t_on": 7.2, "t_off": 9.6, "readjusts": 1, "jitter": 0.011, "impact_speed": 1.1, "precision": 0.74, "score": 71}, {"foot": "left", "hold": 8, "t_on": 9.9, "t_off": 12.4, "readjusts": 0, "jitter": 0.005, "impact_speed": 0.5, "precision": 0.88, "score": 87}, {"foot": "right", "hold": 9, "t_on": 11.8, "t_off": 14.1, "readjusts": 3, "jitter": 0.024, "impact_speed": 2.2, "precision": 0.52, "score": 41}, {"foot": "left", "hold": 9, "t_on": 13.9, "t_off": 16.0, "readjusts": 1, "jitter": 0.009, "impact_speed": 0.9, "precision": 0.8, "score": 76}, {"foot": "right", "hold": 12, "t_on": 15.5, "t_off": 18.2, "readjusts": 2, "jitter": 0.019, "impact_speed": 1.8, "precision": 0.61, "score": 55}, {"foot": "left", "hold": 12, "t_on": 17.6, "t_off": 20.8, "readjusts": 0, "jitter": 0.003, "impact_speed": 0.4, "precision": 0.93, "score": 94}, {"foot": "right", "hold": 12, "t_on": 18.9, "t_off": 21.0, "readjusts": 0, "jitter": 0.006, "impact_speed": 0.7, "precision": 0.85, "score": 84}], "per_foot": {"left": {"score": 87, "placements": 4, "readjusts": 1}, "right": {"score": 63, "placements": 4, "readjusts": 6}}, "worst": [3, 5]}, "coach": "Clean flash of the blue VB with a controlled top. Your left foot is quiet and precise; the right foot is where the points leak \u2014 on #9 and #12 you stabbed and re-set it three and two times. Look at the hold until the toe is weighted. On the second fall, bend both knees and roll back rather than posting a hand.", "cost": {"sam_pad": 0.012, "vlm": 0.004}, "generated_at": "2026-09-24T20:40:00", "scale_px": {"body": 330}, "dyno": {"assumptions": {"height_m": 1.75, "takeoff_speed_m_s": 2.2}, "static_span_bl": 0.62, "dyno_gain_bl": 0.31, "candidates": [{"id": 1, "from_hold": 9, "to_hold": 17, "hand": "left", "t": 12.4, "skip": [12], "climbed": false, "gap_bl": 0.85, "dx_bl": 0.06, "dy_bl": -0.84, "needed": "dyno", "margin_bl": 0.08, "target_size": "large", "frame": "dyno_1.jpg", "vlm": {"feasible": true, "style": "dyno", "confidence": 0.7, "reason": "Big jug finish and good feet on #8; a two-hand dyno from #9 lands the top if hips drive in."}}, {"id": 2, "from_hold": 7, "to_hold": 9, "hand": "right", "t": 8.3, "skip": [], "climbed": true, "gap_bl": 0.48, "dx_bl": 0.16, "dy_bl": -0.45, "needed": "static", "margin_bl": 0.14, "target_size": "medium", "frame": "dyno_2.jpg", "vlm": {"feasible": true, "style": "static", "confidence": 0.9, "reason": "Straightforward reach, climbed statically."}}, {"id": 3, "from_hold": 12, "to_hold": 17, "hand": "right", "t": 16.1, "skip": [], "climbed": true, "gap_bl": 0.66, "dx_bl": -0.2, "dy_bl": -0.63, "needed": "deadpoint", "margin_bl": 0.04, "target_size": "large", "frame": null, "vlm": null}, {"id": 4, "from_hold": 1, "to_hold": 9, "hand": "left", "t": 6.0, "skip": [7, 8], "climbed": false, "gap_bl": 1.12, "dx_bl": 0.3, "dy_bl": -1.08, "needed": "out_of_reach", "margin_bl": -0.19, "target_size": "small", "frame": "dyno_4.jpg", "vlm": {"feasible": false, "style": "none", "confidence": 0.8, "reason": "Too far from a low start with no footholds to drive from."}}]}};
+const DATA = {"clip": "IMG_0508", "video": "IMG_0508_climb.mp4", "holds_image": "holds.png", "fps": 29.97, "frame_count": 965, "size": [608, 1080], "route": {"color": "blue", "grade": "VB", "holds": 6}, "holds": [{"id": 1, "centroid_xy": [0.3, 0.7], "polygon": [[0.28, 0.68], [0.33, 0.68], [0.33, 0.72], [0.28, 0.72]]}, {"id": 7, "centroid_xy": [0.4, 0.58], "polygon": [[0.38, 0.56], [0.43, 0.56], [0.43, 0.6], [0.38, 0.6]]}, {"id": 8, "centroid_xy": [0.52, 0.57], "polygon": [[0.5, 0.55], [0.55, 0.55], [0.55, 0.59], [0.5, 0.59]]}, {"id": 9, "centroid_xy": [0.46, 0.42], "polygon": [[0.44, 0.4], [0.49, 0.4], [0.49, 0.44], [0.44, 0.44]]}, {"id": 12, "centroid_xy": [0.6, 0.3], "polygon": [[0.58, 0.28], [0.63, 0.28], [0.63, 0.32], [0.58, 0.32]]}, {"id": 17, "centroid_xy": [0.5, 0.14], "polygon": [[0.47, 0.12], [0.54, 0.12], [0.54, 0.16], [0.47, 0.16]]}, {"id": 13, "centroid_xy": [0.66, 0.22], "polygon": [[0.64, 0.2], [0.68, 0.2], [0.68, 0.24], [0.64, 0.24]]}, {"id": 15, "centroid_xy": [0.38, 0.24], "polygon": [[0.36, 0.22], [0.4, 0.22], [0.4, 0.26], [0.36, 0.26]]}], "judge": {"result": "TOP", "attempts": 1, "start": {"t": 5.97, "frame": 179, "holds": [7, 8]}, "zone": {"hold": 9, "reached": true, "t": 9.1}, "top": {"hold": 17, "reached": true, "controlled": true, "t": 20.4, "hold_s": 1.2}, "events": [{"t": 5.97, "label": "Start: both hands on start holds, feet off the mat", "kind": "start"}, {"t": 9.1, "label": "Zone: hand controls hold #9", "kind": "zone"}, {"t": 20.4, "label": "Top: both hands matched on #17 for 1.2 s", "kind": "top"}]}, "pad": {"source": "sam3.1", "prompt": "crash pad", "polygons": [[[0.1, 0.86], [0.9, 0.85], [0.95, 0.98], [0.05, 0.99]]]}, "falls": [{"id": 1, "kind": "jump_off", "t_start": 21.6, "t_impact": 22.3, "frame_impact": 668, "drop_body_lengths": 1.2, "impact_speed_bl_s": 2.6, "knee_angle_min": {"left": 98, "right": 104}, "feet_on_pad": [true, true], "hands_posted": false, "landing_score": 91, "flags": [], "keyframe": "fall_1.jpg", "ankle_xy": [[0.42, 0.92], [0.55, 0.93]], "verdict": "Controlled drop from the top: soft two-foot landing, knees absorbing, rolled back onto the pad."}, {"id": 2, "kind": "fall", "t_start": 27.4, "t_impact": 28.0, "frame_impact": 839, "drop_body_lengths": 1.6, "impact_speed_bl_s": 3.8, "knee_angle_min": {"left": 158, "right": 121}, "feet_on_pad": [false, true], "hands_posted": true, "landing_score": 48, "flags": ["Stiff left knee", "Left foot off pad", "Hands posted behind"], "keyframe": "fall_2.jpg", "ankle_xy": [[0.07, 0.84], [0.19, 0.9]], "verdict": "Unplanned fall on the traverse: left foot caught the pad edge with a locked knee and the climber posted a hand behind \u00e2\u20ac\u201d wrist and ankle risk."}], "feet": {"score": 78, "grade": "B", "placements": [{"foot": "left", "hold": 1, "t_on": 5.9, "t_off": 7.8, "readjusts": 0, "jitter": 0.004, "impact_speed": 0.6, "precision": 0.91, "score": 90}, {"foot": "right", "hold": 7, "t_on": 7.2, "t_off": 9.6, "readjusts": 1, "jitter": 0.011, "impact_speed": 1.1, "precision": 0.74, "score": 71}, {"foot": "left", "hold": 8, "t_on": 9.9, "t_off": 12.4, "readjusts": 0, "jitter": 0.005, "impact_speed": 0.5, "precision": 0.88, "score": 87}, {"foot": "right", "hold": 9, "t_on": 11.8, "t_off": 14.1, "readjusts": 3, "jitter": 0.024, "impact_speed": 2.2, "precision": 0.52, "score": 41}, {"foot": "left", "hold": 9, "t_on": 13.9, "t_off": 16.0, "readjusts": 1, "jitter": 0.009, "impact_speed": 0.9, "precision": 0.8, "score": 76}, {"foot": "right", "hold": 12, "t_on": 15.5, "t_off": 18.2, "readjusts": 2, "jitter": 0.019, "impact_speed": 1.8, "precision": 0.61, "score": 55}, {"foot": "left", "hold": 12, "t_on": 17.6, "t_off": 20.8, "readjusts": 0, "jitter": 0.003, "impact_speed": 0.4, "precision": 0.93, "score": 94}, {"foot": "right", "hold": 12, "t_on": 18.9, "t_off": 21.0, "readjusts": 0, "jitter": 0.006, "impact_speed": 0.7, "precision": 0.85, "score": 84}], "per_foot": {"left": {"score": 87, "placements": 4, "readjusts": 1}, "right": {"score": 63, "placements": 4, "readjusts": 6}}, "worst": [3, 5]}, "coach": "Clean flash of the blue VB with a controlled top. Your left foot is quiet and precise; the right foot is where the points leak \u00e2\u20ac\u201d on #9 and #12 you stabbed and re-set it three and two times. Look at the hold until the toe is weighted. On the second fall, bend both knees and roll back rather than posting a hand.", "cost": {"sam_pad": 0.012, "vlm": 0.004}, "generated_at": "2026-09-24T20:40:00", "scale_px": {"body": 330}, "dyno": {"assumptions": {"height_m": 1.75, "takeoff_speed_m_s": 2.2}, "static_span_bl": 0.62, "dyno_gain_bl": 0.31, "candidates": [{"id": 1, "from_hold": 9, "to_hold": 17, "hand": "left", "t": 12.4, "skip": [12], "climbed": false, "gap_bl": 0.85, "dx_bl": 0.06, "dy_bl": -0.84, "needed": "dyno", "margin_bl": 0.08, "target_size": "large", "frame": "dyno_1.jpg", "vlm": {"feasible": true, "style": "dyno", "confidence": 0.7, "reason": "Big jug finish and good feet on #8; a two-hand dyno from #9 lands the top if hips drive in."}}, {"id": 2, "from_hold": 7, "to_hold": 9, "hand": "right", "t": 8.3, "skip": [], "climbed": true, "gap_bl": 0.48, "dx_bl": 0.16, "dy_bl": -0.45, "needed": "static", "margin_bl": 0.14, "target_size": "medium", "frame": "dyno_2.jpg", "vlm": {"feasible": true, "style": "static", "confidence": 0.9, "reason": "Straightforward reach, climbed statically."}}, {"id": 3, "from_hold": 12, "to_hold": 17, "hand": "right", "t": 16.1, "skip": [], "climbed": true, "gap_bl": 0.66, "dx_bl": -0.2, "dy_bl": -0.63, "needed": "deadpoint", "margin_bl": 0.04, "target_size": "large", "frame": null, "vlm": null}, {"id": 4, "from_hold": 1, "to_hold": 9, "hand": "left", "t": 6.0, "skip": [7, 8], "climbed": false, "gap_bl": 1.12, "dx_bl": 0.3, "dy_bl": -1.08, "needed": "out_of_reach", "margin_bl": -0.19, "target_size": "small", "frame": "dyno_4.jpg", "vlm": {"feasible": false, "style": "none", "confidence": 0.8, "reason": "Too far from a low start with no footholds to drive from."}}]}, "reward": {"weights": {"progress": 1.0, "zone": 3.0, "top": 10.0, "reach": 0.5, "dyno_risk": 2.0, "campus": 0.4, "footwork": 0.3, "fall": 5.0, "landing": 1.0, "time": 0.01}, "total": 18.4, "terms": {"progress": 7.34, "zone": 3, "top": 10, "reach": -1.2, "dyno_risk": 0, "campus": -0.4, "footwork": -1.2, "fall": 0, "landing": 1.0, "time": -0.14}, "curve": [[5.97, 0.0], [6.22, 0.083], [6.47, 0.177], [6.72, 0.277], [6.97, 0.381], [7.22, 0.487], [7.47, 0.595], [7.72, 0.706], [7.97, 0.817], [8.22, 0.904], [8.47, 0.989], [8.72, 1.075], [8.97, 1.162], [9.22, 4.249], [9.47, 4.338], [9.72, 4.428], [9.97, 4.518], [10.22, 4.609], [10.47, 4.701], [10.72, 4.794], [10.97, 4.887], [11.22, 4.381], [11.47, 4.476], [11.72, 4.571], [11.97, 4.667], [12.22, 4.763], [12.47, 4.86], [12.72, 4.957], [12.97, 5.055], [13.22, 5.153], [13.47, 5.251], [13.72, 5.35], [13.97, 5.05], [14.22, 5.15], [14.47, 5.25], [14.72, 5.351], [14.97, 5.452], [15.22, 5.553], [15.47, 5.655], [15.72, 5.157], [15.97, 5.26], [16.22, 5.362], [16.47, 5.466], [16.72, 5.569], [16.97, 5.673], [17.22, 5.777], [17.47, 5.881], [17.72, 5.986], [17.97, 6.091], [18.22, 6.223], [18.47, 6.358], [18.72, 6.494], [18.97, 6.63], [19.22, 6.767], [19.47, 6.903], [19.72, 7.04], [19.97, 7.177], [20.22, 7.315], [20.47, 17.413], [20.72, 17.411], [20.97, 17.409], [21.22, 17.407], [21.47, 17.404], [21.72, 17.402], [21.97, 18.4]], "events": [{"t": 5.97, "term": "progress", "value": 0.0, "label": "Start on #7 + #8"}, {"t": 9.1, "term": "zone", "value": 3, "label": "Zone hold #9"}, {"t": 11.2, "term": "footwork", "value": -0.6, "label": "Foot readjust on #8"}, {"t": 13.8, "term": "campus", "value": -0.4, "label": "Feet cut on #12"}, {"t": 15.6, "term": "footwork", "value": -0.6, "label": "Foot readjust on #13"}, {"t": 20.4, "term": "top", "value": 10, "label": "Top hold #17 controlled"}, {"t": 21.8, "term": "landing", "value": 1.0, "label": "Controlled downclimb landing"}]}, "rl": {"algo": "tabular Q-learning", "episodes": 4000, "seed": 0, "state_space": 289, "action_space": 34, "training_curve": [[0, -4.39], [100, -1.57], [200, 0.58], [300, 2.61], [400, 4.79], [500, 6.34], [600, 8.13], [700, 8.93], [800, 10.16], [900, 11.19], [1000, 12.26], [1100, 12.63], [1200, 13.08], [1300, 13.95], [1400, 14.3], [1500, 14.45], [1600, 15.22], [1700, 15.55], [1800, 15.7], [1900, 15.97], [2000, 15.83], [2100, 16.22], [2200, 16.45], [2300, 16.46], [2400, 16.47], [2500, 16.41], [2600, 16.64], [2700, 16.78], [2800, 16.96], [2900, 17.03], [3000, 16.89], [3100, 17.06], [3200, 16.89], [3300, 17.1], [3400, 17.04], [3500, 16.91], [3600, 17.13], [3700, 17.06], [3800, 17.19], [3900, 17.16], [4000, 17.01]], "learned_beta": [{"hand": "left", "from": 7, "to": 9, "needed": "static", "reward": 1.1}, {"hand": "right", "from": 8, "to": 12, "needed": "deadpoint", "reward": 1.6}, {"hand": "left", "from": 9, "to": 15, "needed": "static", "reward": 1.3}, {"hand": "right", "from": 12, "to": 13, "needed": "static", "reward": 1.0}, {"hand": "left", "from": 15, "to": 17, "needed": "deadpoint", "reward": 2.4}, {"hand": "right", "from": 13, "to": 17, "needed": "static", "reward": 9.8}, {"hand": "left", "from": 17, "to": 17, "needed": "static", "reward": 0.0}], "human_beta": [{"hand": "right", "from": 8, "to": 9, "needed": "static", "reward": 0.8}, {"hand": "left", "from": 7, "to": 9, "needed": "static", "reward": 3.4}, {"hand": "right", "from": 9, "to": 8, "needed": "static", "reward": -0.2}, {"hand": "right", "from": 8, "to": 12, "needed": "deadpoint", "reward": 1.3}, {"hand": "left", "from": 9, "to": 12, "needed": "static", "reward": 0.4}, {"hand": "left", "from": 12, "to": 15, "needed": "static", "reward": 1.1}, {"hand": "right", "from": 12, "to": 13, "needed": "static", "reward": 0.7}, {"hand": "right", "from": 13, "to": 12, "needed": "static", "reward": -0.3}, {"hand": "right", "from": 12, "to": 13, "needed": "static", "reward": 0.2}, {"hand": "left", "from": 15, "to": 17, "needed": "dyno", "reward": 2.1}, {"hand": "right", "from": 13, "to": 17, "needed": "static", "reward": 9.9}, {"hand": "left", "from": 17, "to": 17, "needed": "static", "reward": 0.0}], "learned_return": 17.2, "human_return": 15.9, "learned_moves": 7, "human_moves": 12, "policy_top_rate": 0.86}};
 (function(){
 "use strict";
 const D = DATA || {};
@@ -439,8 +461,129 @@ html += `<section class="sec card" id="dyno">
   </div>` : `<div class="clean" style="border-color:var(--line2);background:var(--bg2)"><div class="big" style="color:var(--tx2)">No dyno candidates</div><div class="muted" style="margin-top:6px">No gaps on this route were analysed for a dyno.</div></div>`}
 </section>`;
 
+// ---------- reward & rl
+const RW = (D.reward && typeof D.reward === 'object') ? D.reward : null;
+const RL = (D.rl && typeof D.rl === 'object') ? D.rl : null;
+const rwCurve = (RW && Array.isArray(RW.curve)) ? RW.curve.filter(p => Array.isArray(p) && p[0] != null && p[1] != null && !isNaN(p[0]) && !isNaN(p[1])) : [];
+const rwEvents = (RW && Array.isArray(RW.events)) ? RW.events.filter(e => e && e.t != null && !isNaN(e.t)) : [];
+const rwTerms = (RW && RW.terms && typeof RW.terms === 'object') ? Object.entries(RW.terms).filter(([k,v]) => v != null && !isNaN(v)).sort((a,b) => Math.abs(b[1]) - Math.abs(a[1])) : [];
+const rwWeights = (RW && RW.weights) || {};
+const rlCurve = (RL && Array.isArray(RL.training_curve)) ? RL.training_curve.filter(p => Array.isArray(p) && p[0] != null && p[1] != null && !isNaN(p[1])) : [];
+const rlBeta = { human: (RL && Array.isArray(RL.human_beta)) ? RL.human_beta : [], agent: (RL && Array.isArray(RL.learned_beta)) ? RL.learned_beta : [] };
+const WHO_COL = {human:'#2fb8ff', agent:'#ffb020'};
+const NEED_DASH = {static:'', deadpoint:'0.014 0.008', dyno:'0.005 0.008', out_of_reach:'0.002 0.01'};
+const sgn = (v, d=2) => v == null || isNaN(v) ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+const termCol = v => v > 0 ? 'var(--ok)' : v < 0 ? 'var(--bad)' : 'var(--tx3)';
+const EV_COL = {zone:'#ffb020', top:'#35d07f', fall:'#ff4d5e', landing:'#35d07f', progress:'#2fb8ff'};
+const rwTotal = RW && RW.total != null ? RW.total : rwTerms.reduce((a,[,v]) => a + v, 0);
+function termBars(){
+  if (!rwTerms.length) return '<p class="dim" style="font-size:13px">No reward terms recorded.</p>';
+  const mx = Math.max(1e-6, ...rwTerms.map(([,v]) => Math.abs(v)));
+  return rwTerms.map(([k,v]) => { const w = Math.abs(v)/mx*50; const st = v >= 0 ? `left:50%;width:${w}%` : `left:${50-w}%;width:${w}%`;
+    return `<div class="tb" data-tip="${esc(k.replace(/_/g,' ')+' '+sgn(v)+(rwWeights[k]!=null?' · weight '+rwWeights[k]:''))}"><span>${esc(k.replace(/_/g,' '))}${rwWeights[k]!=null?` <span class="w">×${esc(rwWeights[k])}</span>`:''}</span>
+      <div class="trk"><span class="mid"></span><i style="${st};background:${termCol(v)}"></i></div><span style="color:${termCol(v)};text-align:right">${sgn(v)}</span></div>`; }).join('');
+}
+function rlStat(k, v, col){ return `<div class="m"><div class="k">${k}</div><div class="v"${col?` style="color:${col}"`:''}>${v}</div></div>`; }
+const hasRL = RL && (rlCurve.length || rlBeta.human.length || rlBeta.agent.length || RL.learned_return != null);
+html += `<section class="sec card" id="reward">
+  <div class="sec-h"><span class="num">06</span><h2>Reward &amp; RL</h2><span class="dim" style="font-size:13px">the climb as a return, and an agent that learned the route</span></div>
+  ${RW || hasRL ? `<div class="rw-grid">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px">Reward over the climb</div>
+      ${rwCurve.length ? `<div class="chart click" id="rwchart"></div><div class="legend" style="margin-top:8px"><span><i style="background:var(--acc)"></i>Cumulative return</span>${[...new Set(rwEvents.map(e=>e.term))].map(k=>`<span><i style="background:${EV_COL[k]||'#c28bff'};border-radius:50%"></i>${esc(String(k).replace(/_/g,' '))}</span>`).join('')}<span class="dim">click to seek</span></div>` : '<div class="noasset" style="padding:30px 10px">No reward curve for this run</div>'}
+      <div class="rw-total"><span class="v" style="color:${termCol(rwTotal)}">${RW?sgn(rwTotal,1):'—'}</span><span class="eyebrow">total return</span></div>
+      ${termBars()}
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px">RL agent vs you</div>
+      ${hasRL ? `<div class="rl-stats">
+        ${rlStat('Algorithm', `<span style="font-size:12px">${esc(RL.algo||'—')}</span>`)}
+        ${rlStat('Episodes', RL.episodes!=null?Number(RL.episodes).toLocaleString():'—')}
+        ${rlStat('Greedy top-rate', RL.policy_top_rate!=null?Math.round(RL.policy_top_rate*100)+'%':'—', RL.policy_top_rate!=null?scoreCol(RL.policy_top_rate*100):'')}
+        ${rlStat('Moves you / agent', `<span style="color:${WHO_COL.human}">${RL.human_moves!=null?esc(RL.human_moves):rlBeta.human.length||'—'}</span> <span class="dim">/</span> <span style="color:${WHO_COL.agent}">${RL.learned_moves!=null?esc(RL.learned_moves):rlBeta.agent.length||'—'}</span>`)}
+        ${rlStat('Return you / agent', `<span style="color:${WHO_COL.human}">${num(RL.human_return,1)}</span> <span class="dim">/</span> <span style="color:${WHO_COL.agent}">${num(RL.learned_return,1)}</span>`)}
+        ${rlStat('States × actions', `${RL.state_space!=null?esc(RL.state_space):'—'} × ${RL.action_space!=null?esc(RL.action_space):'—'}`)}
+      </div>
+      ${rlCurve.length ? `<div class="eyebrow" style="margin:4px 0 6px">Training curve · mean return per episode${RL.seed!=null?' · seed '+esc(RL.seed):''}</div><div class="chart" id="rlchart"></div>` : ''}
+      <div class="rl-map-h"><span class="eyebrow">Beta on the route map</span>
+        <div class="seg" id="rlseg"><button data-m="human">You</button><button data-m="agent">Agent</button><button data-m="both" class="on">Both</button></div></div>
+      <div class="map" id="rlmap">${D.holds_image?`<img src="${esc(D.holds_image)}" alt="" onerror="this.style.display='none'">`:''}<div id="rlsvg" style="position:relative"></div></div>
+      <div class="legend" style="margin-top:10px"><span><i style="background:${WHO_COL.human}"></i>You</span><span><i style="background:${WHO_COL.agent}"></i>Agent</span><span class="dim">solid static · dashed deadpoint · dotted dyno</span></div>`
+      : '<div class="noasset" style="padding:30px 10px">No RL agent trained for this run</div>'}
+    </div>
+  </div>` : `<div class="clean" style="border-color:var(--line2);background:var(--bg2)"><div class="big" style="color:var(--tx2)">No reward data</div><div class="muted" style="margin-top:6px">This run was not scored with the reward model.</div></div>`}
+</section>`;
+function rlSvg(mode){
+  const P = pt => `${pt[0].toFixed(4)},${(pt[1]*AR).toFixed(4)}`;
+  let s = `<svg viewBox="0 0 1 ${AR.toFixed(4)}" preserveAspectRatio="none"><defs>` +
+    Object.entries(WHO_COL).map(([k,c]) => `<marker id="rl-ah-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="3.5" markerHeight="3.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`).join('') + `</defs>`;
+  (D.holds||[]).forEach(h => {
+    if (h.polygon && h.polygon.length > 2) s += `<polygon points="${h.polygon.map(P).join(' ')}" fill="rgba(47,184,255,.08)" stroke="rgba(47,184,255,.35)" stroke-width="0.002"/>`;
+    if (h.centroid_xy) { const [x,y] = h.centroid_xy; s += `<circle cx="${x}" cy="${y*AR}" r="0.008" fill="${rc}" stroke="#fff" stroke-width="0.002"/><text x="${x+0.013}" y="${y*AR+0.006}" font-size="0.022" fill="#cfe8ff" font-family="JetBrains Mono,monospace">${esc(h.id)}</text>`; }
+  });
+  const whos = mode === 'both' ? ['human','agent'] : [mode];
+  let labels = '';
+  whos.forEach(who => {
+    const col = WHO_COL[who], off = mode === 'both' ? (who === 'human' ? 0.008 : -0.008) : 0, seen = {};
+    rlBeta[who].forEach((m, i) => {
+      const a = holdById[m.from], b = holdById[m.to]; if (!b || !b.centroid_xy) return;
+      const n = i + 1, tipTxt = `${who==='human'?'You':'Agent'} · move ${n} · ${m.hand||'?'} hand #${m.from}→#${m.to} · ${String(m.needed||'?').replace(/_/g,' ')} · r ${sgn(m.reward)}`;
+      const [x2,y2] = b.centroid_xy;
+      if (!a || !a.centroid_xy || m.from === m.to) {
+        const r = 0.022 + (who === 'agent' ? 0.008 : 0);
+        s += `<circle cx="${x2}" cy="${y2*AR}" r="${r}" fill="none" stroke="${col}" stroke-width="0.004" data-tip="${esc(tipTxt)}"/>`;
+        labels += `<g data-tip="${esc(tipTxt)}"><circle cx="${x2+r}" cy="${y2*AR-r}" r="0.016" fill="#0b0d10" stroke="${col}" stroke-width="0.003"/><text x="${x2+r}" y="${y2*AR-r+0.0065}" text-anchor="middle" font-size="0.018" font-weight="700" fill="${col}" font-family="JetBrains Mono,monospace">${n}</text></g>`;
+        return;
+      }
+      const [x1,y1] = a.centroid_xy; const X1 = x1, Y1 = y1*AR, X2 = x2, Y2 = y2*AR;
+      const L = Math.hypot(X2-X1, Y2-Y1) || 1, ux = (X2-X1)/L, uy = (Y2-Y1)/L, nx = -uy*off, ny = ux*off, sh = 0.016;
+      const k = NEED_DASH[m.needed] != null ? m.needed : 'dyno', dash = NEED_DASH[k];
+      s += `<line x1="${X1+ux*sh+nx}" y1="${Y1+uy*sh+ny}" x2="${X2-ux*sh+nx}" y2="${Y2-uy*sh+ny}" stroke="${col}" stroke-width="0.005" stroke-opacity=".9" ${dash?`stroke-dasharray="${dash}"`:''} stroke-linecap="round" marker-end="url(#rl-ah-${who})" data-tip="${esc(tipTxt)}"/>`;
+      const key = m.from + '-' + m.to; seen[key] = (seen[key] || 0) + 1;
+      const f = 0.5 + (seen[key]-1)*0.16 * (who === 'human' ? 1 : -1), lx = X1+(X2-X1)*f+nx*2.2, ly = Y1+(Y2-Y1)*f+ny*2.2;
+      labels += `<g data-tip="${esc(tipTxt)}"><circle cx="${lx}" cy="${ly}" r="0.016" fill="#0b0d10" stroke="${col}" stroke-width="0.003"/><text x="${lx}" y="${ly+0.0065}" text-anchor="middle" font-size="0.018" font-weight="700" fill="${col}" font-family="JetBrains Mono,monospace">${n}</text></g>`;
+    });
+  });
+  return s + labels + '</svg>';
+}
+// pixel-sized line chart (re-rendered on resize so text stays legible on phones)
+function lineChart(el, pts, o){
+  const Wp = Math.max(260, el.clientWidth - 12), Hp = o.h || Math.round(Math.max(150, Math.min(220, Wp*0.42)));
+  const ml = 34, mr = 10, mt = 12, mb = 22, iw = Wp-ml-mr, ih = Hp-mt-mb;
+  const xs = pts.map(p=>p[0]), ys = pts.map(p=>p[1]).concat(o.extraY||[]);
+  const x0 = o.x0 != null ? o.x0 : Math.min(...xs), x1 = o.x1 != null ? o.x1 : Math.max(...xs);
+  let y0 = Math.min(0, ...ys), y1 = Math.max(0, ...ys); if (y1 - y0 < 1e-6) y1 = y0 + 1; const yp = (y1-y0)*0.08; y1 += yp; if (y0 < 0) y0 -= yp;
+  const X = v => ml + (x1===x0 ? 0 : (v-x0)/(x1-x0)*iw), Y = v => mt + ih - (v-y0)/(y1-y0)*ih;
+  const nt = 4, ticks = Array.from({length:nt+1}, (_,i) => y0 + (y1-y0)*i/nt);
+  let s = `<svg width="${Wp}" height="${Hp}" viewBox="0 0 ${Wp} ${Hp}" font-family="JetBrains Mono,monospace" font-size="10">`;
+  ticks.forEach(v => { s += `<line x1="${ml}" x2="${Wp-mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${ml-5}" y="${Y(v)+3}" text-anchor="end" fill="var(--tx3)">${Math.abs(y1-y0)>=8?Math.round(v):v.toFixed(1)}</text>`; });
+  if (y0 < 0) s += `<line x1="${ml}" x2="${Wp-mr}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--tx3)" stroke-width="1"/>`;
+  for (let i = 0; i <= 4; i++) { const v = x0 + (x1-x0)*i/4; s += `<text x="${X(v)}" y="${Hp-6}" text-anchor="${i===0?'start':i===4?'end':'middle'}" fill="var(--tx3)">${o.fmtX(v)}</text>`; }
+  (o.refs||[]).forEach(r => { if (r.v == null || isNaN(r.v)) return; s += `<line x1="${ml}" x2="${Wp-mr}" y1="${Y(r.v)}" y2="${Y(r.v)}" stroke="${r.c}" stroke-width="1.2" stroke-dasharray="4 4"/><text x="${ml+6}" y="${Y(r.v)-4}" text-anchor="start" fill="${r.c}">${esc(r.l)}</text>`; });
+  const d = pts.map((p,i) => (i?'L':'M') + X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1)).join('');
+  if (o.area) s += `<path d="${d}L${X(pts[pts.length-1][0]).toFixed(1)},${Y(Math.max(0,y0))}L${X(pts[0][0]).toFixed(1)},${Y(Math.max(0,y0))}Z" fill="${o.col}" fill-opacity=".12"/>`;
+  s += `<path d="${d}" fill="none" stroke="${o.col}" stroke-width="2" stroke-linejoin="round"/>`;
+  if (o.head) s += `<line id="${o.head}" x1="${ml}" x2="${ml}" y1="${mt}" y2="${mt+ih}" stroke="var(--acc)" stroke-width="1.5" style="display:none"/>`;
+  (o.marks||[]).forEach(m => { s += `<g data-t="${m.t}" data-tip="${esc(m.tip)}" style="cursor:pointer"><line x1="${X(m.t)}" x2="${X(m.t)}" y1="${mt}" y2="${mt+ih}" stroke="${m.c}" stroke-opacity=".35" stroke-dasharray="2 3"/><circle cx="${X(m.t)}" cy="${Y(m.y)}" r="5.5" fill="${m.c}" stroke="#0b0d10" stroke-width="2"/></g>`; });
+  el.innerHTML = s + '</svg>';
+  return { X, ml, iw, x0, x1 };
+}
+function curveAt(t){ let v = 0; for (const p of rwCurve) { if (p[0] <= t) v = p[1]; else break; } return v; }
+let rwGeo = null;
+function drawRL(){
+  const rc_ = document.getElementById('rwchart');
+  if (rc_ && rwCurve.length) rwGeo = lineChart(rc_, rwCurve, { x0:0, x1:Math.max(duration, rwCurve[rwCurve.length-1][0]), col:'#2fb8ff', area:true, fmtX:fmtT, head:'rwhead',
+    marks: rwEvents.map(e => ({ t:e.t, y:curveAt(e.t), c:EV_COL[e.term] || (e.value < 0 ? '#ff4d5e' : '#c28bff'), tip:`${fmtT(e.t)} · ${e.label||e.term} · ${sgn(e.value)}` })) });
+  const lc = document.getElementById('rlchart');
+  if (lc && rlCurve.length) lineChart(lc, rlCurve, { col:'#ffb020', h:150, fmtX:v => v >= 1000 ? (v/1000).toFixed(1)+'k' : Math.round(v),
+    extraY:[RL.human_return, RL.learned_return].filter(v => v != null), refs:[{v:RL.human_return, c:WHO_COL.human, l:'you '+num(RL.human_return,1)}] });
+  if (rwGeo) setRwHead(lastT);
+}
+let lastT = 0;
+function setRwHead(t){ lastT = t; const h = document.getElementById('rwhead'); if (!h || !rwGeo) return; const x = rwGeo.X(Math.max(rwGeo.x0, Math.min(rwGeo.x1, t))); h.setAttribute('x1', x); h.setAttribute('x2', x); h.style.display = t > 0 ? '' : 'none'; }
+
 // ---------- coach + footer
-html += `<section class="sec card"><div class="sec-h"><span class="num">06</span><h2>Coach note</h2></div>
+html += `<section class="sec card"><div class="sec-h"><span class="num">07</span><h2>Coach note</h2></div>
   <div class="coach">${D.coach?esc(D.coach):'<span class="dim">No coaching note generated for this run.</span>'}</div></section>`;
 const cost = D.cost || {}; const costTot = Object.values(cost).reduce((a,v)=>a+(+v||0),0);
 html += `<footer><span>Powered by VLM Run Gateway · SAM 3.1 · ViTPose+ · Qwen3.8</span>
@@ -463,7 +606,7 @@ ticks.innerHTML = th;
 
 function seek(t){ t = +t; if (isNaN(t)) return; if (vid) { try { vid.currentTime = Math.max(0,t); vid.play().catch(()=>{}); } catch(e){} vid.scrollIntoView({behavior:'smooth',block:'center'}); } setHead(t); }
 const head = document.getElementById('head'), prog = document.getElementById('prog'), cur = document.getElementById('cur');
-function setHead(t){ const p = pct(t); head.style.left = p + '%'; prog.style.width = p + '%'; cur.innerHTML = fmtT(t) + ' <small>/ ' + fmtT(duration) + '</small>'; }
+function setHead(t){ const p = pct(t); head.style.left = p + '%'; prog.style.width = p + '%'; cur.innerHTML = fmtT(t) + ' <small>/ ' + fmtT(duration) + '</small>'; setRwHead(t); }
 setHead(0);
 if (vid) {
   vid.addEventListener('loadedmetadata', () => { if (!D.frame_count && vid.duration) duration = vid.duration; });
@@ -486,6 +629,18 @@ if (cands.length) {
   document.querySelectorAll('.dc').forEach(el => el.addEventListener('click', () => selectDyno(+el.dataset.cid, true)));
   document.getElementById('dymap').addEventListener('click', e => { const a = e.target.closest('.dy-arrow'); if (a) { selectDyno(+a.dataset.cid, false); const card = document.querySelector('.dc[data-cid="'+a.dataset.cid+'"]'); if (card) card.scrollIntoView({behavior:'smooth',block:'nearest'}); } });
 }
+// reward & rl interactions
+drawRL();
+let rlMode = 'both';
+const rlsv = document.getElementById('rlsvg'); if (rlsv) rlsv.innerHTML = rlSvg(rlMode);
+const rlseg = document.getElementById('rlseg');
+if (rlseg) rlseg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; rlMode = b.dataset.m;
+  rlseg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); rlsv.innerHTML = rlSvg(rlMode); });
+const rwc = document.getElementById('rwchart');
+if (rwc) rwc.addEventListener('click', e => { const mk = e.target.closest('[data-t]'); if (mk) return seek(mk.dataset.t);
+  if (!rwGeo) return; const svg = rwc.querySelector('svg'); const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (svg.viewBox.baseVal.width / r.width);
+  const f = (px - rwGeo.ml) / rwGeo.iw; if (f < 0 || f > 1) return; seek(rwGeo.x0 + f * (rwGeo.x1 - rwGeo.x0)); });
+let rsz; window.addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(drawRL, 120); });
 document.addEventListener('mousemove', e => {
   const el = e.target.closest && e.target.closest('[data-tip]');
   if (!el) { tip.style.display = 'none'; return; }
