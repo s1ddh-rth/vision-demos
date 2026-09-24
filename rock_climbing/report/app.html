@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Climb Vision Judge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12; --bg2:#14171c; --card:#171b21; --card2:#1d222a; --line:#272d36; --line2:#323a45;
+  --tx:#e9edf2; --tx2:#9aa4b1; --tx3:#66707d;
+  --acc:#2fb8ff; --acc2:#1f7fff; --accg:rgba(47,184,255,.14);
+  --ok:#35d07f; --warn:#ffb020; --bad:#ff4d5e;
+  --okg:rgba(53,208,127,.14); --warng:rgba(255,176,32,.14); --badg:rgba(255,77,94,.14);
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --sans:"Space Grotesk",system-ui,-apple-system,Segoe UI,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(1200px 500px at 80% -10%,rgba(31,127,255,.12),transparent 60%),var(--bg);min-height:100vh}
+a{color:var(--acc)}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 16px 60px}
+.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--tx3)}
+.card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:14px;padding:18px}
+.muted{color:var(--tx2)} .dim{color:var(--tx3)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:26px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+.live{font-family:var(--mono);font-size:11px;color:var(--tx2);border:1px solid var(--line2);padding:4px 9px;border-radius:99px}
+h1{font-size:38px;line-height:1.05;margin:6px 0 8px;letter-spacing:-.03em}
+.sec-h{display:flex;align-items:center;gap:10px;margin:34px 0 14px}
+.sec-h h2{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
+.sec-h .num{font-family:var(--mono);font-size:12px;color:var(--acc);border:1px solid var(--line2);border-radius:6px;padding:2px 7px}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+@media (max-width:860px){.grid{grid-template-columns:1fr} h1{font-size:30px}}
+.drop{border:1.5px dashed var(--line2);border-radius:12px;padding:26px 16px;text-align:center;cursor:pointer;transition:.15s;background:var(--bg2)}
+.drop:hover,.drop.over{border-color:var(--acc);background:var(--accg)}
+.drop .big{font-size:17px;font-weight:600;margin-bottom:4px}
+.bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:12px;display:none}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+label.f{display:block;margin:18px 0 8px}
+.clips{display:flex;flex-direction:column;gap:6px;max-height:170px;overflow:auto}
+.clip{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--card2);font-family:var(--mono);font-size:13px}
+.clip:hover{border-color:var(--line2)}
+.clip.sel{border-color:var(--acc);background:var(--accg)}
+.clip .tag{margin-left:auto;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;background:var(--card2);border:1px solid var(--line2);border-radius:99px;padding:6px 12px;cursor:pointer;color:var(--tx2);user-select:none}
+.chip .sw{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.25)}
+.chip.sel{border-color:var(--acc);color:var(--tx);background:var(--accg)}
+.row{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+input[type=text]{background:var(--card2);border:1px solid var(--line2);color:var(--tx);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:14px;width:110px;outline:none}
+input[type=text]:focus{border-color:var(--acc)}
+.toggle{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;padding:6px 0}
+.toggle .sl{width:40px;height:22px;border-radius:99px;background:var(--line2);position:relative;transition:.15s}
+.toggle .sl::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--tx2);transition:.15s}
+.toggle input{display:none}
+.toggle input:checked + .sl{background:var(--acc2)}
+.toggle input:checked + .sl::after{left:21px;background:#fff}
+.btn{font-family:var(--sans);font-weight:600;border-radius:10px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:8px 14px;cursor:pointer;font-size:13.5px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--acc)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#061018}
+.run{width:100%;margin-top:22px;padding:16px;font-size:18px;letter-spacing:.06em;border-radius:12px;background:linear-gradient(90deg,var(--acc2),var(--acc));border:0;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 8px 30px rgba(47,184,255,.22)}
+.run:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.hint{font-size:12px;color:var(--tx3);margin-top:8px;font-family:var(--mono)}
+.prog-head{display:flex;align-items:center;gap:12px}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc);animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.state{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--line2);text-transform:uppercase;letter-spacing:.1em}
+.state.running,.state.queued{color:var(--acc);border-color:rgba(47,184,255,.45)}
+.state.done{color:var(--ok);border-color:rgba(53,208,127,.45);background:var(--okg)}
+.state.error{color:var(--bad);border-color:rgba(255,77,94,.45);background:var(--badg)}
+.steps{display:flex;flex-direction:column;gap:6px;margin:14px 0}
+.stp{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--tx3)}
+.stp .b{width:9px;height:9px;border-radius:50%;background:var(--line2)}
+.stp.on{color:var(--tx)} .stp.on .b{background:var(--acc);box-shadow:0 0 10px var(--acc)}
+.stp.ok{color:var(--tx2)} .stp.ok .b{background:var(--ok)}
+pre.log{background:#090b0e;border:1px solid var(--line);border-radius:10px;padding:12px;height:300px;overflow:auto;font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--tx2);margin:0;white-space:pre-wrap;word-break:break-word}
+.done-box{display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--okg);border:1px solid rgba(53,208,127,.45);align-items:center;gap:12px;flex-wrap:wrap}
+.err-box{display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--badg);border:1px solid rgba(255,77,94,.45);color:var(--bad);font-family:var(--mono);font-size:12.5px}
+.runs{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.rc{display:flex;flex-direction:column;gap:12px;padding:0;overflow:hidden}
+.rc .th{height:150px;background:#000 center/cover no-repeat;border-bottom:1px solid var(--line);position:relative}
+.rc .th .res{position:absolute;top:10px;left:10px}
+.rc .bd{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.rc .name{font-weight:600;font-size:17px}
+.badge{font-family:var(--mono);font-weight:700;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line2);background:rgba(13,15,18,.8);letter-spacing:.06em}
+.badge.TOP{color:var(--ok);border-color:rgba(53,208,127,.55)}
+.badge.ZONE{color:var(--warn);border-color:rgba(255,176,32,.55)}
+.badge.NONE,.badge.NO{color:var(--bad);border-color:rgba(255,77,94,.55)}
+.badge.na{color:var(--tx3)}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kv div{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:7px 9px}
+.kv b{display:block;font-family:var(--mono);font-size:17px;margin-top:2px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.empty{padding:40px;text-align:center;color:var(--tx3);font-family:var(--mono);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="dot"></span>CLIMB VISION JUDGE</div>
+    <span class="live" id="srv">dashboard</span>
+  </div>
+  <div class="eyebrow">Upload a climb, pick the route, get a report</div>
+  <h1>Judge a climb</h1>
+  <div class="muted">SAM 3.1 finds the holds, ViTPose tracks the climber, then the judge scores the send, falls and footwork.</div>
+
+  <div class="sec-h"><span class="num">01</span><h2>New analysis</h2></div>
+  <div class="grid">
+    <div class="card">
+      <div id="drop" class="drop">
+        <div class="big">Drop a climbing video here</div>
+        <div class="dim mono" style="font-size:12px">or click to choose · .mov .mp4 .m4v .avi · one clip = one attempt</div>
+        <div class="bar" id="bar"><i id="barI"></i></div>
+        <div class="hint" id="upMsg"></div>
+      </div>
+      <input type="file" id="file" accept=".mov,.mp4,.m4v,.avi,video/*" hidden>
+
+      <label class="f eyebrow">Clip to analyze</label>
+      <div class="clips" id="clips"><div class="dim mono" style="font-size:12px">loading…</div></div>
+
+      <label class="f eyebrow">Hold colour (the route)</label>
+      <div class="chips" id="colors"></div>
+
+      <div class="row" style="margin-top:18px">
+        <div>
+          <div class="eyebrow" style="margin-bottom:8px">Grade</div>
+          <input type="text" id="grade" value="VB" maxlength="12">
+        </div>
+        <label class="toggle" title="Spends a few cents of VLM Run credits for the crash-pad segmentation, fall verdicts and a coach note">
+          <input type="checkbox" id="vlm"><span class="sl"></span>
+          <span><b style="font-weight:600">Use VLM credits</b><br><span class="dim mono" style="font-size:11px">pad, fall verdicts, coach note (~$0.01)</span></span>
+        </label>
+      </div>
+
+      <button class="run" id="runBtn" disabled>RUN ANALYSIS</button>
+      <div class="hint" id="runHint">Pick a clip first.</div>
+    </div>
+
+    <div class="card" id="progCard">
+      <div class="prog-head">
+        <div class="spin" id="spin" style="display:none"></div>
+        <div style="font-weight:600;font-size:16px" id="progTitle">Progress</div>
+        <span class="state" id="state">idle</span>
+        <span class="mono dim" style="margin-left:auto;font-size:13px" id="elapsed"></span>
+      </div>
+      <div class="steps">
+        <div class="stp" id="s1"><span class="b"></span>1 · Segmenting holds + pose <span class="dim mono" style="font-size:11px">main.py · ~2 min</span></div>
+        <div class="stp" id="s2"><span class="b"></span>2 · Judge, safety, dyno <span class="dim mono" style="font-size:11px">safety_report.py</span></div>
+      </div>
+      <pre class="log" id="log">No job yet. Start one on the left, or re-run analysis on a past run below.</pre>
+      <div class="done-box" id="doneBox">
+        <b class="ok" style="color:var(--ok)">Report ready.</b>
+        <a class="btn pri" id="openRep" target="_blank" rel="noopener">Open report</a>
+        <span class="dim mono" style="font-size:12px" id="doneRun"></span>
+      </div>
+      <div class="err-box" id="errBox"></div>
+    </div>
+  </div>
+
+  <div class="sec-h"><span class="num">02</span><h2>Runs</h2><button class="btn" id="refresh" style="margin-left:auto">Refresh</button></div>
+  <div class="runs" id="runs"><div class="empty">loading…</div></div>
+</div>
+
+<script>
+const COLORS = {blue:"#2f7bff",green:"#35c24a",yellow:"#ffd21f",red:"#eb2a2a",purple:"#a64fdc",pink:"#ff6bb4",orange:"#ff8c00",black:"#111",white:"#f5f5f5"};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const st = {clip:null, color:"blue", job:null, poll:null, openedFor:null};
+try { const c = localStorage.getItem("cvj.color"); if (c && COLORS[c]) st.color = c;
+      const g = localStorage.getItem("cvj.grade"); if (g) $("grade").value = g;
+      $("vlm").checked = localStorage.getItem("cvj.vlm") === "1"; } catch (e) {}
+const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+function renderColors() {
+  $("colors").innerHTML = Object.entries(COLORS).map(([k, v]) =>
+    `<span class="chip ${k === st.color ? "sel" : ""}" data-c="${k}"><span class="sw" style="background:${v}"></span>${k}</span>`).join("");
+  $("colors").querySelectorAll(".chip").forEach(el => el.onclick = () => { st.color = el.dataset.c; save("cvj.color", st.color); renderColors(); });
+}
+$("grade").oninput = () => save("cvj.grade", $("grade").value);
+$("vlm").onchange = () => save("cvj.vlm", $("vlm").checked ? "1" : "0");
+
+async function loadClips(select) {
+  const clips = await (await fetch("/api/clips")).json();
+  if (select) st.clip = select;
+  if (!st.clip && clips.length) st.clip = clips[0].id;
+  $("clips").innerHTML = clips.length ? clips.map(c =>
+    `<div class="clip ${c.id === st.clip ? "sel" : ""}" data-id="${esc(c.id)}"><span>${esc(c.name)}</span><span class="dim">${c.size_mb} MB</span><span class="tag">${c.folder === "uploads" ? "uploaded" : "input/current"}</span></div>`).join("")
+    : `<div class="dim mono" style="font-size:12px">No clips yet: drop one above.</div>`;
+  $("clips").querySelectorAll(".clip").forEach(el => el.onclick = () => { st.clip = el.dataset.id; loadClips(); });
+  updateRunBtn();
+}
+function updateRunBtn() {
+  const busy = st.job && ["queued","running"].includes(st.job.state);
+  $("runBtn").disabled = !st.clip || busy;
+  $("runHint").textContent = busy ? "A job is running…" : st.clip ? `Ready: ${st.clip.split("/").pop()}` : "Pick a clip first.";
+  document.querySelectorAll(".rerun").forEach(b => b.disabled = busy);
+}
+
+// ── upload ──
+const drop = $("drop");
+drop.onclick = () => $("file").click();
+$("file").onchange = () => $("file").files[0] && upload($("file").files[0]);
+["dragenter","dragover"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", ev => { const f = ev.dataTransfer.files[0]; if (f) upload(f); });
+function upload(f) {
+  $("bar").style.display = "block"; $("barI").style.width = "0";
+  $("upMsg").textContent = `Uploading ${f.name} (${(f.size/1e6).toFixed(1)} MB)…`;
+  const x = new XMLHttpRequest();
+  x.open("POST", "/api/upload");
+  x.setRequestHeader("X-Filename", encodeURIComponent(f.name));
+  x.setRequestHeader("Content-Type", "application/octet-stream");
+  x.upload.onprogress = e => { if (e.lengthComputable) $("barI").style.width = (100*e.loaded/e.total) + "%"; };
+  x.onload = () => {
+    let r = {}; try { r = JSON.parse(x.responseText); } catch (e) {}
+    if (x.status === 200) { $("upMsg").textContent = `Uploaded ${r.name}. Pick the hold colour and hit RUN.`; loadClips(r.clip); }
+    else $("upMsg").textContent = "Upload failed: " + (r.error || x.status);
+  };
+  x.onerror = () => $("upMsg").textContent = "Upload failed (network).";
+  x.send(f);
+}
+
+// ── jobs ──
+async function post(url, body) {
+  const r = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body || {})});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(j.error || r.status), {job:j.job});
+  return j;
+}
+$("runBtn").onclick = async () => {
+  try {
+    const r = await post("/api/run", {clip:st.clip, hold_color:st.color, grade:$("grade").value.trim() || "VB", vlm:$("vlm").checked});
+    follow(r.job);
+  } catch (e) { showErr(e.message); if (e.job) follow(e.job); }
+};
+async function rerun(id) {
+  try { const r = await post("/api/report/" + id, {vlm:$("vlm").checked}); follow(r.job); $("progCard").scrollIntoView({behavior:"smooth"}); }
+  catch (e) { showErr(e.message); if (e.job) follow(e.job); }
+}
+function showErr(m) { $("errBox").style.display = "block"; $("errBox").textContent = m; }
+function follow(id) {
+  st.openedFor = null; $("doneBox").style.display = "none"; $("errBox").style.display = "none";
+  clearInterval(st.poll);
+  const tick = async () => {
+    const r = await fetch("/api/jobs/" + id); if (!r.ok) return;
+    const j = await r.json(); st.job = j; paint(j);
+    if (!["queued","running"].includes(j.state)) { clearInterval(st.poll); loadRuns(); }
+  };
+  tick(); st.poll = setInterval(tick, 1000);
+}
+const fmt = s => { s = Math.round(s); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
+function paint(j) {
+  const active = ["queued","running"].includes(j.state);
+  $("spin").style.display = active ? "block" : "none";
+  $("state").className = "state " + j.state; $("state").textContent = j.state;
+  $("progTitle").textContent = (j.kind === "report" ? "Re-analysis · " : "Run · ") + (j.clip || "");
+  $("elapsed").textContent = fmt(j.elapsed);
+  const inReport = (j.step || "").startsWith("Judge");
+  $("s1").className = "stp " + (j.kind === "report" ? "ok" : inReport || j.state === "done" ? "ok" : active ? "on" : "");
+  $("s2").className = "stp " + (j.state === "done" ? "ok" : inReport && active ? "on" : "");
+  const log = $("log"), stick = log.scrollTop + log.clientHeight >= log.scrollHeight - 30;
+  log.textContent = (j.step ? `▸ ${j.step}\n\n` : "") + (j.log || []).join("\n");
+  if (stick) log.scrollTop = log.scrollHeight;
+  if (j.state === "error") showErr(j.error || "failed");
+  if (j.state === "done" && j.run_id) {
+    const url = `/runs/${j.run_id}/report.html`;
+    $("openRep").href = url; $("doneRun").textContent = j.run_id; $("doneBox").style.display = "flex";
+    if (st.openedFor !== j.id) { st.openedFor = j.id; window.open(url, "_blank"); }
+  }
+  updateRunBtn();
+}
+
+// ── runs ──
+async function loadRuns() {
+  const runs = await (await fetch("/api/runs")).json();
+  $("runs").innerHTML = runs.length ? runs.map(r => {
+    const d = new Date(r.created), res = r.result || "no report";
+    return `<div class="card rc">
+      <div class="th" style="background-image:url('/runs/${encodeURI(r.id)}/holds.png')"><span class="badge res ${r.result ? esc(r.result) : "na"}">${esc(res)}</span></div>
+      <div class="bd">
+        <div><div class="name">${esc(r.clip)}</div>
+          <div class="dim mono" style="font-size:11.5px">${d.toLocaleString()} · ${esc(r.color || "?")}${r.grade ? " · " + esc(r.grade) : ""}</div></div>
+        <div class="kv">
+          <div><span class="eyebrow">Result</span><b>${esc(r.result || "–")}</b></div>
+          <div><span class="eyebrow">Feet</span><b>${r.feet_grade ? esc(r.feet_grade) : "–"}${r.feet_score != null ? `<small class="dim" style="font-size:11px"> ${r.feet_score}</small>` : ""}</b></div>
+          <div><span class="eyebrow">Falls</span><b>${r.falls ?? "–"}</b></div>
+        </div>
+        <div class="acts">
+          ${r.has_report ? `<a class="btn pri" href="/runs/${encodeURI(r.id)}/report.html" target="_blank" rel="noopener">Open report</a>` : `<span class="btn" style="opacity:.5">No report yet</span>`}
+          <button class="btn rerun" data-id="${esc(r.id)}">${r.has_report ? "Re-run analysis" : "Build report"}</button>
+        </div>
+      </div></div>`;
+  }).join("") : `<div class="empty">No runs yet. Your first analysis will appear here.</div>`;
+  document.querySelectorAll(".rerun").forEach(b => b.onclick = () => rerun(b.dataset.id));
+  updateRunBtn();
+}
+$("refresh").onclick = () => { loadRuns(); loadClips(); };
+
+(async () => {
+  renderColors(); await loadClips(); await loadRuns();
+  const s = await (await fetch("/api/status")).json();   // resume a job after a page reload
+  if (s.job) follow(s.job.id);
+  $("srv").textContent = "local · " + location.host;
+})();
+</script>
+</body>
+</html>

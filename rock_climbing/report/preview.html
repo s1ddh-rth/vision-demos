@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Climb Vision Judge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12; --bg2:#14171c; --card:#171b21; --card2:#1d222a; --line:#272d36; --line2:#323a45;
+  --tx:#e9edf2; --tx2:#9aa4b1; --tx3:#66707d;
+  --acc:#2fb8ff; --acc2:#1f7fff; --accg:rgba(47,184,255,.14);
+  --ok:#35d07f; --warn:#ffb020; --bad:#ff4d5e;
+  --okg:rgba(53,208,127,.14); --warng:rgba(255,176,32,.14); --badg:rgba(255,77,94,.14);
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --sans:"Space Grotesk",system-ui,-apple-system,Segoe UI,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(1200px 500px at 80% -10%,rgba(31,127,255,.12),transparent 60%),var(--bg)}
+a{color:var(--acc)}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 48px}
+.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--tx3)}
+.card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:14px;padding:18px}
+.sec{margin-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin:0 0 12px}
+.sec-h h2{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
+.sec-h .num{font-family:var(--mono);font-size:12px;color:var(--acc);border:1px solid var(--line2);border-radius:6px;padding:2px 7px}
+.muted{color:var(--tx2)} .dim{color:var(--tx3)}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+/* top bar */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+.live{font-family:var(--mono);font-size:11px;color:var(--tx2);border:1px solid var(--line2);padding:4px 9px;border-radius:99px}
+/* hero */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;align-items:stretch}
+.hero h1{font-size:44px;line-height:1;margin:8px 0 10px;letter-spacing:-.03em}
+.route-chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;background:var(--card2);border:1px solid var(--line2);border-radius:99px;padding:5px 12px}
+.route-chip i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.badge{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;border-radius:14px;padding:18px 22px;margin-top:16px;border:1px solid}
+.badge .res{font-size:64px;font-weight:700;letter-spacing:-.03em;line-height:.95}
+.badge.top{background:var(--okg);border-color:rgba(53,208,127,.45)} .badge.top .res{color:var(--ok)}
+.badge.zone{background:var(--warng);border-color:rgba(255,176,32,.45)} .badge.zone .res{color:var(--warn)}
+.badge.none{background:var(--badg);border-color:rgba(255,77,94,.45)} .badge.none .res{color:var(--bad)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat .v{font-family:var(--mono);font-size:34px;font-weight:700;letter-spacing:-.02em;margin-top:6px}
+.stat .v small{font-size:14px;color:var(--tx2);font-weight:400;margin-left:3px}
+/* video */
+.vid-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.video-box{background:#000;border-radius:12px;overflow:hidden;border:1px solid var(--line);position:relative}
+.video-box video{display:block;width:100%;max-height:620px;background:#000}
+.noasset{padding:60px 20px;text-align:center;color:var(--tx3);font-family:var(--mono);font-size:13px}
+.readout{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 8px}
+.readout .t{font-family:var(--mono);font-size:26px;font-weight:700}
+.readout .t small{color:var(--tx3);font-size:14px;font-weight:400}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tx2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.tl{position:relative;height:104px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;cursor:pointer;user-select:none;overflow:hidden}
+.tl .lane{position:absolute;left:0;right:0;height:1px;background:var(--line)}
+.tl .lbl{position:absolute;left:8px;font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.1em;pointer-events:none}
+.tl .prog{position:absolute;top:0;bottom:0;left:0;background:var(--accg);pointer-events:none}
+.tl .head{position:absolute;top:0;bottom:0;width:2px;background:var(--acc);box-shadow:0 0 8px var(--acc);pointer-events:none}
+.tick{position:absolute;transform:translateX(-50%);border-radius:2px;cursor:pointer;transition:transform .12s}
+.tick:hover{transform:translateX(-50%) scaleY(1.25)}
+.tick.ev{width:4px;height:22px;top:6px}
+.tick.fall{width:12px;height:12px;top:36px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 3px var(--badg)}
+.tick.fall.jump_off,.tick.fall.downclimb{background:var(--warn);box-shadow:0 0 0 3px var(--warng)}
+.tick.foot{height:12px;top:64px;min-width:3px;opacity:.9}
+.tick.foot.right{top:84px}
+.tl-axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--tx3);margin-top:4px}
+.tip{position:fixed;z-index:50;pointer-events:none;background:#0b0d10;border:1px solid var(--line2);border-radius:8px;padding:6px 9px;font-size:12px;max-width:260px;display:none}
+/* judge */
+.sm{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:10px}
+.node{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:16px;position:relative}
+.node.done{border-color:rgba(53,208,127,.5);box-shadow:inset 0 0 0 1px rgba(53,208,127,.12)}
+.node.miss{opacity:.55}
+.node .nm{font-size:22px;font-weight:700;letter-spacing:.04em}
+.node .ck{position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700}
+.node.done .ck{background:var(--ok);color:#06220f}
+.node.miss .ck{background:var(--line2);color:var(--tx3)}
+.node .tm{font-family:var(--mono);font-size:24px;margin-top:10px}
+.node .sub{font-size:12px;color:var(--tx2);margin-top:4px}
+.arrow{align-self:center;color:var(--tx3);font-family:var(--mono);font-size:20px}
+.evlist{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.evlist li{display:flex;gap:12px;align-items:baseline;font-size:13px;padding:8px 10px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);cursor:pointer}
+.evlist li:hover{border-color:var(--acc)}
+.evlist .mono{color:var(--acc);min-width:58px}
+/* safety */
+.saf-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;align-items:start}
+.falls{display:grid;gap:14px}
+.fall{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:16px}
+.fall-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.kind{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid}
+.kind.fall{color:var(--bad);border-color:rgba(255,77,94,.5);background:var(--badg)}
+.kind.jump_off{color:var(--acc);border-color:rgba(47,184,255,.5);background:var(--accg)}
+.kind.downclimb{color:var(--ok);border-color:rgba(53,208,127,.5);background:var(--okg)}
+.seek{font-family:var(--mono);font-size:12px;color:var(--tx2);background:none;border:1px solid var(--line2);border-radius:6px;padding:3px 8px;cursor:pointer}
+.seek:hover{color:var(--acc);border-color:var(--acc)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.m .k{font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.m .v{font-family:var(--mono);font-size:17px;font-weight:600;margin-top:3px}
+.flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.flag{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--warng);color:var(--warn);border:1px solid rgba(255,176,32,.35)}
+.flag.none{background:var(--okg);color:var(--ok);border-color:rgba(53,208,127,.35)}
+.quote{margin:12px 0 0;padding:10px 14px;border-left:3px solid var(--acc);background:var(--bg2);border-radius:0 8px 8px 0;font-size:14px;line-height:1.5;color:var(--tx)}
+.quote .src{display:block;font-family:var(--mono);font-size:10px;color:var(--tx3);margin-top:6px;letter-spacing:.08em}
+.kf{margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid var(--line);max-width:100%}
+.kf img{display:block;width:100%;max-height:260px;object-fit:contain;background:#000}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.clean{padding:34px 20px;text-align:center;border:1px dashed rgba(53,208,127,.45);border-radius:14px;background:var(--okg)}
+.clean .big{font-size:28px;font-weight:700;color:var(--ok)}
+.map-card{position:sticky;top:12px}
+.map{position:relative;border-radius:10px;overflow:hidden;background:#07090b;border:1px solid var(--line)}
+.map img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;opacity:.8}
+.map svg{position:relative;display:block;width:100%;height:auto}
+/* feet */
+.feet-top{display:grid;grid-template-columns:auto 1fr 1fr;gap:14px;align-items:stretch}
+.grade{display:flex;align-items:center;gap:16px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+.grade .g{font-size:72px;font-weight:700;line-height:1;letter-spacing:-.04em}
+.grade .s{font-family:var(--mono);font-size:28px;font-weight:700}
+.pf{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.pf .row{display:flex;justify-content:space-between;font-size:13px;color:var(--tx2);margin-top:6px}
+.pf .row b{font-family:var(--mono);color:var(--tx)}
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:99px}
+table.pl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
+.pl th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);font-weight:400;padding:8px;border-bottom:1px solid var(--line)}
+.pl td{padding:9px 8px;border-bottom:1px solid var(--line);font-family:var(--mono)}
+.pl tr.r{cursor:pointer}
+.pl tr.r:hover td{background:var(--bg2)}
+.pl tr.worst td{background:rgba(255,77,94,.06)}
+.pl tr.worst td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+.foot-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.scell{display:flex;align-items:center;gap:8px;min-width:120px}
+.scell .bar{flex:1}
+.tag-w{font-size:9px;color:var(--bad);border:1px solid rgba(255,77,94,.5);border-radius:4px;padding:1px 4px;margin-left:6px;letter-spacing:.08em}
+.tbl-wrap{overflow-x:auto}
+/* dyno */
+.dy-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.dy-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:18px;align-items:start}
+.dy-list{display:grid;gap:10px}
+.dc{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:12px;transition:border-color .15s}
+.dc:hover{border-color:var(--line2)}
+.dc.sel{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 0 18px rgba(47,184,255,.15)}
+.dc .ttl{font-family:var(--mono);font-size:15px;font-weight:700}
+.dc .sub{font-size:12px;color:var(--tx2);margin-top:3px}
+.need{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.need.static{color:var(--ok);background:var(--okg)} .need.deadpoint{color:var(--acc);background:var(--accg)}
+.need.dyno{color:var(--warn);background:var(--warng)} .need.out_of_reach{color:var(--bad);background:var(--badg)}
+.dbar{display:grid;grid-template-columns:62px 1fr 72px;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--tx2);margin-top:8px}
+.dbar .bar{position:relative}
+.dbar .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--tx3)}
+.dc .thumb{width:96px;height:96px;border-radius:8px;overflow:hidden;background:#000;border:1px solid var(--line)}
+.dc .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.vlm{margin-top:10px;font-size:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.vlm .q{flex-basis:100%;border-left:2px solid var(--acc);padding-left:10px;color:var(--tx);font-size:13px;line-height:1.45}
+.dy-map-card{position:sticky;top:12px}
+@media (max-width:900px){.dy-grid{grid-template-columns:1fr}.dy-map-card{position:static}}
+@media (max-width:620px){.dy-stats{grid-template-columns:1fr 1fr}.dc{grid-template-columns:1fr}.dc .thumb{width:100%;height:160px}}
+/* coach */
+.coach{font-size:17px;line-height:1.6;border-left:3px solid var(--acc);padding:4px 0 4px 16px}
+footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--tx3)}
+@media (max-width:900px){
+  .hero,.saf-grid{grid-template-columns:1fr}
+  .map-card{position:static}
+  .feet-top{grid-template-columns:1fr 1fr}
+  .feet-top .grade{grid-column:1/-1}
+}
+@media (max-width:620px){
+  .wrap{padding:16px 12px 36px}
+  .hero h1{font-size:32px}
+  .badge .res{font-size:48px}
+  .stat .v{font-size:26px}
+  .sm{grid-template-columns:1fr}
+  .arrow{display:none}
+  .fall{grid-template-columns:1fr}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .feet-top{grid-template-columns:1fr}
+  .pl .hide-sm{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="tip" id="tip"></div>
+<script>
+const DATA = {"clip": "IMG_0508", "video": "IMG_0508_climb.mp4", "holds_image": "holds.png", "fps": 29.97, "frame_count": 965, "size": [608, 1080], "route": {"color": "blue", "grade": "VB", "holds": 6}, "holds": [{"id": 1, "centroid_xy": [0.3, 0.7], "polygon": [[0.28, 0.68], [0.33, 0.68], [0.33, 0.72], [0.28, 0.72]]}, {"id": 7, "centroid_xy": [0.4, 0.58], "polygon": [[0.38, 0.56], [0.43, 0.56], [0.43, 0.6], [0.38, 0.6]]}, {"id": 8, "centroid_xy": [0.52, 0.57], "polygon": [[0.5, 0.55], [0.55, 0.55], [0.55, 0.59], [0.5, 0.59]]}, {"id": 9, "centroid_xy": [0.46, 0.42], "polygon": [[0.44, 0.4], [0.49, 0.4], [0.49, 0.44], [0.44, 0.44]]}, {"id": 12, "centroid_xy": [0.6, 0.3], "polygon": [[0.58, 0.28], [0.63, 0.28], [0.63, 0.32], [0.58, 0.32]]}, {"id": 17, "centroid_xy": [0.5, 0.14], "polygon": [[0.47, 0.12], [0.54, 0.12], [0.54, 0.16], [0.47, 0.16]]}, {"id": 13, "centroid_xy": [0.66, 0.22], "polygon": [[0.64, 0.2], [0.68, 0.2], [0.68, 0.24], [0.64, 0.24]]}, {"id": 15, "centroid_xy": [0.38, 0.24], "polygon": [[0.36, 0.22], [0.4, 0.22], [0.4, 0.26], [0.36, 0.26]]}], "judge": {"result": "TOP", "attempts": 1, "start": {"t": 5.97, "frame": 179, "holds": [7, 8]}, "zone": {"hold": 9, "reached": true, "t": 9.1}, "top": {"hold": 17, "reached": true, "controlled": true, "t": 20.4, "hold_s": 1.2}, "events": [{"t": 5.97, "label": "Start: both hands on start holds, feet off the mat", "kind": "start"}, {"t": 9.1, "label": "Zone: hand controls hold #9", "kind": "zone"}, {"t": 20.4, "label": "Top: both hands matched on #17 for 1.2 s", "kind": "top"}]}, "pad": {"source": "sam3.1", "prompt": "crash pad", "polygons": [[[0.1, 0.86], [0.9, 0.85], [0.95, 0.98], [0.05, 0.99]]]}, "falls": [{"id": 1, "kind": "jump_off", "t_start": 21.6, "t_impact": 22.3, "frame_impact": 668, "drop_body_lengths": 1.2, "impact_speed_bl_s": 2.6, "knee_angle_min": {"left": 98, "right": 104}, "feet_on_pad": [true, true], "hands_posted": false, "landing_score": 91, "flags": [], "keyframe": "fall_1.jpg", "ankle_xy": [[0.42, 0.92], [0.55, 0.93]], "verdict": "Controlled drop from the top: soft two-foot landing, knees absorbing, rolled back onto the pad."}, {"id": 2, "kind": "fall", "t_start": 27.4, "t_impact": 28.0, "frame_impact": 839, "drop_body_lengths": 1.6, "impact_speed_bl_s": 3.8, "knee_angle_min": {"left": 158, "right": 121}, "feet_on_pad": [false, true], "hands_posted": true, "landing_score": 48, "flags": ["Stiff left knee", "Left foot off pad", "Hands posted behind"], "keyframe": "fall_2.jpg", "ankle_xy": [[0.07, 0.84], [0.19, 0.9]], "verdict": "Unplanned fall on the traverse: left foot caught the pad edge with a locked knee and the climber posted a hand behind \u2014 wrist and ankle risk."}], "feet": {"score": 78, "grade": "B", "placements": [{"foot": "left", "hold": 1, "t_on": 5.9, "t_off": 7.8, "readjusts": 0, "jitter": 0.004, "impact_speed": 0.6, "precision": 0.91, "score": 90}, {"foot": "right", "hold": 7, "t_on": 7.2, "t_off": 9.6, "readjusts": 1, "jitter": 0.011, "impact_speed": 1.1, "precision": 0.74, "score": 71}, {"foot": "left", "hold": 8, "t_on": 9.9, "t_off": 12.4, "readjusts": 0, "jitter": 0.005, "impact_speed": 0.5, "precision": 0.88, "score": 87}, {"foot": "right", "hold": 9, "t_on": 11.8, "t_off": 14.1, "readjusts": 3, "jitter": 0.024, "impact_speed": 2.2, "precision": 0.52, "score": 41}, {"foot": "left", "hold": 9, "t_on": 13.9, "t_off": 16.0, "readjusts": 1, "jitter": 0.009, "impact_speed": 0.9, "precision": 0.8, "score": 76}, {"foot": "right", "hold": 12, "t_on": 15.5, "t_off": 18.2, "readjusts": 2, "jitter": 0.019, "impact_speed": 1.8, "precision": 0.61, "score": 55}, {"foot": "left", "hold": 12, "t_on": 17.6, "t_off": 20.8, "readjusts": 0, "jitter": 0.003, "impact_speed": 0.4, "precision": 0.93, "score": 94}, {"foot": "right", "hold": 12, "t_on": 18.9, "t_off": 21.0, "readjusts": 0, "jitter": 0.006, "impact_speed": 0.7, "precision": 0.85, "score": 84}], "per_foot": {"left": {"score": 87, "placements": 4, "readjusts": 1}, "right": {"score": 63, "placements": 4, "readjusts": 6}}, "worst": [3, 5]}, "coach": "Clean flash of the blue VB with a controlled top. Your left foot is quiet and precise; the right foot is where the points leak \u2014 on #9 and #12 you stabbed and re-set it three and two times. Look at the hold until the toe is weighted. On the second fall, bend both knees and roll back rather than posting a hand.", "cost": {"sam_pad": 0.012, "vlm": 0.004}, "generated_at": "2026-09-24T20:40:00", "scale_px": {"body": 330}, "dyno": {"assumptions": {"height_m": 1.75, "takeoff_speed_m_s": 2.2}, "static_span_bl": 0.62, "dyno_gain_bl": 0.31, "candidates": [{"id": 1, "from_hold": 9, "to_hold": 17, "hand": "left", "t": 12.4, "skip": [12], "climbed": false, "gap_bl": 0.85, "dx_bl": 0.06, "dy_bl": -0.84, "needed": "dyno", "margin_bl": 0.08, "target_size": "large", "frame": "dyno_1.jpg", "vlm": {"feasible": true, "style": "dyno", "confidence": 0.7, "reason": "Big jug finish and good feet on #8; a two-hand dyno from #9 lands the top if hips drive in."}}, {"id": 2, "from_hold": 7, "to_hold": 9, "hand": "right", "t": 8.3, "skip": [], "climbed": true, "gap_bl": 0.48, "dx_bl": 0.16, "dy_bl": -0.45, "needed": "static", "margin_bl": 0.14, "target_size": "medium", "frame": "dyno_2.jpg", "vlm": {"feasible": true, "style": "static", "confidence": 0.9, "reason": "Straightforward reach, climbed statically."}}, {"id": 3, "from_hold": 12, "to_hold": 17, "hand": "right", "t": 16.1, "skip": [], "climbed": true, "gap_bl": 0.66, "dx_bl": -0.2, "dy_bl": -0.63, "needed": "deadpoint", "margin_bl": 0.04, "target_size": "large", "frame": null, "vlm": null}, {"id": 4, "from_hold": 1, "to_hold": 9, "hand": "left", "t": 6.0, "skip": [7, 8], "climbed": false, "gap_bl": 1.12, "dx_bl": 0.3, "dy_bl": -1.08, "needed": "out_of_reach", "margin_bl": -0.19, "target_size": "small", "frame": "dyno_4.jpg", "vlm": {"feasible": false, "style": "none", "confidence": 0.8, "reason": "Too far from a low start with no footholds to drive from."}}]}};
+(function(){
+"use strict";
+const D = DATA || {};
+const app = document.getElementById('app');
+const tip = document.getElementById('tip');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = (v, d=1) => (v == null || isNaN(v)) ? '—' : Number(v).toFixed(d);
+const fmtT = t => { if (t == null || isNaN(t)) return '—'; const m = Math.floor(t/60), s = t - m*60; return m + ':' + (s < 10 ? '0' : '') + s.toFixed(1); };
+const scoreCol = s => s == null ? 'var(--tx3)' : s >= 75 ? 'var(--ok)' : s >= 50 ? 'var(--warn)' : 'var(--bad)';
+const COLORS = {blue:'#2f8bff',red:'#ff4d5e',green:'#35d07f',yellow:'#ffd23f',orange:'#ff8a3d',purple:'#a66bff',pink:'#ff6fb5',black:'#222',white:'#eee',gray:'#999',grey:'#999'};
+
+if (!DATA) { app.innerHTML = '<div class="card sec"><div class="eyebrow">Climb Vision Judge</div><h2>No data</h2><p class="muted">This is the report template. Run <span class="mono">safety_report.py &lt;run_dir&gt;</span> to populate it.</p></div>'; return; }
+
+const J = D.judge || {}, route = D.route || {}, falls = Array.isArray(D.falls) ? D.falls : [], feet = D.feet || {};
+const places = Array.isArray(feet.placements) ? feet.placements : [];
+const worst = new Set(Array.isArray(feet.worst) ? feet.worst : []);
+const fps = D.fps || 30;
+let duration = (D.frame_count && fps) ? D.frame_count / fps : 0;
+const allT = [].concat((J.events||[]).map(e=>e.t), falls.map(f=>f.t_impact), places.map(p=>p.t_off||p.t_on));
+if (!duration) duration = Math.max(1, ...allT.filter(x=>x!=null)) * 1.05;
+
+const result = (J.result || 'NO SCORE').toUpperCase();
+const badgeCls = result === 'TOP' ? 'top' : result === 'ZONE' ? 'zone' : 'none';
+const timeOnWall = (J.start && J.start.t != null) ? ((J.top && J.top.reached && J.top.t != null) ? J.top.t - J.start.t : (falls[0] && falls[0].t_start != null ? falls[0].t_start - J.start.t : null)) : null;
+const landingAvg = falls.length ? falls.reduce((a,f)=>a+(f.landing_score||0),0)/falls.length : null;
+const rc = COLORS[(route.color||'').toLowerCase()] || 'var(--acc)';
+
+function ring(score, size=96, stroke=9){
+  const r = (size-stroke)/2, c = 2*Math.PI*r, p = score == null ? 0 : Math.max(0,Math.min(100,score))/100;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-label="score ${score}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="${stroke}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${scoreCol(score)}" stroke-width="${stroke}" stroke-linecap="round"
+      stroke-dasharray="${c*p} ${c}" transform="rotate(-90 ${size/2} ${size/2})"/>
+    <text x="50%" y="52%" text-anchor="middle" dominant-baseline="middle" fill="var(--tx)" font-family="JetBrains Mono,monospace" font-weight="700" font-size="${size*0.28}">${score==null?'—':Math.round(score)}</text>
+  </svg>`;
+}
+
+let html = '';
+// ---------- top bar + hero
+html += `<div class="topbar"><div class="brand"><span class="dot"></span>CLIMB VISION JUDGE</div>
+  <div class="live">${esc(D.generated_at ? 'Generated ' + String(D.generated_at).replace('T',' ') : 'Report')}</div></div>`;
+html += `<section class="hero">
+  <div class="card">
+    <div class="eyebrow">Bouldering clip</div>
+    <h1>${esc(D.clip || 'Untitled clip')}</h1>
+    <span class="route-chip"><i style="background:${rc}"></i>${esc((route.color||'route').toUpperCase())} · ${esc(route.grade||'—')}${route.holds!=null?' · '+esc(route.holds)+' holds':''}</span>
+    <div class="badge ${badgeCls}">
+      <div class="eyebrow">Judge result</div>
+      <div class="res">${esc(result)}</div>
+      <div class="muted" style="margin-top:6px;font-size:13px">${J.top&&J.top.reached?(J.top.controlled?'Controlled top':'Top touched, not controlled'):J.zone&&J.zone.reached?'Zone hold reached':'Start not converted'}</div>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="eyebrow">Attempts</div><div class="v">${J.attempts!=null?esc(J.attempts):'—'}</div></div>
+    <div class="stat"><div class="eyebrow">Time on wall</div><div class="v">${timeOnWall!=null?num(timeOnWall,1)+'<small>s</small>':'—'}</div></div>
+    <div class="stat"><div class="eyebrow">Landing score</div><div class="v" style="color:${falls.length?scoreCol(landingAvg):'var(--ok)'}">${falls.length?Math.round(landingAvg):'—'}<small>${falls.length?'/100':'no falls'}</small></div></div>
+    <div class="stat"><div class="eyebrow">Silent feet</div><div class="v" style="color:${scoreCol(feet.score)}">${esc(feet.grade||'—')}<small>${feet.score!=null?Math.round(feet.score)+'/100':''}</small></div></div>
+  </div>
+</section>`;
+
+// ---------- video + timeline
+html += `<section class="sec card">
+  <div class="sec-h"><span class="num">01</span><h2>Replay</h2></div>
+  <div class="video-box">${D.video ? `<video id="vid" src="${esc(D.video)}" controls playsinline preload="metadata"></video>` : '<div class="noasset">No video in this run</div>'}</div>
+  <div class="readout"><div class="t mono" id="cur">0:00.0 <small>/ ${fmtT(duration)}</small></div>
+    <div class="legend"><span><i style="background:var(--acc)"></i>Judge</span><span><i style="background:var(--bad);border-radius:50%"></i>Fall</span><span><i style="background:var(--ok)"></i>Foot good</span><span><i style="background:var(--warn)"></i>Foot ok</span><span><i style="background:var(--bad)"></i>Foot poor</span></div></div>
+  <div class="tl" id="tl">
+    <div class="prog" id="prog"></div>
+    <div class="lane" style="top:31px"></div><div class="lane" style="top:58px"></div>
+    <span class="lbl" style="top:20px">JUDGE</span><span class="lbl" style="top:47px">FALLS</span><span class="lbl" style="top:66px">L FOOT</span><span class="lbl" style="top:86px">R FOOT</span>
+    <div id="ticks"></div>
+    <div class="head" id="head"></div>
+  </div>
+  <div class="tl-axis"><span>0:00</span><span>${fmtT(duration/4)}</span><span>${fmtT(duration/2)}</span><span>${fmtT(duration*3/4)}</span><span>${fmtT(duration)}</span></div>
+</section>`;
+
+// ---------- judge scorecard
+const st = J.start || {}, zn = J.zone || {}, tp = J.top || {};
+const startOk = st.t != null;
+html += `<section class="sec card">
+  <div class="sec-h"><span class="num">02</span><h2>Judge scorecard</h2><span class="dim" style="font-size:13px">IFSC-style state machine</span></div>
+  <div class="sm">
+    <div class="node ${startOk?'done':'miss'}"><div class="ck">${startOk?'✓':'–'}</div><div class="eyebrow">State 1</div><div class="nm">START</div>
+      <div class="tm">${startOk?fmtT(st.t):'—'}</div><div class="sub">${st.holds&&st.holds.length?'Holds '+st.holds.map(esc).join(' + '):'Start holds'}${st.frame!=null?' · frame '+esc(st.frame):''}</div></div>
+    <div class="arrow">→</div>
+    <div class="node ${zn.reached?'done':'miss'}"><div class="ck">${zn.reached?'✓':'–'}</div><div class="eyebrow">State 2</div><div class="nm">ZONE</div>
+      <div class="tm">${zn.reached?fmtT(zn.t):'—'}</div><div class="sub">${zn.hold!=null?'Hold #'+esc(zn.hold):'Zone hold'}${zn.reached&&startOk&&zn.t!=null?' · +'+num(zn.t-st.t,1)+'s':''}</div></div>
+    <div class="arrow">→</div>
+    <div class="node ${tp.reached?'done':'miss'}"><div class="ck">${tp.reached?'✓':'–'}</div><div class="eyebrow">State 3</div><div class="nm">TOP</div>
+      <div class="tm">${tp.reached?fmtT(tp.t):'—'}</div><div class="sub">${tp.hold!=null?'Hold #'+esc(tp.hold):'Top hold'}${tp.reached?(tp.controlled?' · <span class="ok">controlled '+num(tp.hold_s,1)+'s</span>':' · <span class="warn">not controlled</span>'):''}</div></div>
+  </div>
+  ${(J.events||[]).length?`<ul class="evlist">${J.events.map(e=>`<li data-t="${e.t}"><span class="mono">${fmtT(e.t)}</span><span>${esc(e.label)}</span></li>`).join('')}</ul>`:''}
+</section>`;
+
+// ---------- landing safety
+const pad = D.pad || null;
+function fallCard(f){
+  const fp = Array.isArray(f.feet_on_pad) ? f.feet_on_pad : null;
+  const fpTxt = v => v == null ? '—' : v ? '<span class="ok">ON</span>' : '<span class="bad">OFF</span>';
+  const ka = f.knee_angle_min || {};
+  const kCol = a => a == null ? '' : a > 150 ? 'bad' : a > 130 ? 'warn' : 'ok';
+  const flags = Array.isArray(f.flags) ? f.flags : [];
+  return `<div class="fall">
+    <div class="ring-wrap">${ring(f.landing_score)}<div class="eyebrow">Landing</div></div>
+    <div>
+      <div class="fall-h"><span class="kind ${esc(f.kind)}">${esc((f.kind||'fall').replace('_',' '))}</span><strong>#${esc(f.id)}</strong>
+        <button class="seek" data-t="${f.t_impact!=null?f.t_impact-0.8:f.t_start}">▶ ${fmtT(f.t_impact)}</button></div>
+      <div class="metrics">
+        <div class="m"><div class="k">Knee L</div><div class="v ${kCol(ka.left)}">${num(ka.left,0)}°</div></div>
+        <div class="m"><div class="k">Knee R</div><div class="v ${kCol(ka.right)}">${num(ka.right,0)}°</div></div>
+        <div class="m"><div class="k">Feet on pad</div><div class="v">${fp?fpTxt(fp[0])+' / '+fpTxt(fp[1]):'<span class="dim">no pad</span>'}</div></div>
+        <div class="m"><div class="k">Hands posted</div><div class="v ${f.hands_posted?'bad':'ok'}">${f.hands_posted==null?'—':f.hands_posted?'YES':'NO'}</div></div>
+        <div class="m"><div class="k">Drop</div><div class="v">${num(f.drop_body_lengths,1)}<span class="dim" style="font-size:11px"> BL</span></div></div>
+        <div class="m"><div class="k">Impact</div><div class="v">${num(f.impact_speed_bl_s,1)}<span class="dim" style="font-size:11px"> BL/s</span></div></div>
+      </div>
+      <div class="flags">${flags.length?flags.map(x=>`<span class="flag">${esc(x)}</span>`).join(''):'<span class="flag none">No issues flagged</span>'}</div>
+      ${f.verdict?`<blockquote class="quote">“${esc(f.verdict)}”<span class="src">VLM VERDICT · GATEWAY</span></blockquote>`:''}
+      ${f.keyframe?`<div class="kf"><img src="${esc(f.keyframe)}" alt="Impact keyframe" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`:''}
+    </div></div>`;
+}
+const W = (D.size && D.size[0]) || 1, H = (D.size && D.size[1]) || 1, AR = H / W;
+function mapSvg(){
+  const P = (pt) => `${(pt[0]).toFixed(4)},${(pt[1]*AR).toFixed(4)}`;
+  let s = `<svg viewBox="0 0 1 ${AR.toFixed(4)}" preserveAspectRatio="none">`;
+  const polys = (pad && Array.isArray(pad.polygons)) ? pad.polygons : [];
+  polys.forEach(pg => { if (pg && pg.length > 2) s += `<polygon points="${pg.map(P).join(' ')}" fill="rgba(53,208,127,.28)" stroke="#35d07f" stroke-width="0.004" stroke-dasharray="0.012 0.008"/>`; });
+  (D.holds||[]).forEach(h => {
+    if (h.polygon && h.polygon.length > 2) s += `<polygon points="${h.polygon.map(P).join(' ')}" fill="rgba(47,184,255,.12)" stroke="rgba(47,184,255,.6)" stroke-width="0.002"/>`;
+    if (h.centroid_xy) { const [x,y] = h.centroid_xy; s += `<circle cx="${x}" cy="${y*AR}" r="0.009" fill="${rc}" stroke="#fff" stroke-width="0.002"/><text x="${x+0.014}" y="${y*AR+0.006}" font-size="0.022" fill="#cfe8ff" font-family="JetBrains Mono,monospace">${esc(h.id)}</text>`; }
+  });
+  falls.forEach(f => {
+    const ax = Array.isArray(f.ankle_xy) ? f.ankle_xy : [];
+    const fp = Array.isArray(f.feet_on_pad) ? f.feet_on_pad : [];
+    const pts = ax.filter(Boolean);
+    if (pts.length === 2) s += `<line x1="${pts[0][0]}" y1="${pts[0][1]*AR}" x2="${pts[1][0]}" y2="${pts[1][1]*AR}" stroke="rgba(255,255,255,.5)" stroke-width="0.003"/>`;
+    ax.forEach((a,i) => { if (!a) return; const on = fp[i]; const c = on == null ? '#9aa4b1' : on ? '#35d07f' : '#ff4d5e';
+      s += `<circle cx="${a[0]}" cy="${a[1]*AR}" r="0.026" fill="${c}" fill-opacity=".25" stroke="${c}" stroke-width="0.004"/><circle cx="${a[0]}" cy="${a[1]*AR}" r="0.009" fill="${c}"/>
+      <text x="${a[0]}" y="${a[1]*AR-0.036}" text-anchor="middle" font-size="0.024" font-weight="700" fill="#fff" font-family="JetBrains Mono,monospace">${esc(f.id)}${i?'R':'L'}</text>`; });
+  });
+  return s + '</svg>';
+}
+html += `<section class="sec card">
+  <div class="sec-h"><span class="num">03</span><h2>Landing safety</h2><span class="dim" style="font-size:13px">${falls.length} event${falls.length===1?'':'s'}</span></div>
+  <div class="saf-grid">
+    <div class="falls">${falls.length?falls.map(fallCard).join(''):`<div class="clean"><div class="big">No falls detected — clean send</div><div class="muted" style="margin-top:6px">Nothing to assess on the landing zone for this clip.</div></div>`}</div>
+    <div class="map-card">
+      <div class="eyebrow" style="margin-bottom:8px">Fall-zone map</div>
+      <div class="map">${D.holds_image?`<img src="${esc(D.holds_image)}" alt="" onerror="this.style.display='none'">`:''}${mapSvg()}</div>
+      <div class="legend" style="margin-top:10px"><span><i style="background:rgba(53,208,127,.5);border:1px dashed #35d07f"></i>Pad${pad&&pad.source?' ('+esc(pad.source)+')':''}</span><span><i style="background:${rc};border-radius:50%"></i>Hold</span><span><i style="background:var(--ok);border-radius:50%"></i>Ankle on pad</span><span><i style="background:var(--bad);border-radius:50%"></i>Ankle off pad</span></div>
+      ${!pad||!(pad.polygons||[]).length?'<div class="dim" style="font-size:12px;margin-top:6px">No crash pad detected.</div>':''}
+    </div>
+  </div>
+</section>`;
+
+// ---------- silent feet
+const pfoot = feet.per_foot || {};
+const footCol = f => f === 'left' ? '#2fb8ff' : '#c28bff';
+function pfCard(side){ const p = pfoot[side] || {}; return `<div class="pf"><div class="eyebrow"><span class="foot-dot" style="background:${footCol(side)}"></span>${side} foot</div>
+  <div class="mono" style="font-size:30px;font-weight:700;margin-top:6px;color:${scoreCol(p.score)}">${p.score!=null?Math.round(p.score):'—'}</div>
+  <div class="bar" style="margin-top:6px"><i style="width:${p.score||0}%;background:${scoreCol(p.score)}"></i></div>
+  <div class="row"><span>Placements</span><b>${p.placements!=null?p.placements:'—'}</b></div>
+  <div class="row"><span>Readjusts</span><b>${p.readjusts!=null?p.readjusts:'—'}</b></div></div>`; }
+html += `<section class="sec card">
+  <div class="sec-h"><span class="num">04</span><h2>Silent feet</h2><span class="dim" style="font-size:13px">precise, quiet, one-touch placements</span></div>
+  <div class="feet-top">
+    <div class="grade"><div class="g" style="color:${scoreCol(feet.score)}">${esc(feet.grade||'—')}</div><div><div class="eyebrow">Score</div><div class="s">${feet.score!=null?Math.round(feet.score):'—'}<span class="dim" style="font-size:14px">/100</span></div></div></div>
+    ${pfCard('left')}${pfCard('right')}
+  </div>
+  ${places.length?`<div class="tbl-wrap"><table class="pl"><thead><tr><th>#</th><th>Foot</th><th>Hold</th><th>Time</th><th>Readj.</th><th class="hide-sm">Jitter</th><th class="hide-sm">Precision</th><th>Score</th></tr></thead><tbody>
+  ${places.map((p,i)=>`<tr class="r${worst.has(i)?' worst':''}" data-t="${p.t_on}"><td>${i+1}${worst.has(i)?'<span class="tag-w">WORST</span>':''}</td>
+    <td><span class="foot-dot" style="background:${footCol(p.foot)}"></span>${esc(p.foot)}</td><td>${p.hold!=null?'#'+esc(p.hold):'—'}</td><td>${fmtT(p.t_on)}</td>
+    <td class="${p.readjusts>1?'bad':p.readjusts>0?'warn':''}">${p.readjusts!=null?p.readjusts:'—'}</td><td class="hide-sm">${num(p.jitter,3)}</td><td class="hide-sm">${p.precision!=null?Math.round(p.precision*100)+'%':'—'}</td>
+    <td><div class="scell"><div class="bar"><i style="width:${p.score||0}%;background:${scoreCol(p.score)}"></i></div><span style="color:${scoreCol(p.score)}">${p.score!=null?Math.round(p.score):'—'}</span></div></td></tr>`).join('')}
+  </tbody></table></div>`:'<p class="dim">No foot placements detected.</p>'}
+</section>`;
+
+// ---------- dyno lab
+const DY = D.dyno || null;
+const cands = (DY && Array.isArray(DY.candidates)) ? DY.candidates : [];
+const holdById = {}; (D.holds||[]).forEach(h => { holdById[h.id] = h; });
+const NEED_COL = {static:'#35d07f', deadpoint:'#2fb8ff', dyno:'#ffb020', out_of_reach:'#ff4d5e'};
+// one body-length in normalized-x units
+let blX = (D.scale_px && D.scale_px.body) ? D.scale_px.body / W : null;
+if (!blX) { const c = cands.find(c => c.gap_bl > 0 && holdById[c.from_hold] && holdById[c.to_hold] && holdById[c.from_hold].centroid_xy && holdById[c.to_hold].centroid_xy);
+  if (c) { const a = holdById[c.from_hold].centroid_xy, b = holdById[c.to_hold].centroid_xy; blX = Math.hypot(b[0]-a[0], (b[1]-a[1])*AR) / c.gap_bl; } }
+function dynoSvg(sel){
+  const P = pt => `${pt[0].toFixed(4)},${(pt[1]*AR).toFixed(4)}`;
+  let s = `<svg viewBox="0 0 1 ${AR.toFixed(4)}" preserveAspectRatio="none"><defs>` +
+    Object.entries(NEED_COL).map(([k,c]) => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`).join('') + `</defs>`;
+  (D.holds||[]).forEach(h => {
+    if (h.polygon && h.polygon.length > 2) s += `<polygon points="${h.polygon.map(P).join(' ')}" fill="rgba(47,184,255,.10)" stroke="rgba(47,184,255,.45)" stroke-width="0.002"/>`;
+    if (h.centroid_xy) { const [x,y] = h.centroid_xy; s += `<circle cx="${x}" cy="${y*AR}" r="0.008" fill="${rc}" stroke="#fff" stroke-width="0.002"/><text x="${x+0.013}" y="${y*AR+0.006}" font-size="0.022" fill="#cfe8ff" font-family="JetBrains Mono,monospace">${esc(h.id)}</text>`; }
+  });
+  const sc = cands.find(c => c.id === sel);
+  if (sc && blX && holdById[sc.from_hold] && holdById[sc.from_hold].centroid_xy && DY.static_span_bl != null) {
+    const [x,y] = holdById[sc.from_hold].centroid_xy; const r1 = DY.static_span_bl*blX, r2 = (DY.static_span_bl + (DY.dyno_gain_bl||0))*blX;
+    s += `<circle cx="${x}" cy="${y*AR}" r="${r2}" fill="rgba(255,176,32,.05)" stroke="rgba(255,176,32,.55)" stroke-width="0.003" stroke-dasharray="0.01 0.008"/>` +
+         `<circle cx="${x}" cy="${y*AR}" r="${r1}" fill="rgba(53,208,127,.06)" stroke="rgba(53,208,127,.6)" stroke-width="0.003"/>` +
+         `<text x="${x}" y="${y*AR - r1 - 0.008}" text-anchor="middle" font-size="0.018" fill="#35d07f" font-family="JetBrains Mono,monospace">static</text>` +
+         `<text x="${x}" y="${y*AR - r2 - 0.008}" text-anchor="middle" font-size="0.018" fill="#ffb020" font-family="JetBrains Mono,monospace">+dyno</text>`;
+  }
+  cands.slice().sort((a,b) => (a.id===sel) - (b.id===sel)).forEach(c => {
+    const a = holdById[c.from_hold], b = holdById[c.to_hold]; if (!a || !b || !a.centroid_xy || !b.centroid_xy) return;
+    const k = NEED_COL[c.needed] ? c.needed : 'dyno', col = NEED_COL[k], on = c.id === sel;
+    const [x1,y1] = a.centroid_xy, [x2,y2] = b.centroid_xy; const L = Math.hypot(x2-x1,(y2-y1)*AR) || 1, sh = 0.014/L;
+    s += `<line class="dy-arrow" data-cid="${c.id}" x1="${x1+(x2-x1)*sh}" y1="${(y1+(y2-y1)*sh)*AR}" x2="${x2-(x2-x1)*sh}" y2="${(y2-(y2-y1)*sh)*AR}" stroke="${col}" stroke-width="${on?0.009:0.005}" stroke-opacity="${sel==null||on?1:.45}" ${c.climbed?'':'stroke-dasharray="0.014 0.009"'} stroke-linecap="round" marker-end="url(#ah-${k})" style="cursor:pointer"/>`;
+  });
+  return s + '</svg>';
+}
+function dbar(label, v, max, col, signed){
+  const w = v == null ? 0 : signed ? Math.min(50, Math.abs(v)/max*50) : Math.min(100, v/max*100);
+  const st = signed ? (v >= 0 ? `left:50%;width:${w}%` : `left:${50-w}%;width:${w}%`) : `left:0;width:${w}%`;
+  return `<div class="dbar"><span>${label}</span><div class="bar">${signed?'<span class="mid"></span>':''}<i style="position:absolute;top:0;${st};background:${col}"></i></div><span style="color:${col}">${v==null?'—':(signed&&v>0?'+':'')+num(v,2)} BL</span></div>`;
+}
+function dcard(c){
+  const k = NEED_COL[c.needed] ? c.needed : 'dyno', v = c.vlm;
+  const skip = Array.isArray(c.skip) && c.skip.length ? 'skips ' + c.skip.map(esc).join(', ') : 'adjacent';
+  const gmax = Math.max(1, (DY.static_span_bl||0) + (DY.dyno_gain_bl||0), ...cands.map(x=>x.gap_bl||0));
+  return `<div class="dc" data-cid="${c.id}" data-t="${c.t}">
+    <div>
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><div class="ttl">#${esc(c.from_hold)} → #${esc(c.to_hold)}</div>
+        <div class="sub">${esc(c.hand||'?')} hand · ${skip}${c.climbed?' · <span class="ok">climbed</span>':''}${c.t!=null?' · '+fmtT(c.t):''}</div></div>
+        <span class="need ${k}">${esc(String(c.needed||'?').replace(/_/g,' '))}</span></div>
+      ${dbar('gap', c.gap_bl, gmax, 'var(--acc)')}
+      ${dbar('margin', c.margin_bl, 0.5, c.margin_bl==null?'var(--tx3)':c.margin_bl>=0?'var(--ok)':'var(--bad)', true)}
+      <div class="sub" style="margin-top:6px">catch: <b class="mono" style="color:var(--tx)">${esc(c.target_size||'—')}</b></div>
+      ${v?`<div class="vlm"><span class="${v.feasible?'ok':'bad'} mono" style="font-weight:700">${v.feasible?'✓ feasible':'✗ not feasible'}</span>${v.style?`<span class="dim">· ${esc(v.style)}</span>`:''}${v.confidence!=null?`<span class="dim">· ${Math.round(v.confidence*100)}% conf</span>`:''}${v.reason?`<span class="q">“${esc(v.reason)}”</span>`:''}</div>`:''}
+    </div>
+    ${c.frame?`<div class="thumb"><img src="${esc(c.frame)}" alt="annotated frame" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`:''}
+  </div>`;
+}
+const asum = (DY && DY.assumptions) || {};
+html += `<section class="sec card" id="dyno">
+  <div class="sec-h"><span class="num">05</span><h2>Dyno lab</h2><span class="dim" style="font-size:13px">is a dyno possible?</span></div>
+  ${cands.length ? `<div class="dy-stats">
+    <div class="stat"><div class="eyebrow">Static span</div><div class="v" style="color:var(--ok)">${num(DY.static_span_bl,2)}<small>BL</small></div></div>
+    <div class="stat"><div class="eyebrow">Dyno gain</div><div class="v" style="color:var(--warn)">+${num(DY.dyno_gain_bl,2)}<small>BL</small></div></div>
+    <div class="stat"><div class="eyebrow">Assumptions</div><div class="mono" style="font-size:13px;margin-top:10px;line-height:1.6;color:var(--tx2)">height ${num(asum.height_m,2)} m<br>takeoff ${num(asum.takeoff_speed_m_s,1)} m/s</div></div>
+  </div>
+  <div class="dy-grid">
+    <div class="dy-list">${cands.map(dcard).join('')}</div>
+    <div class="dy-map-card"><div class="eyebrow" style="margin-bottom:8px">Route map · reach from selected hold</div>
+      <div class="map" id="dymap">${D.holds_image?`<img src="${esc(D.holds_image)}" alt="" onerror="this.style.display='none'">`:''}<div id="dysvg" style="position:relative">${dynoSvg(cands[0].id)}</div></div>
+      <div class="legend" style="margin-top:10px">${Object.entries(NEED_COL).map(([k,c])=>`<span><i style="background:${c}"></i>${k.replace(/_/g,' ')}</span>`).join('')}<span class="dim">dashed = not climbed</span></div>
+    </div>
+  </div>` : `<div class="clean" style="border-color:var(--line2);background:var(--bg2)"><div class="big" style="color:var(--tx2)">No dyno candidates</div><div class="muted" style="margin-top:6px">No gaps on this route were analysed for a dyno.</div></div>`}
+</section>`;
+
+// ---------- coach + footer
+html += `<section class="sec card"><div class="sec-h"><span class="num">06</span><h2>Coach note</h2></div>
+  <div class="coach">${D.coach?esc(D.coach):'<span class="dim">No coaching note generated for this run.</span>'}</div></section>`;
+const cost = D.cost || {}; const costTot = Object.values(cost).reduce((a,v)=>a+(+v||0),0);
+html += `<footer><span>Powered by VLM Run Gateway · SAM 3.1 · ViTPose+ · Qwen3.8</span>
+  <span>${Object.keys(cost).length?'Cost $'+costTot.toFixed(4)+' ('+Object.entries(cost).map(([k,v])=>esc(k)+' $'+num(v,3)).join(', ')+')':''}${D.fps?' · '+num(D.fps,2)+' fps':''}${D.size?' · '+D.size.join('×'):''}</span></footer>`;
+
+app.innerHTML = html;
+
+// ---------- timeline ticks + interactions
+const vid = document.getElementById('vid');
+const ticks = document.getElementById('ticks');
+const pct = t => Math.max(0, Math.min(100, (t / duration) * 100));
+let th = '';
+(J.events||[]).forEach(e => { if (e.t == null) return; const c = e.kind==='top'?'var(--ok)':e.kind==='zone'?'var(--warn)':'var(--acc)';
+  th += `<div class="tick ev" style="left:${pct(e.t)}%;background:${c}" data-t="${e.t}" data-tip="${esc(fmtT(e.t)+' · '+e.label)}"></div>`; });
+falls.forEach(f => { if (f.t_impact == null) return;
+  th += `<div class="tick fall ${esc(f.kind)}" style="left:${pct(f.t_impact)}%" data-t="${Math.max(0,f.t_impact-0.8)}" data-tip="${esc(fmtT(f.t_impact)+' · '+(f.kind||'fall')+' #'+f.id+' · landing '+(f.landing_score!=null?f.landing_score:'—'))}"></div>`; });
+places.forEach((p,i) => { if (p.t_on == null) return; const w = p.t_off!=null ? Math.max(0.4, pct(p.t_off)-pct(p.t_on)) : 0.5;
+  th += `<div class="tick foot ${p.foot==='right'?'right':'left'}" style="left:${pct(p.t_on)+w/2}%;width:${w}%;background:${scoreCol(p.score)}" data-t="${p.t_on}" data-tip="${esc(fmtT(p.t_on)+' · '+p.foot+' foot → hold #'+p.hold+' · score '+p.score)}"></div>`; });
+ticks.innerHTML = th;
+
+function seek(t){ t = +t; if (isNaN(t)) return; if (vid) { try { vid.currentTime = Math.max(0,t); vid.play().catch(()=>{}); } catch(e){} vid.scrollIntoView({behavior:'smooth',block:'center'}); } setHead(t); }
+const head = document.getElementById('head'), prog = document.getElementById('prog'), cur = document.getElementById('cur');
+function setHead(t){ const p = pct(t); head.style.left = p + '%'; prog.style.width = p + '%'; cur.innerHTML = fmtT(t) + ' <small>/ ' + fmtT(duration) + '</small>'; }
+setHead(0);
+if (vid) {
+  vid.addEventListener('loadedmetadata', () => { if (!D.frame_count && vid.duration) duration = vid.duration; });
+  vid.addEventListener('timeupdate', () => setHead(vid.currentTime));
+  vid.addEventListener('error', () => { vid.parentNode.innerHTML = '<div class="noasset">Video not found: ' + esc(D.video) + '</div>'; });
+}
+document.getElementById('tl').addEventListener('click', e => {
+  const tk = e.target.closest('[data-t]'); if (tk) return seek(tk.dataset.t);
+  const r = e.currentTarget.getBoundingClientRect(); seek(((e.clientX - r.left) / r.width) * duration);
+});
+document.querySelectorAll('.evlist li, .seek, tr.r').forEach(el => el.addEventListener('click', () => seek(el.dataset.t)));
+function selectDyno(id, doSeek){
+  const c = cands.find(x => x.id === id); if (!c) return;
+  document.querySelectorAll('.dc').forEach(el => el.classList.toggle('sel', +el.dataset.cid === id));
+  const sv = document.getElementById('dysvg'); if (sv) sv.innerHTML = dynoSvg(id);
+  if (doSeek && c.t != null) seek(c.t);
+}
+if (cands.length) {
+  selectDyno(cands[0].id, false);
+  document.querySelectorAll('.dc').forEach(el => el.addEventListener('click', () => selectDyno(+el.dataset.cid, true)));
+  document.getElementById('dymap').addEventListener('click', e => { const a = e.target.closest('.dy-arrow'); if (a) { selectDyno(+a.dataset.cid, false); const card = document.querySelector('.dc[data-cid="'+a.dataset.cid+'"]'); if (card) card.scrollIntoView({behavior:'smooth',block:'nearest'}); } });
+}
+document.addEventListener('mousemove', e => {
+  const el = e.target.closest && e.target.closest('[data-tip]');
+  if (!el) { tip.style.display = 'none'; return; }
+  tip.textContent = el.dataset.tip; tip.style.display = 'block';
+  tip.style.left = Math.min(window.innerWidth - 270, e.clientX + 12) + 'px'; tip.style.top = (e.clientY + 14) + 'px';
+});
+})();
+</script>
+</body>
+</html>

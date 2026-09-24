@@ -5,6 +5,7 @@ purpose: `run.json` in each output directory snapshots these values, so a result
 can always be traced back to its settings.
 """
 
+import os
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -20,8 +21,10 @@ DATA_DIR = PROJECT_DIR / "data"
 #
 # Off, INPUT_VIDEO alone is processed and there is nothing to compare against,
 # so the completion panel is skipped.
-BATCH_MODE = True
-INPUT_DIR = DATA_DIR / "input" / "current"
+# The CVJ_* environment variables are how app.py (the browser dashboard) points
+# one run at one uploaded clip without editing this file; unset, nothing changes.
+BATCH_MODE = os.environ.get("CVJ_BATCH_MODE", "1") not in ("0", "false", "False", "")
+INPUT_DIR = Path(os.environ.get("CVJ_INPUT_DIR") or DATA_DIR / "input" / "current")
 INPUT_SUFFIXES = (".mov", ".mp4", ".m4v", ".avi")
 
 # Render one attempt instead of all of them. Every clip is still analyzed, since
@@ -31,7 +34,7 @@ INPUT_SUFFIXES = (".mov", ".mp4", ".m4v", ".avi")
 RENDER_ONLY = None           # e.g. 2, or "IMG_8843"
 
 # Used when BATCH_MODE is False.
-INPUT_VIDEO = DATA_DIR / "input" / "climbing.mov"
+INPUT_VIDEO = Path(os.environ.get("CVJ_INPUT_VIDEO") or DATA_DIR / "input" / "climbing.mov")
 
 # ── Conversion (.mov -> .mp4) ────────────────────────────────────────────────
 # Always converted: ffmpeg applies the source rotation, OpenCV ignores it. This
@@ -72,7 +75,7 @@ REQUEST_TIMEOUT = 1800.0   # seconds; video pose is minutes, not seconds
 # Promptable segmentation. The prompt is the whole route definition — change
 # the colour and the demo follows a different route up the same wall.
 HOLD_MODEL = "facebook/sam3.1"
-HOLD_COLOR = "green"                        # the route being climbed
+HOLD_COLOR = os.environ.get("CVJ_HOLD_COLOR", "blue")                       # the route being climbed
 HOLD_PROMPT = "{color} climbing hold"       # {color} is substituted from HOLD_COLOR
 REUSE_HOLDS = True        # False re-runs segmentation instead of using the cache
 
@@ -80,7 +83,7 @@ REUSE_HOLDS = True        # False re-runs segmentation instead of using the cach
 # sequence.json, comparison.json — so a sequence can be traced back to the
 # problem it came off. Nothing draws the grade yet; COMPARE_PANEL_SHOW_GRADE
 # below is the switch when that changes.
-ROUTE_GRADE = "VB"
+ROUTE_GRADE = os.environ.get("CVJ_ROUTE_GRADE", "VB")
 ROUTE_NAME = None         # e.g. "the green one by the door"; None omits it
 
 # Frames sampled for hold detection, evenly spaced across the whole clip. The

@@ -1,0 +1,570 @@
+{
+ "clip": "IMG_0508",
+ "video": "IMG_0508_climb.mp4",
+ "holds_image": "holds.png",
+ "fps": 29.97,
+ "frame_count": 965,
+ "size": [
+  608,
+  1080
+ ],
+ "route": {
+  "color": "blue",
+  "grade": "VB",
+  "holds": 6
+ },
+ "holds": [
+  {
+   "id": 1,
+   "centroid_xy": [
+    0.3,
+    0.7
+   ],
+   "polygon": [
+    [
+     0.28,
+     0.68
+    ],
+    [
+     0.33,
+     0.68
+    ],
+    [
+     0.33,
+     0.72
+    ],
+    [
+     0.28,
+     0.72
+    ]
+   ]
+  },
+  {
+   "id": 7,
+   "centroid_xy": [
+    0.4,
+    0.58
+   ],
+   "polygon": [
+    [
+     0.38,
+     0.56
+    ],
+    [
+     0.43,
+     0.56
+    ],
+    [
+     0.43,
+     0.6
+    ],
+    [
+     0.38,
+     0.6
+    ]
+   ]
+  },
+  {
+   "id": 8,
+   "centroid_xy": [
+    0.52,
+    0.57
+   ],
+   "polygon": [
+    [
+     0.5,
+     0.55
+    ],
+    [
+     0.55,
+     0.55
+    ],
+    [
+     0.55,
+     0.59
+    ],
+    [
+     0.5,
+     0.59
+    ]
+   ]
+  },
+  {
+   "id": 9,
+   "centroid_xy": [
+    0.46,
+    0.42
+   ],
+   "polygon": [
+    [
+     0.44,
+     0.4
+    ],
+    [
+     0.49,
+     0.4
+    ],
+    [
+     0.49,
+     0.44
+    ],
+    [
+     0.44,
+     0.44
+    ]
+   ]
+  },
+  {
+   "id": 12,
+   "centroid_xy": [
+    0.6,
+    0.3
+   ],
+   "polygon": [
+    [
+     0.58,
+     0.28
+    ],
+    [
+     0.63,
+     0.28
+    ],
+    [
+     0.63,
+     0.32
+    ],
+    [
+     0.58,
+     0.32
+    ]
+   ]
+  },
+  {
+   "id": 17,
+   "centroid_xy": [
+    0.5,
+    0.14
+   ],
+   "polygon": [
+    [
+     0.47,
+     0.12
+    ],
+    [
+     0.54,
+     0.12
+    ],
+    [
+     0.54,
+     0.16
+    ],
+    [
+     0.47,
+     0.16
+    ]
+   ]
+  },
+  {
+   "id": 13,
+   "centroid_xy": [
+    0.66,
+    0.22
+   ],
+   "polygon": [
+    [
+     0.64,
+     0.2
+    ],
+    [
+     0.68,
+     0.2
+    ],
+    [
+     0.68,
+     0.24
+    ],
+    [
+     0.64,
+     0.24
+    ]
+   ]
+  },
+  {
+   "id": 15,
+   "centroid_xy": [
+    0.38,
+    0.24
+   ],
+   "polygon": [
+    [
+     0.36,
+     0.22
+    ],
+    [
+     0.4,
+     0.22
+    ],
+    [
+     0.4,
+     0.26
+    ],
+    [
+     0.36,
+     0.26
+    ]
+   ]
+  }
+ ],
+ "judge": {
+  "result": "TOP",
+  "attempts": 1,
+  "start": {
+   "t": 5.97,
+   "frame": 179,
+   "holds": [
+    7,
+    8
+   ]
+  },
+  "zone": {
+   "hold": 9,
+   "reached": true,
+   "t": 9.1
+  },
+  "top": {
+   "hold": 17,
+   "reached": true,
+   "controlled": true,
+   "t": 20.4,
+   "hold_s": 1.2
+  },
+  "events": [
+   {
+    "t": 5.97,
+    "label": "Start: both hands on start holds, feet off the mat",
+    "kind": "start"
+   },
+   {
+    "t": 9.1,
+    "label": "Zone: hand controls hold #9",
+    "kind": "zone"
+   },
+   {
+    "t": 20.4,
+    "label": "Top: both hands matched on #17 for 1.2 s",
+    "kind": "top"
+   }
+  ]
+ },
+ "pad": {
+  "source": "sam3.1",
+  "prompt": "crash pad",
+  "polygons": [
+   [
+    [
+     0.1,
+     0.86
+    ],
+    [
+     0.9,
+     0.85
+    ],
+    [
+     0.95,
+     0.98
+    ],
+    [
+     0.05,
+     0.99
+    ]
+   ]
+  ]
+ },
+ "falls": [
+  {
+   "id": 1,
+   "kind": "jump_off",
+   "t_start": 21.6,
+   "t_impact": 22.3,
+   "frame_impact": 668,
+   "drop_body_lengths": 1.2,
+   "impact_speed_bl_s": 2.6,
+   "knee_angle_min": {
+    "left": 98,
+    "right": 104
+   },
+   "feet_on_pad": [
+    true,
+    true
+   ],
+   "hands_posted": false,
+   "landing_score": 91,
+   "flags": [],
+   "keyframe": "fall_1.jpg",
+   "ankle_xy": [
+    [
+     0.42,
+     0.92
+    ],
+    [
+     0.55,
+     0.93
+    ]
+   ],
+   "verdict": "Controlled drop from the top: soft two-foot landing, knees absorbing, rolled back onto the pad."
+  },
+  {
+   "id": 2,
+   "kind": "fall",
+   "t_start": 27.4,
+   "t_impact": 28.0,
+   "frame_impact": 839,
+   "drop_body_lengths": 1.6,
+   "impact_speed_bl_s": 3.8,
+   "knee_angle_min": {
+    "left": 158,
+    "right": 121
+   },
+   "feet_on_pad": [
+    false,
+    true
+   ],
+   "hands_posted": true,
+   "landing_score": 48,
+   "flags": [
+    "Stiff left knee",
+    "Left foot off pad",
+    "Hands posted behind"
+   ],
+   "keyframe": "fall_2.jpg",
+   "ankle_xy": [
+    [
+     0.07,
+     0.84
+    ],
+    [
+     0.19,
+     0.9
+    ]
+   ],
+   "verdict": "Unplanned fall on the traverse: left foot caught the pad edge with a locked knee and the climber posted a hand behind — wrist and ankle risk."
+  }
+ ],
+ "feet": {
+  "score": 78,
+  "grade": "B",
+  "placements": [
+   {
+    "foot": "left",
+    "hold": 1,
+    "t_on": 5.9,
+    "t_off": 7.8,
+    "readjusts": 0,
+    "jitter": 0.004,
+    "impact_speed": 0.6,
+    "precision": 0.91,
+    "score": 90
+   },
+   {
+    "foot": "right",
+    "hold": 7,
+    "t_on": 7.2,
+    "t_off": 9.6,
+    "readjusts": 1,
+    "jitter": 0.011,
+    "impact_speed": 1.1,
+    "precision": 0.74,
+    "score": 71
+   },
+   {
+    "foot": "left",
+    "hold": 8,
+    "t_on": 9.9,
+    "t_off": 12.4,
+    "readjusts": 0,
+    "jitter": 0.005,
+    "impact_speed": 0.5,
+    "precision": 0.88,
+    "score": 87
+   },
+   {
+    "foot": "right",
+    "hold": 9,
+    "t_on": 11.8,
+    "t_off": 14.1,
+    "readjusts": 3,
+    "jitter": 0.024,
+    "impact_speed": 2.2,
+    "precision": 0.52,
+    "score": 41
+   },
+   {
+    "foot": "left",
+    "hold": 9,
+    "t_on": 13.9,
+    "t_off": 16.0,
+    "readjusts": 1,
+    "jitter": 0.009,
+    "impact_speed": 0.9,
+    "precision": 0.8,
+    "score": 76
+   },
+   {
+    "foot": "right",
+    "hold": 12,
+    "t_on": 15.5,
+    "t_off": 18.2,
+    "readjusts": 2,
+    "jitter": 0.019,
+    "impact_speed": 1.8,
+    "precision": 0.61,
+    "score": 55
+   },
+   {
+    "foot": "left",
+    "hold": 12,
+    "t_on": 17.6,
+    "t_off": 20.8,
+    "readjusts": 0,
+    "jitter": 0.003,
+    "impact_speed": 0.4,
+    "precision": 0.93,
+    "score": 94
+   },
+   {
+    "foot": "right",
+    "hold": 12,
+    "t_on": 18.9,
+    "t_off": 21.0,
+    "readjusts": 0,
+    "jitter": 0.006,
+    "impact_speed": 0.7,
+    "precision": 0.85,
+    "score": 84
+   }
+  ],
+  "per_foot": {
+   "left": {
+    "score": 87,
+    "placements": 4,
+    "readjusts": 1
+   },
+   "right": {
+    "score": 63,
+    "placements": 4,
+    "readjusts": 6
+   }
+  },
+  "worst": [
+   3,
+   5
+  ]
+ },
+ "coach": "Clean flash of the blue VB with a controlled top. Your left foot is quiet and precise; the right foot is where the points leak — on #9 and #12 you stabbed and re-set it three and two times. Look at the hold until the toe is weighted. On the second fall, bend both knees and roll back rather than posting a hand.",
+ "cost": {
+  "sam_pad": 0.012,
+  "vlm": 0.004
+ },
+ "generated_at": "2026-09-24T20:40:00",
+ "scale_px": {
+  "body": 330
+ },
+ "dyno": {
+  "assumptions": {
+   "height_m": 1.75,
+   "takeoff_speed_m_s": 2.2
+  },
+  "static_span_bl": 0.62,
+  "dyno_gain_bl": 0.31,
+  "candidates": [
+   {
+    "id": 1,
+    "from_hold": 9,
+    "to_hold": 17,
+    "hand": "left",
+    "t": 12.4,
+    "skip": [
+     12
+    ],
+    "climbed": false,
+    "gap_bl": 0.85,
+    "dx_bl": 0.06,
+    "dy_bl": -0.84,
+    "needed": "dyno",
+    "margin_bl": 0.08,
+    "target_size": "large",
+    "frame": "dyno_1.jpg",
+    "vlm": {
+     "feasible": true,
+     "style": "dyno",
+     "confidence": 0.7,
+     "reason": "Big jug finish and good feet on #8; a two-hand dyno from #9 lands the top if hips drive in."
+    }
+   },
+   {
+    "id": 2,
+    "from_hold": 7,
+    "to_hold": 9,
+    "hand": "right",
+    "t": 8.3,
+    "skip": [],
+    "climbed": true,
+    "gap_bl": 0.48,
+    "dx_bl": 0.16,
+    "dy_bl": -0.45,
+    "needed": "static",
+    "margin_bl": 0.14,
+    "target_size": "medium",
+    "frame": "dyno_2.jpg",
+    "vlm": {
+     "feasible": true,
+     "style": "static",
+     "confidence": 0.9,
+     "reason": "Straightforward reach, climbed statically."
+    }
+   },
+   {
+    "id": 3,
+    "from_hold": 12,
+    "to_hold": 17,
+    "hand": "right",
+    "t": 16.1,
+    "skip": [],
+    "climbed": true,
+    "gap_bl": 0.66,
+    "dx_bl": -0.2,
+    "dy_bl": -0.63,
+    "needed": "deadpoint",
+    "margin_bl": 0.04,
+    "target_size": "large",
+    "frame": null,
+    "vlm": null
+   },
+   {
+    "id": 4,
+    "from_hold": 1,
+    "to_hold": 9,
+    "hand": "left",
+    "t": 6.0,
+    "skip": [
+     7,
+     8
+    ],
+    "climbed": false,
+    "gap_bl": 1.12,
+    "dx_bl": 0.3,
+    "dy_bl": -1.08,
+    "needed": "out_of_reach",
+    "margin_bl": -0.19,
+    "target_size": "small",
+    "frame": "dyno_4.jpg",
+    "vlm": {
+     "feasible": false,
+     "style": "none",
+     "confidence": 0.8,
+     "reason": "Too far from a low start with no footholds to drive from."
+    }
+   }
+  ]
+ }
+}

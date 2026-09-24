@@ -177,6 +177,210 @@ If a run comes out wrong, look at `holds.png` first: nearly everything
 downstream is a consequence of it. The knob for each symptom is in
 [route-reading-explained.md](route-reading-explained.md).
 
+## Climb Vision Judge: judging, landing safety, silent feet, dyno lab
+
+**tl;dr: `python app.py`, open http://127.0.0.1:8000, press Run.**
+
+```bash
+python app.py        # then open http://127.0.0.1:8000
+```
+
+The page lets you upload a clip, pick the hold colour and grade, and choose
+whether to spend VLM credits. **Run** runs `main.py` and then
+`safety_report.py`, with live progress. Past runs sit in a gallery below, each
+with **Open report** and **Re-run analysis**.
+
+**From the command line** instead: run `main.py`, then `safety_report.py` on its
+output, and open `report.html`.
+
+```bash
+python main.py                              # the route read, as above
+python safety_report.py                     # newest run under data/output/
+python safety_report.py <run_dir>           # a specific run (or clip subfolder in batch mode)
+python safety_report.py <run_dir> --no-vlm  # no gateway calls: no pad, verdicts or coach note
+```
+
+It works on a finished run folder and writes beside it:
+
+```
+safety.json      # everything below; schema in report/CONTRACT.md
+report.html      # self-contained report, the JSON inlined into report/template.html
+fall_1.jpg       # keyframe at each landing, fall_1_0..3.jpg around it
+dyno_1.jpg       # annotated frame per dyno candidate
+```
+
+Open `report.html` in a browser. It plays the `_climb.mp4` beside it, so if the
+video won't load from `file://`, serve the folder:
+
+```bash
+cd data/output/<run>
+python -m http.server 8080                        # http://localhost:8080/report.html
+cloudflared tunnel --url http://localhost:8080    # a public link, to share it
+```
+
+### What it measures
+
+These are heuristics taken from coaching and injury writing, tuned on **one test
+clip**. Treat the thresholds as starting points and tune them on your own
+footage; they all live at the top of [`src/safety.py`](src/safety.py).
+
+**Judge (IFSC-style start / zone / top).**
+- An **attempt** is a lift-off: both feet clear of the floor for at least 0.5 s,
+  with a hand on a route hold for at least 0.3 s of it. Lift-offs split by less
+  than 0.3 s back on the floor merge into one. Pose dropouts under 0.7 s keep the
+  last floor state, so a lost frame high on the wall neither ends an attempt nor
+  fakes a fall.
+- **Start** is the first attempt's lift-off, with the holds under the hands.
+- **Zone** is the hold 60% of the way up the numbered route, touched by a hand
+  for at least 0.3 s.
+- **Top** is both hands on the final hold. It is **controlled** if held for 1 s
+  with the hips still (median speed under 0.6 torso-lengths/s).
+- Result: `TOP`, `ZONE` or `NO SCORE`.
+
+**Landing safety.** Every lift-off that ends back on the floor is examined.
+- **Kind:** hips moving down faster than 1.5 body-lengths/s in the last 0.35 s
+  is free flight; slower is a `downclimb`. Free flight after a controlled top is
+  a `jump_off`, otherwise a `fall`. Drops under 0.18 body-lengths are ignored.
+- **Drop** is hip height from the last hand-on-hold frame to impact, in
+  body-lengths; **impact speed** is the peak hip speed in the 3 frames before it.
+- The landing score starts at 100:
+
+| Check | Rule | Penalty |
+|---|---|---|
+| Knees | smallest hip-knee-ankle angle in the 0.35 s after impact; over 150° is stiff, 120°–150° is partial | −20 stiff, up to −10 partial |
+| Feet on pad | each toe inside the pad polygon (2.5% of frame height tolerance) | −20 per foot off |
+| Hand posting | a wrist below the hips and at the floor, around impact | −20 |
+| Feet sync | the two feet touch down more than 3 frames (~100 ms) apart | −10 |
+| Drop | over 1 body-length and faster than 3 body-lengths/s | −5 |
+
+A downclimb gets +5.
+
+**Silent feet.** Each foot placement on a hold (toe within 0.3 shin-lengths of
+the outline, held at least 0.25 s) is scored from 100:
+- **Readjusts**, −15 each, up to 3: re-placing on the same hold within 1 s, or a
+  wiggle faster than 0.8 shins/s after a 0.2 s settle.
+- **Jitter**, up to −25: how much the ankle drifts once settled.
+- **Impact speed**, up to −20: foot speed over 0.5 body-lengths/s in the 3 frames
+  before contact.
+- **Precision**, up to −20: how far from the hold's centre the foot lands.
+
+The score is the mean over placements, graded A (90+) to E (under 60), with
+per-foot scores and the three worst placements.
+
+**Dyno lab** ([`src/dyno.py`](src/dyno.py)). "Is a dyno possible between these
+holds, for this climber?"
+- **Reach envelope**, in body-lengths from the pose. Static reach is the larger
+  of the longest hand-to-hand span actually held on the climb and 75% of the
+  pose-measured wingspan (arm length from the 90th percentile of the pose, since
+  2D pose foreshortens a bent arm). A dyno adds flight (projectile height `v²/2g` at an
+  assumed 2.2 m/s take-off for a 1.75 m climber) plus leg drive (35% of
+  thigh + shin).
+- **Classification.** The dyno gain is scaled by how upward the gap points (at
+  least 30% of it: a jump buys height, not much sideways reach). A gap within
+  static reach is `static`; within static + 40% of the gain, `deadpoint`; within
+  static + the full gain, `dyno`; beyond that, `out_of_reach`. The margin left
+  over is kept, and each target is sized small / medium / large as a catch.
+- **Candidates**: every move actually climbed (a hand reaching a new hold while
+  the other anchors), plus up to 6 skipped moves (from a two-hand set-up, 2 to 6
+  holds higher in one), dynos and deadpoints first.
+- **VLM check.** Up to 4 of them (the skipped dynos/deadpoints and the biggest
+  climbed move) are drawn onto a frame with the from/to holds, an arrow and the
+  static and dyno reach rings (`dyno_*.jpg`), and `qwen/qwen3.8-27b` says
+  whether it would commit.
+- **On the test clip:** static span 0.73 body-lengths, dyno gain +0.33. Every
+  climbed move was static; the skips #9→#15, #10→#16 and #11→#17 came out
+  `deadpoint`, and the VLM agreed (confidence 0.85–0.92).
+
+This is **not reinforcement learning.** It is a lightweight stand-in for the PPO
+humanoid policy the author explored in their dissertation: a feasibility oracle
+that could serve as the reward or termination signal for a future PPO agent.
+The assumptions are explicit, in `ASSUME` at the top of the file.
+
+**Sources:**
+[injury patterns in bouldering](https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2025.1609133/full),
+[how to fall and land](https://www.climbing.com/skills/boulder-safely/),
+[what "controlled" means on a top](https://www.8a.nu/news/ifsc-needs-to-define-controlled-in-bouldering-top-outs),
+[IFSC top/zone/attempt scoring](https://gripped.com/indoor-climbing/boulder-world-cup-scoring-explained/),
+[silent feet](https://climbskill.rocks/footwork/silent-feet/).
+
+### Models and cost
+
+| Step | Model on the gateway |
+|---|---|
+| Crash pad, one clean frame | `facebook/sam3.1` |
+| Fall verdict, 4 frames around impact | `qwen/qwen3.8-27b` |
+| Dyno check, one annotated frame | `qwen/qwen3.8-27b` |
+| Coaching note, text only | `qwen/qwen3.8-27b` |
+
+About **$0.006 per report**, on top of about $0.025 for `main.py`. The test clip
+cost $0.004 for the pad and $0.0015 for the Qwen calls.
+
+### Gotchas
+
+- **SAM pad prompts fall back in order:** `crash pad` → `gym mat` → `floor mat`
+  → `gray floor`. On a gym with wall-to-wall matting the whole floor is the pad,
+  and only `gray floor` finds it. With `--no-vlm`, or when every prompt misses,
+  the floor segmented by `main.py` is used as the landing zone.
+- **Qwen needs thinking off**: `extra_body={"chat_template_kwargs":
+  {"enable_thinking": False}}`. With it on, qwen3.8 spends its whole token budget
+  reasoning on image prompts and returns empty content after ~110 s.
+- **The VLM is commentary, not an independent judge.** Its prompts include our
+  measured metrics, so its verdicts are conditioned on them.
+- **A top hold at the frame edge** takes the hands out of frame on the match. The
+  judge then takes control from the route read's own top-out, and says so in
+  `judge.top.note`.
+- **HDR iPhone clips on Windows:** conda-forge ffmpeg has no `libplacebo`, so HDR
+  is not tone-mapped and the render looks washed out. Detection was still fine.
+
+### Limits
+
+- One still camera: no panning, and the whole route must stay in frame.
+- 2D pose with no depth, so knee angles and distances are foreshortened.
+- Body-length units come from the median torso, thigh and shin in pixels, not
+  from the climber's real height.
+- Validated on one clip. The thresholds are not calibrated against labelled
+  falls or judges.
+
+### Wall scout (photos, no climber)
+
+Scout a wall before filming: which colours SAM 3.1 separates cleanly, and how
+many holds each route has.
+
+```bash
+python scout.py                                   # data/input/photos/jpg
+python scout.py <photos_dir> --colors blue,green,pink
+```
+
+One SAM call per photo per colour (~$0.001 each). Writes an overlay per photo
+and `scout.json` to `data/output/scout/<timestamp>/`. iPhone `.HEIC` photos need
+converting to JPG first (ffmpeg decodes them). On the 7 test photos, colours
+separated cleanly. "Black" also picks up black volumes, and "white" finds
+nothing on pale grey or mint holds.
+
+### Changelog
+
+**2026-09-24**
+- `scout.py`: per-colour hold inventory on wall photos.
+- `safety_report.py`: IFSC-style judge (attempts, start, zone, top, control).
+- Landing safety: fall / jump-off / downclimb, knees, feet on pad, hand posting,
+  feet sync, drop, with a VLM verdict per landing.
+- Silent-feet score per placement and per foot, graded A–E.
+- Crash pad segmented with SAM 3.1, falling back to the floor.
+- Dyno lab (`src/dyno.py`): reach envelope and static / deadpoint / dyno /
+  out-of-reach per gap.
+- `report.html`: a self-contained report, plus a coaching note.
+- `app.py`: a local dashboard to upload, run and browse runs.
+
+## Where this goes next
+
+- **Live, in the browser.** MediaPipe pose on the phone, an Agent SDK coach on
+  the laptop, browser speech for the calls, tunnelled with `cloudflared`.
+- **A PPO humanoid** that learns the moves, with the dyno lab as its
+  reward/feasibility signal.
+- **Gym-level fall-zone heatmaps**, landings pooled across many clips per wall.
+- **Auto-judging comps**: attempts, zone and top per competitor, from a fixed
+  camera per problem.
+
 ## License
 
 [Apache-2.0](../LICENSE).
