@@ -291,9 +291,6 @@ holds, for this climber?"
   climbed move was static; the skips #9→#15, #10→#16 and #11→#17 came out
   `deadpoint`, and the VLM agreed (confidence 0.85–0.92).
 
-This is **not reinforcement learning.** It is a lightweight stand-in for the PPO
-humanoid policy the author explored in their dissertation: a feasibility oracle
-that could serve as the reward or termination signal for a future PPO agent.
 The assumptions are explicit, in `ASSUME` at the top of the file.
 
 **Sources:**
@@ -375,8 +372,6 @@ nothing on pale grey or mint holds.
 
 - **Live, in the browser.** MediaPipe pose on the phone, an Agent SDK coach on
   the laptop, browser speech for the calls, tunnelled with `cloudflared`.
-- **A PPO humanoid** that learns the moves, with the dyno lab as its
-  reward/feasibility signal.
 - **Gym-level fall-zone heatmaps**, landings pooled across many clips per wall.
 - **Auto-judging comps**: attempts, zone and top per competitor, from a fixed
   camera per problem.
