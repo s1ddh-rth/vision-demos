@@ -5,7 +5,8 @@ Three independent calls through the VLM Run OpenAI-compatible gateway:
 
 * ``segment_pad``   -- SAM 3.1 on one clean frame, merged into pad polygons.
 * ``fall_verdict``  -- Qwen VLM on 3-4 frames around a fall impact + metrics.
-* ``overall_coach`` -- Qwen text-only, a 2-3 sentence note from the run summary.
+* ``overall_coach`` -- Qwen text-only, a 2-3 sentence note from the run summary
+  (returns ``{"note", "cost"}``).
 
 Every call is best-effort: failures come back as ``None`` / an ``error`` field,
 never as an exception, so the pipeline keeps going without coaching.
@@ -264,6 +265,12 @@ def _parse_json(text: str) -> dict:
         raise
 
 
+def _as_bool(v) -> bool | None:
+    if isinstance(v, str):
+        v = {"true": True, "false": False, "yes": True, "no": False}.get(v.strip().lower())
+    return v if isinstance(v, bool) else None
+
+
 def _chat(client, messages, *, max_tokens: int, json_mode: bool):
     kwargs = dict(model=COACH_MODEL, messages=messages, max_tokens=max_tokens,
                   temperature=0.3,
@@ -294,9 +301,13 @@ def fall_verdict(client, frame_paths: list[str], metrics: dict) -> dict:
             f"These {len(frame_paths)} frames are in time order around the moment "
             "the climber hits the ground after a fall. Measured metrics from pose "
             f"tracking: {json.dumps(metrics, default=str)}.\n"
+            "The metrics come from automatic pose tracking and can be wrong. Trust the "
+            "frames: if what you see contradicts a metric (e.g. feet clearly off the pad, "
+            "knees locked when the metric says bent), say so in the verdict and set "
+            "agrees_with_metrics to false.\n"
             'Return JSON: {"verdict": "<=30 word coaching verdict on the landing, '
             'second person", "on_pad": true|false|null, "posture": "short phrase '
-            'describing landing posture"}')}]
+            'describing landing posture", "agrees_with_metrics": true|false}')}]
         for p in frame_paths[:4]:
             b64 = _jpeg_b64(_load_bgr(p), quality=85, max_side=768)
             content.append({"type": "image_url",
@@ -313,7 +324,8 @@ def fall_verdict(client, frame_paths: list[str], metrics: dict) -> dict:
             words = str(verdict).split()
             verdict = " ".join(words[:30])
         out = {"verdict": verdict, "on_pad": on_pad if isinstance(on_pad, bool) else None,
-               "posture": data.get("posture")}
+               "posture": data.get("posture"),
+               "agrees_with_metrics": _as_bool(data.get("agrees_with_metrics"))}
         if cost is not None:
             out["cost"] = round(cost, 6)
         return out
@@ -325,16 +337,19 @@ def fall_verdict(client, frame_paths: list[str], metrics: dict) -> dict:
 
 COACH_SYSTEM = (
     "You are a blunt, expert bouldering coach. Write 2-3 punchy sentences in "
-    "second person. Be specific: cite the numbers you are given. No greetings, "
-    "no fluff, no hedging, no bullet points, no markdown."
+    "second person. Be specific: cite the numbers you are given. Only claim what "
+    "the summary states; if a field says a value was not measured or was inferred "
+    "(e.g. judge.top.note / controlled_source), do not invent a number for it. "
+    "No greetings, no fluff, no hedging, no bullet points, no markdown."
 )
 
 
-def overall_coach(client, summary: dict) -> str | None:
+def overall_coach(client, summary: dict) -> dict | None:
     """A 2-3 sentence coaching note from the run summary (judge result, falls,
-    silent-feet score, worst placements). None on failure."""
+    silent-feet score, worst placements). Returns ``{"note", "cost"}``, or None
+    on failure."""
     try:
-        text, _ = _chat(client, [
+        text, cost = _chat(client, [
             {"role": "system", "content": COACH_SYSTEM},
             {"role": "user", "content": "Climb summary (JSON):\n"
              + json.dumps(summary, default=str, indent=1)
@@ -344,7 +359,9 @@ def overall_coach(client, summary: dict) -> str | None:
         # Strip any leaked reasoning block.
         if "</think>" in text:
             text = text.split("</think>", 1)[1].strip()
-        return text or None
+        if not text:
+            return None
+        return {"note": text, "cost": round(cost, 6) if cost is not None else 0.0}
     except Exception:
         return None
 
@@ -372,10 +389,14 @@ def dyno_verdict(client, image_path: str, gap: dict) -> dict:
             "orange ring = reach with a dyno (leg drive + flight), both estimated "
             "from this climber's own proportions. Physics estimate: "
             f"{json.dumps(gap, default=str)}.\n"
+            "The physics estimate comes from automatic pose/hold tracking and can be "
+            "wrong. Trust the image: if it contradicts the estimate (the gap looks "
+            "shorter/longer, or the marked holds are not real holds), say so in the "
+            "reason and set agrees_with_metrics to false.\n"
             'Return JSON: {"feasible": true|false, "style": "static"|"deadpoint"|'
             '"dyno"|"double-dyno"|"not possible", "confidence": 0.0-1.0, '
             '"reason": "<=30 words: body position, feet available, target hold '
-            'shape/size, catch difficulty"}')},
+            'shape/size, catch difficulty", "agrees_with_metrics": true|false}')},
             {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,"
              + _jpeg_b64(_load_bgr(image_path), quality=85, max_side=768)}}]
         text, cost = _chat(client, [{"role": "system", "content": DYNO_SYSTEM},
@@ -390,7 +411,8 @@ def dyno_verdict(client, image_path: str, gap: dict) -> dict:
         except (TypeError, ValueError):
             conf = None
         out = {"feasible": feas if isinstance(feas, bool) else None, "style": data.get("style"),
-               "confidence": conf, "reason": " ".join(str(data.get("reason") or "").split()[:30]) or None}
+               "confidence": conf, "reason": " ".join(str(data.get("reason") or "").split()[:30]) or None,
+               "agrees_with_metrics": _as_bool(data.get("agrees_with_metrics"))}
         if cost is not None:
             out["cost"] = round(cost, 6)
         return out

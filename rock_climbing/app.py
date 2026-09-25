@@ -13,6 +13,7 @@ import json
 import mimetypes
 import os
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -88,13 +89,17 @@ def list_runs() -> list[dict]:
 
 
 def list_clips() -> list[dict]:
+    """All clips, newest first (by mtime, across uploads/ and current/)."""
     clips = []
     for folder, tag in ((UPLOADS, "uploads"), (CURRENT, "current")):
         if folder.is_dir():
-            for p in sorted(folder.iterdir(), key=lambda p: -p.stat().st_mtime):
-                if p.suffix.lower() in SUFFIXES and not p.name.startswith("."):
-                    clips.append({"id": f"{tag}/{p.name}", "name": p.name, "folder": tag,
-                                  "size_mb": round(p.stat().st_size / 1e6, 1)})
+            for p in folder.iterdir():
+                if p.is_file() and p.suffix.lower() in SUFFIXES and not p.name.startswith("."):
+                    stt = p.stat()
+                    clips.append({"id": f"{tag}/{p.name}", "name": p.name, "stem": p.stem,
+                                  "folder": tag, "size_mb": round(stt.st_size / 1e6, 1),
+                                  "mtime": round(max(stt.st_mtime, stt.st_ctime), 3)})
+    clips.sort(key=lambda c: c["mtime"], reverse=True)
     return clips
 
 
@@ -160,6 +165,7 @@ def job_full(job: dict, clip: Path, color: str, grade: str, vlm: bool) -> None:
     try:
         job["state"] = "running"
         job["step"] = STEP_MAIN
+        job["log"].append(f"clip: {clip.resolve()}  |  hold colour: {color}  |  grade: {grade}")
         before = run_dirs()
         env = child_env({"CVJ_BATCH_MODE": "0", "CVJ_INPUT_VIDEO": str(clip),
                          "CVJ_HOLD_COLOR": color, "CVJ_ROUTE_GRADE": grade})
@@ -204,7 +210,8 @@ def job_view(job: dict) -> dict:
     end = job["finished"] or time.time()
     return {"id": job["id"], "kind": job["kind"], "state": job["state"], "step": job["step"],
             "log": list(job["log"])[-60:], "run_id": job["run_id"], "error": job["error"],
-            "clip": job.get("clip"), "elapsed": round(end - job["started"], 1)}
+            "clip": job.get("clip"), "color": job.get("color"), "grade": job.get("grade"),
+            "elapsed": round(end - job["started"], 1)}
 
 
 def active_job() -> dict | None:
@@ -338,6 +345,32 @@ class Handler(BaseHTTPRequestHandler):
             return self.start_report(path[len("/api/report/"):])
         self.send_error_json(404, "not found")
 
+    def do_DELETE(self):
+        path = unquote(urlparse(self.path).path)
+        if path.startswith("/api/runs/"):
+            return self.delete_run(path[len("/api/runs/"):].strip("/"))
+        self.send_error_json(404, "not found")
+
+    def delete_run(self, rid: str):
+        out = OUT.resolve()
+        target = (OUT / rid).resolve() if rid else out
+        if out not in target.parents or not target.is_dir() or not (target / "poses.json").is_file():
+            return self.send_error_json(404, "no such run")
+        j = active_job()
+        if j and (j.get("run_id") == run_id(target)
+                  or (j["kind"] == "run" and not j.get("run_id")
+                      and target.stat().st_mtime >= j["started"] - 5)):
+            return self.send_error_json(409, "a job is running on this run; wait for it to finish")
+        newest = max((f.stat().st_mtime for f in target.rglob("*") if f.is_file()), default=0)
+        if time.time() - newest < 60:  # e.g. main.py started from a terminal is still writing it
+            return self.send_error_json(409, "run folder was written in the last minute; "
+                                             "it may still be in progress")
+        try:
+            shutil.rmtree(target)
+        except OSError as e:
+            return self.send_error_json(500, f"delete failed: {e}")
+        self.send_json({"deleted": rid})
+
     def upload(self):
         n = int(self.headers.get("Content-Length") or 0)
         if n <= 0:
@@ -384,8 +417,9 @@ class Handler(BaseHTTPRequestHandler):
     def start_run(self):
         body = self.read_json()
         clip = clip_path(body.get("clip", ""))
-        if clip is None:
-            return self.send_error_json(400, "unknown clip; upload one or pick from the list")
+        if clip is None or not clip.is_file():
+            return self.send_error_json(400, f"clip not found: {body.get('clip')!r}; "
+                                             "refresh the list and pick an existing clip")
         color = str(body.get("hold_color") or "blue").lower().strip()
         if color not in COLORS:
             return self.send_error_json(400, f"hold_color must be one of {sorted(COLORS)}")
@@ -394,7 +428,7 @@ class Handler(BaseHTTPRequestHandler):
             j = active_job()
             return self.send_json({"error": "a job is already running",
                                    "job": j["id"] if j else None}, 409)
-        job = new_job("run", clip=clip.name)
+        job = new_job("run", clip=clip.name, color=color, grade=grade)
         threading.Thread(target=job_full, args=(job, clip, color, grade, bool(body.get("vlm"))),
                          daemon=True).start()
         self.send_json({"job": job["id"]})
@@ -408,7 +442,9 @@ class Handler(BaseHTTPRequestHandler):
             j = active_job()
             return self.send_json({"error": "a job is already running",
                                    "job": j["id"] if j else None}, 409)
-        job = new_job("report", clip=target.name)
+        info = next((r for r in list_runs() if r["id"] == run_id(target)), {})
+        job = new_job("report", clip=info.get("clip") or target.name,
+                      color=info.get("color"), grade=info.get("grade"))
         threading.Thread(target=job_report, args=(job, target, bool(body.get("vlm"))),
                          daemon=True).start()
         self.send_json({"job": job["id"]})

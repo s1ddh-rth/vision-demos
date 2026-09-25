@@ -145,8 +145,11 @@ def score_demo(data: dict, t: Track, holds: Holds, scale: dict) -> dict:
             add(t_top, "progress", WEIGHTS["progress"] * (1.0 - hi), f"match on top #{top_id}")
             hi = 1.0
 
-    # campus: spells with both feet visible and neither on a hold
-    feet = np.array([_feet_on_hold(t, holds, scale, f) if a0 <= f <= int(t1 * fps) else None
+    # campus: spells hanging on a route hold with both feet visible and neither on a hold
+    # (hands off the route = not on this problem, so not campusing it)
+    hh = dyno._hand_holds(t, holds, 0.35 * scale["torso"], (a0, int(t1 * fps)))
+    feet = np.array([_feet_on_hold(t, holds, scale, f)
+                     if a0 <= f <= int(t1 * fps) and (hh[LWR][f] is not None or hh[RWR][f] is not None) else None
                      for f in range(t.n)], dtype=object)
     for s, e in _runs(np.array([v is False for v in feet])):
         dur = (e - s + 1) / fps

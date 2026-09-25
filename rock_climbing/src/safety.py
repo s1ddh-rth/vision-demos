@@ -87,12 +87,31 @@ def load_track(run: Path) -> Track:
     return Track(xy, sc, float(P["video_fps"]), (w, h))
 
 
-def load_floor(cache_dir: Path, size) -> np.ndarray | None:
-    """The floor's top edge as pixel y per pixel column, from the newest floor cache."""
-    files = sorted(cache_dir.glob("floor.*.json"), key=lambda p: p.stat().st_mtime)
-    if not files:
+def floor_cache_for(run: Path, cache_dir: Path) -> Path | None:
+    """This run's own floor cache: the key main.py used, rebuilt from the run's
+    converted video. The newest floor.*.json belongs to whichever clip ran last."""
+    try:
+        import config as cfg
+        from src import floor as floor_mod
+        mp4 = Path(json.loads((run / "run.json").read_text())["converted"]["path"])
+        settings = {"sample_frames": cfg.HOLD_SAMPLE_FRAMES, "min_score": cfg.FLOOR_MIN_SCORE,
+                    "min_area": cfg.FLOOR_MIN_AREA, "resolution": cfg.FLOOR_EDGE_RESOLUTION}
+        path = floor_mod.cache_path(mp4, cache_dir, model=cfg.HOLD_MODEL,
+                                    prompt=cfg.FLOOR_PROMPT, settings=settings)
+        return path if path.is_file() else None
+    except Exception:  # noqa: BLE001 - no run.json / video moved: no floor, not a wrong one
         return None
-    edge = [np.nan if v is None else v for v in json.loads(files[-1].read_text())["edge"]]
+
+
+def load_floor(cache_dir: Path, size, run: Path | None = None) -> np.ndarray | None:
+    """The floor's top edge as pixel y per pixel column, from this run's floor cache."""
+    path = floor_cache_for(run, cache_dir) if run is not None else None
+    if path is None:
+        return None
+    data = json.loads(path.read_text()).get("edge")
+    if not data:
+        return None
+    edge = [np.nan if v is None else v for v in data]
     edge = np.array(edge, float)
     w, h = size
     xs = np.linspace(0, w - 1, len(edge))
@@ -194,7 +213,8 @@ def judge(t: Track, holds: Holds, scale: dict, floor_px, climb: dict) -> dict:
     toe = TOE_OFFSET * t.size[1]
     on_floor = feet_on_floor(t, floor_px, toe)
     hands = hand_contacts(t, holds, reach=0.35 * scale["torso"])
-    ids = sorted(holds.ids)
+    # low -> high by image height (ids are banded rows, ordered by x inside a row)
+    ids = sorted(holds.ids, key=lambda i: -holds.centroid[i][1])
     top_id = climb.get("final_hold_id") if climb.get("final_hold_id") in holds.ids else ids[-1]
     zone_id = ids[int(round(0.6 * (len(ids) - 1)))]
 
@@ -471,7 +491,7 @@ def analyze(run: Path, cache_dir: Path, pad_polys_norm: list | None = None) -> d
     climb = json.loads((run / "climb.json").read_text())
     holds = Holds(holds_raw, t.size)
     scale = body_scale(t)
-    floor_px = load_floor(cache_dir, t.size)
+    floor_px = load_floor(cache_dir, t.size, run)
     pad_px = [(np.array(p) * t.size).astype(np.float32) for p in (pad_polys_norm or [])]
     j = judge(t, holds, scale, floor_px, climb)
     fl = falls(t, scale, floor_px, j, pad_px)

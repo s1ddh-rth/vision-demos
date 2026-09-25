@@ -22,6 +22,7 @@ ASSUME = {
     "leg_drive": 0.35,           # share of leg length regained by extending from a crouch
     "static_wingspan_share": 0.75,  # of the wingspan usable on the wall while holding on
 }
+WINGSPAN_MAX_BL = 1.06          # wingspan / height: ape index above +6% is rare
 G = 9.81
 SMALL, MEDIUM = 0.035, 0.06      # hold radius in body-lengths: catch surface buckets
 
@@ -39,23 +40,28 @@ def envelope(t: Track, holds: Holds, scale: dict, hands: dict) -> dict:
     arm = np.nanpercentile(np.linalg.norm(t.xy[:, [LSH, RSH]] - t.xy[:, [LEL, REL]], axis=2), 90) + \
           np.nanpercentile(np.linalg.norm(t.xy[:, [LEL, REL]] - t.xy[:, [LWR, RWR]], axis=2), 90)
     shoulders = np.nanmedian(np.linalg.norm(t.xy[:, LSH] - t.xy[:, RSH], axis=1))
-    wingspan = 2 * arm + shoulders
+    # a low, upward-looking camera or lost frames can stretch the arm reading
+    # past anything human; clamp to a real ape index
+    wingspan = min(2 * arm + shoulders, WINGSPAN_MAX_BL * body)
     # longest span actually held hand-to-hand on this climb
     seen = 0.0
     for f in range(t.n):
         l, r = hands[LWR][f], hands[RWR][f]
         if l and r and l != r:
             seen = max(seen, float(np.linalg.norm(holds.centroid[l] - holds.centroid[r])))
-    static = max(seen, ASSUME["static_wingspan_share"] * wingspan) / body
+    # a hand read onto the wrong hold (a volume, a neighbour) can fake a long
+    # "held" span, so it may raise the static limit only up to the same cap
+    cap = ASSUME["static_wingspan_share"] * WINGSPAN_MAX_BL * body
+    static = min(max(seen, ASSUME["static_wingspan_share"] * wingspan), cap) / body
     flight_bl = (ASSUME["takeoff_speed_m_s"] ** 2 / (2 * G)) / ASSUME["height_m"]
     legs_bl = ASSUME["leg_drive"] * (scale["thigh"] + scale["shin"]) / body
-    return {"static_span_bl": round(static, 3), "seen_span_bl": round(seen / body, 3),
+    return {"static_span_bl": round(float(static), 3), "seen_span_bl": round(seen / body, 3),
             "wingspan_bl": round(wingspan / body, 3), "dyno_gain_bl": round(flight_bl + legs_bl, 3)}
 
 
 def classify(gap_vec: np.ndarray, env: dict, body: float) -> tuple[str, float]:
     gap = float(np.linalg.norm(gap_vec)) / body
-    up = max(0.0, -gap_vec[1] / max(np.linalg.norm(gap_vec), 1e-6))   # y grows down
+    up = max(0.0, -float(gap_vec[1]) / max(float(np.linalg.norm(gap_vec)), 1e-6))   # y grows down
     gain = env["dyno_gain_bl"] * max(0.3, up)      # dynos buy height, little sideways reach
     static = env["static_span_bl"]
     if gap <= static:

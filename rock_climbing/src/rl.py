@@ -53,12 +53,14 @@ class RouteEnv:
         self.rng = np.random.default_rng(seed)
         self.n_actions = 2 * n
 
-    # state = (l, r) indices; action a = hand * n + target (hand 0 = left)
+    # state = (l, r, zone_hit) — l, r hold indices; zone_hit in the state keeps the
+    # one-off zone bonus Markov (otherwise Q learns to step back down to re-earn it).
+    # action a = hand * n + target (hand 0 = left)
     def sid(self, s):
-        return s[0] * self.n + s[1]
+        return (s[0] * self.n + s[1]) * 2 + int(s[2])
 
     def legal(self, s) -> np.ndarray:
-        l, r = s
+        l, r = s[0], s[1]
         m = np.zeros(self.n_actions, bool)
         m[:self.n] = self.legal_to[r]          # left hand moves, right anchors
         m[self.n:] = self.legal_to[l]
@@ -67,22 +69,24 @@ class RouteEnv:
         return m
 
     def reset(self):
-        self.s, self.steps, self.zone_hit = self.start, 0, self.zone in self.start
+        self.steps, self.zone_hit = 0, self.zone in self.start
+        self.s = (*self.start, self.zone_hit)
         return self.s
 
     def step(self, a, stochastic: bool = True):
         hand, tgt = divmod(a, self.n)
-        l, r = self.s
+        l, r = self.s[0], self.s[1]
         anchor = r if hand == 0 else l
         rew = self.move_r[anchor, tgt] + WEIGHTS["time"] * MOVE_S
         self.steps += 1
         if stochastic and self.fail_p[anchor, tgt] > 0 and self.rng.random() < self.fail_p[anchor, tgt]:
             return self.s, rew + WEIGHTS["fall"], True, {"fell": True}
         ns = (tgt, r) if hand == 0 else (l, tgt)
-        rew += WEIGHTS["progress"] * (self.h[list(ns)].max() - self.h[list(self.s)].max())
+        rew += WEIGHTS["progress"] * (self.h[list(ns)].max() - max(self.h[l], self.h[r]))
         if not self.zone_hit and self.zone is not None and tgt == self.zone:
             self.zone_hit = True
             rew += WEIGHTS["zone"]
+        ns = (*ns, self.zone_hit)
         self.s = ns
         topped = ns[0] == self.top and ns[1] == self.top
         if topped:
@@ -112,14 +116,15 @@ def _rollout(env: RouteEnv, policy, stochastic: bool):
 def replay(env: RouteEnv, start_holds, moves: list[dict], top_controlled: bool) -> tuple[float, list[dict]]:
     """Score a recorded hand sequence with the env's reward (no stochastic failure)."""
     env.reset()
-    env.s = (env.idx[start_holds[0]], env.idx[start_holds[1]])
-    env.zone_hit = env.zone in env.s
+    s0 = (env.idx[start_holds[0]], env.idx[start_holds[1]])
+    env.zone_hit = env.zone in s0
+    env.s = (*s0, env.zone_hit)
     ret, beta, steps = 0.0, [], []
     for m in moves:
         steps.append(((0 if m["hand"] == "left" else 1) * env.n + env.idx[m["to"]], m.get("t")))
     # the finish hold can sit off the frame edge; if the judge saw a controlled top,
     # finish with the match the pose could not see
-    l, r = env.s
+    l, r = env.s[0], env.s[1]
     for a, _ in steps:
         hand, tgt = divmod(a, env.n)
         l, r = (tgt, r) if hand == 0 else (l, tgt)
@@ -131,7 +136,9 @@ def replay(env: RouteEnv, start_holds, moves: list[dict], top_controlled: bool) 
             steps.append((env.n + env.top, None))
     for a, tt in steps:
         s = env.s
-        _, rew, done, _ = env.step(a, stochastic=False)
+        _, rew, done, inf = env.step(a, stochastic=False)
+        if inf.get("topped") and not top_controlled:
+            rew -= WEIGHTS["top"]    # matched the top but the judge saw no control: no top bonus
         d = env.describe(s, a, rew)
         d["t"] = tt
         if tt is None:
@@ -147,7 +154,7 @@ def train(env: RouteEnv, episodes: int = 4000, alpha: float = 0.2, gamma: float 
     ``human`` = (start_holds, moves, top_controlled) to score the human beta in the same env."""
     rng = np.random.default_rng(seed)
     env.rng = np.random.default_rng(seed + 1)
-    nS = env.n * env.n
+    nS = env.n * env.n * 2
     Q = np.zeros((nS, env.n_actions))
     masks = {}
 
@@ -185,7 +192,7 @@ def train(env: RouteEnv, episodes: int = 4000, alpha: float = 0.2, gamma: float 
         rets.append(r)
     out = {"algo": "tabular Q-learning", "episodes": episodes, "seed": seed,
            "alpha": alpha, "gamma": gamma, "epsilon": "1.0 -> 0.05 linear over 80% of episodes",
-           "state_space": f"{env.n}x{env.n} (left-hand hold, right-hand hold) = {nS}",
+           "state_space": f"{env.n}x{env.n}x2 (left-hand hold, right-hand hold, zone reached) = {nS}",
            "action_space": f"2 hands x {env.n} holds = {env.n_actions} (masked to reachable)",
            "move_s": MOVE_S, "max_steps": MAX_STEPS, "fail_p": dict(FAIL_P),
            "training_curve": curve,

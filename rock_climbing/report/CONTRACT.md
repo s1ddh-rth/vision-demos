@@ -22,7 +22,10 @@ Times are seconds from clip start.
     "attempts": 1,
     "start": {"t": 5.97, "frame": 179, "holds": [7, 8]},
     "zone":  {"hold": 9, "reached": true, "t": 9.1},
-    "top":   {"hold": 17, "reached": true, "controlled": true, "t": 20.4, "hold_s": 1.2},
+    "top":   {"hold": 17, "reached": true, "controlled": true, "t": 20.4, "hold_s": 1.2,
+             "note": null},   // set when control was borrowed from the route read (top hold at the
+                              // frame edge): the page then shows "controlled (from route read; ...)"
+                              // instead of the hold_s seconds, and the coach is told hold_s was not measured
     "events": [{"t": 5.97, "label": "Start: both hands on start holds, feet off the mat", "kind": "start"}]
   },
 
@@ -45,7 +48,9 @@ Times are seconds from clip start.
     "flags": ["Stiff left knee"],       // human-readable issues
     "keyframe": "fall_1.jpg",           // relative to run_dir, may be null
     "ankle_xy": [[0.4, 0.62], [0.47, 0.62]],
-    "verdict": "Solid two-foot landing ..."   // from a VLM on the gateway, may be null
+    "verdict": "Solid two-foot landing ...",  // from a VLM on the gateway, may be null
+    "vlm": {"on_pad": true, "posture": "...", "agrees_with_metrics": true}
+                                              // optional; agrees_with_metrics=false -> "VLM disagrees" tag
   }],
 
   "feet": {
@@ -78,7 +83,8 @@ Times are seconds from clip start.
       "target_size": "small",           // "small" | "medium" | "large" catch surface
       "frame": "dyno_1.jpg",            // annotated frame (from/to holds + arrow), may be null
       "vlm": {"feasible": true, "style": "dyno", "confidence": 0.7,
-              "reason": "<=30 words"}   // gateway VLM read of the annotated frame, may be null
+              "reason": "<=30 words", "agrees_with_metrics": true}
+                                        // false -> "VLM disagrees" tag; gateway VLM read of the annotated frame, may be null
     }]
   },
 
@@ -113,7 +119,7 @@ Times are seconds from clip start.
   },
 
   "coach": "One-paragraph overall coaching note from the gateway VLM (may be null)",
-  "cost": {"sam_pad": 0.012, "vlm": 0.004},
+  "cost": {"sam_pad": 0.012, "vlm": 0.004},   // vlm includes fall + dyno verdicts and the coach note
   "generated_at": "2026-09-24T20:40:00"
 }
 ```

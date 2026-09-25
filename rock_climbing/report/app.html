@@ -44,8 +44,23 @@ label.f{display:block;margin:18px 0 8px}
 .clips{display:flex;flex-direction:column;gap:6px;max-height:170px;overflow:auto}
 .clip{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--card2);font-family:var(--mono);font-size:13px}
 .clip:hover{border-color:var(--line2)}
-.clip.sel{border-color:var(--acc);background:var(--accg)}
+.clip .rad{width:16px;height:16px;border-radius:50%;border:2px solid var(--line2);flex:none;position:relative}
+.clip.sel{border:2px solid var(--acc);background:var(--accg);padding:8px 11px;color:#fff;font-weight:700;box-shadow:0 0 0 3px rgba(47,184,255,.18)}
+.clip.sel .rad{border-color:var(--acc)}
+.clip.sel .rad::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--acc)}
 .clip .tag{margin-left:auto;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase}
+.clip .seltag{font-size:10px;letter-spacing:.12em;color:#061018;background:var(--acc);border-radius:99px;padding:2px 8px;font-weight:700}
+.newtag{font-size:10px;letter-spacing:.12em;color:#061018;background:var(--warn);border-radius:99px;padding:2px 8px;font-weight:700;animation:flash 1s ease-in-out 6}
+@keyframes flash{50%{opacity:.25}}
+.selclip{margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--tx2)}
+.selclip b{color:var(--tx)}
+.dup{display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--warng);border:1px solid rgba(255,176,32,.55);font-size:13.5px}
+.dup .acts{margin-top:10px}
+.cchip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;border:1px solid var(--line2);border-radius:99px;padding:3px 10px;background:var(--card2);color:var(--tx)}
+.cchip .sw{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.35)}
+.btn.danger{color:var(--bad);border-color:rgba(255,77,94,.45)}
+.btn.danger:hover{border-color:var(--bad)}
+.btn.danger.solid{background:var(--bad);color:#fff;border-color:var(--bad)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;background:var(--card2);border:1px solid var(--line2);border-radius:99px;padding:6px 12px;cursor:pointer;color:var(--tx2);user-select:none}
 .chip .sw{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.25)}
@@ -63,7 +78,7 @@ input[type=text]:focus{border-color:var(--acc)}
 .btn:hover{border-color:var(--acc)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.pri{background:var(--acc);border-color:var(--acc);color:#061018}
-.run{width:100%;margin-top:22px;padding:16px;font-size:18px;letter-spacing:.06em;border-radius:12px;background:linear-gradient(90deg,var(--acc2),var(--acc));border:0;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 8px 30px rgba(47,184,255,.22)}
+.run{width:100%;margin-top:22px;padding:16px;font-size:17px;letter-spacing:.02em;font-family:var(--mono);border-radius:12px;background:linear-gradient(90deg,var(--acc2),var(--acc));border:0;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 8px 30px rgba(47,184,255,.22)}
 .run:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
 .hint{font-size:12px;color:var(--tx3);margin-top:8px;font-family:var(--mono)}
 .prog-head{display:flex;align-items:center;gap:12px}
@@ -122,6 +137,7 @@ pre.log{background:#090b0e;border:1px solid var(--line);border-radius:10px;paddi
 
       <label class="f eyebrow">Clip to analyze</label>
       <div class="clips" id="clips"><div class="dim mono" style="font-size:12px">loading…</div></div>
+      <div class="selclip" id="selClip"></div>
 
       <label class="f eyebrow">Hold colour (the route)</label>
       <div class="chips" id="colors"></div>
@@ -138,6 +154,7 @@ pre.log{background:#090b0e;border:1px solid var(--line);border-radius:10px;paddi
       </div>
 
       <button class="run" id="runBtn" disabled>RUN ANALYSIS</button>
+      <div class="dup" id="dup"></div>
       <div class="hint" id="runHint">Pick a clip first.</div>
     </div>
 
@@ -170,7 +187,10 @@ pre.log{background:#090b0e;border:1px solid var(--line);border-radius:10px;paddi
 const COLORS = {blue:"#2f7bff",green:"#35c24a",yellow:"#ffd21f",red:"#eb2a2a",purple:"#a64fdc",pink:"#ff6bb4",orange:"#ff8c00",black:"#111",white:"#f5f5f5"};
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const st = {clip:null, color:"blue", job:null, poll:null, openedFor:null};
+const st = {clip:null, clips:[], known:null, fresh:new Set(), runs:[], color:"blue", job:null, poll:null, openedFor:null};
+const stemOf = n => String(n || "").replace(/\.[^.]+$/, "");
+const selClip = () => st.clips.find(c => c.id === st.clip);
+const grade = () => $("grade").value.trim() || "VB";
 try { const c = localStorage.getItem("cvj.color"); if (c && COLORS[c]) st.color = c;
       const g = localStorage.getItem("cvj.grade"); if (g) $("grade").value = g;
       $("vlm").checked = localStorage.getItem("cvj.vlm") === "1"; } catch (e) {}
@@ -179,27 +199,46 @@ const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 function renderColors() {
   $("colors").innerHTML = Object.entries(COLORS).map(([k, v]) =>
     `<span class="chip ${k === st.color ? "sel" : ""}" data-c="${k}"><span class="sw" style="background:${v}"></span>${k}</span>`).join("");
-  $("colors").querySelectorAll(".chip").forEach(el => el.onclick = () => { st.color = el.dataset.c; save("cvj.color", st.color); renderColors(); });
+  $("colors").querySelectorAll(".chip").forEach(el => el.onclick = () => { st.color = el.dataset.c; save("cvj.color", st.color); renderColors(); hideDup(); updateRunBtn(); });
 }
-$("grade").oninput = () => save("cvj.grade", $("grade").value);
+$("grade").oninput = () => { save("cvj.grade", $("grade").value); updateRunBtn(); };
 $("vlm").onchange = () => save("cvj.vlm", $("vlm").checked ? "1" : "0");
 
+// Clips come newest first. Default = newest; a clip that appears later (upload, or a file
+// moved into data/input while the page is open) is auto-selected and flagged "new".
 async function loadClips(select) {
-  const clips = await (await fetch("/api/clips")).json();
-  if (select) st.clip = select;
-  if (!st.clip && clips.length) st.clip = clips[0].id;
-  $("clips").innerHTML = clips.length ? clips.map(c =>
-    `<div class="clip ${c.id === st.clip ? "sel" : ""}" data-id="${esc(c.id)}"><span>${esc(c.name)}</span><span class="dim">${c.size_mb} MB</span><span class="tag">${c.folder === "uploads" ? "uploaded" : "input/current"}</span></div>`).join("")
-    : `<div class="dim mono" style="font-size:12px">No clips yet: drop one above.</div>`;
-  $("clips").querySelectorAll(".clip").forEach(el => el.onclick = () => { st.clip = el.dataset.id; loadClips(); });
+  let clips;
+  try { clips = await (await fetch("/api/clips")).json(); } catch (e) { return; }
+  const ids = new Set(clips.map(c => c.id));
+  if (st.known) {
+    const added = clips.filter(c => !st.known.has(c.id));
+    if (added.length) { added.forEach(c => st.fresh.add(c.id)); if (!select) st.clip = added[0].id; hideDup(); }
+  }
+  st.known = ids; st.clips = clips;
+  if (select) { st.clip = select; st.fresh.add(select); hideDup(); }
+  if (!st.clip || !ids.has(st.clip)) st.clip = clips.length ? clips[0].id : null;
+  renderClips();
+}
+function renderClips() {
+  const clips = st.clips;
+  $("clips").innerHTML = clips.length ? clips.map(c => {
+    const sel = c.id === st.clip;
+    return `<div class="clip ${sel ? "sel" : ""}" data-id="${esc(c.id)}" title="${esc(c.id)}"><span class="rad"></span><span>${esc(c.name)}</span>${sel ? `<span class="seltag">SELECTED</span>` : ""}${st.fresh.has(c.id) ? `<span class="newtag">NEW CLIP</span>` : ""}<span class="dim">${c.size_mb} MB</span><span class="tag">${c.folder === "uploads" ? "uploaded" : "input/current"}</span></div>`;
+  }).join("") : `<div class="dim mono" style="font-size:12px">No clips yet: drop one above.</div>`;
+  $("clips").querySelectorAll(".clip").forEach(el => el.onclick = () => {
+    if (st.clip !== el.dataset.id) { st.clip = el.dataset.id; hideDup(); } renderClips(); });
+  const c = selClip();
+  $("selClip").innerHTML = c ? `Selected: <b>${esc(c.name)}</b> <span class="dim">(${c.folder === "uploads" ? "data/input/uploads" : "data/input/current"} · added ${new Date(c.mtime*1000).toLocaleString()})</span>` : "";
   updateRunBtn();
 }
 function updateRunBtn() {
-  const busy = st.job && ["queued","running"].includes(st.job.state);
-  $("runBtn").disabled = !st.clip || busy;
-  $("runHint").textContent = busy ? "A job is running…" : st.clip ? `Ready: ${st.clip.split("/").pop()}` : "Pick a clip first.";
-  document.querySelectorAll(".rerun").forEach(b => b.disabled = busy);
+  const busy = st.job && ["queued","running"].includes(st.job.state), c = selClip();
+  $("runBtn").disabled = !c || busy;
+  $("runBtn").textContent = c ? `Run ${c.name} · ${st.color} · ${grade()}` : "RUN ANALYSIS";
+  $("runHint").textContent = busy ? "A job is running…" : c ? `Will analyze ${c.id} with ${st.color} holds, grade ${grade()}.` : "Pick a clip first.";
+  document.querySelectorAll(".rerun,.del").forEach(b => b.disabled = busy);
 }
+function hideDup() { $("dup").style.display = "none"; $("dup").innerHTML = ""; }
 
 // ── upload ──
 const drop = $("drop");
@@ -232,11 +271,25 @@ async function post(url, body) {
   if (!r.ok) throw Object.assign(new Error(j.error || r.status), {job:j.job});
   return j;
 }
-$("runBtn").onclick = async () => {
+async function startRun() {
+  hideDup();
   try {
-    const r = await post("/api/run", {clip:st.clip, hold_color:st.color, grade:$("grade").value.trim() || "VB", vlm:$("vlm").checked});
+    const r = await post("/api/run", {clip:st.clip, hold_color:st.color, grade:grade(), vlm:$("vlm").checked});
     follow(r.job);
   } catch (e) { showErr(e.message); if (e.job) follow(e.job); }
+}
+$("runBtn").onclick = async () => {
+  const c = selClip(); if (!c) return;
+  try { st.runs = await (await fetch("/api/runs")).json(); } catch (e) {}
+  const prev = st.runs.filter(r => r.clip === stemOf(c.name) && r.color === st.color);
+  if (!prev.length) return startRun();
+  const last = prev[0], d = $("dup");
+  d.innerHTML = `<b>${esc(c.name)} · ${esc(st.color)}</b> already has ${prev.length} run${prev.length > 1 ? "s" : ""} (latest ${esc(new Date(last.created).toLocaleString())}${last.result ? ", " + esc(last.result) : ""}). Is this really the clip you meant?
+    <div class="acts"><button class="btn" id="dupRun">Run again anyway</button>${last.has_report ? `<a class="btn pri" id="dupOpen" href="/runs/${encodeURI(last.id)}/report.html" target="_blank" rel="noopener">Open existing report</a>` : ""}<button class="btn" id="dupCancel">Cancel</button></div>`;
+  d.style.display = "block";
+  $("dupRun").onclick = startRun;
+  $("dupCancel").onclick = hideDup;
+  if ($("dupOpen")) $("dupOpen").onclick = hideDup;
 };
 async function rerun(id) {
   try { const r = await post("/api/report/" + id, {vlm:$("vlm").checked}); follow(r.job); $("progCard").scrollIntoView({behavior:"smooth"}); }
@@ -258,7 +311,7 @@ function paint(j) {
   const active = ["queued","running"].includes(j.state);
   $("spin").style.display = active ? "block" : "none";
   $("state").className = "state " + j.state; $("state").textContent = j.state;
-  $("progTitle").textContent = (j.kind === "report" ? "Re-analysis · " : "Run · ") + (j.clip || "");
+  $("progTitle").textContent = (j.kind === "report" ? "Re-analysis · " : "Run · ") + (j.clip || "") + (j.color ? ` · ${j.color}` : "") + (j.grade ? ` · ${j.grade}` : "");
   $("elapsed").textContent = fmt(j.elapsed);
   const inReport = (j.step || "").startsWith("Judge");
   $("s1").className = "stp " + (j.kind === "report" ? "ok" : inReport || j.state === "done" ? "ok" : active ? "on" : "");
@@ -279,6 +332,7 @@ function paint(j) {
 async function loadRuns() {
   // newest first from the API: keep one card per clip + route colour, count the rest
   const all = await (await fetch("/api/runs")).json(), seen = new Map();
+  st.runs = all;
   for (const r of all) {
     const k = `${r.clip}|${r.color}`;
     if (seen.has(k)) seen.get(k).older++; else seen.set(k, { ...r, older: 0 });
@@ -290,7 +344,8 @@ async function loadRuns() {
       <div class="th" style="background-image:url('/runs/${encodeURI(r.id)}/holds.png')"><span class="badge res ${r.result ? esc(r.result) : "na"}">${esc(res)}</span></div>
       <div class="bd">
         <div><div class="name">${esc(r.clip)}</div>
-          <div class="dim mono" style="font-size:11.5px">${d.toLocaleString()} · ${esc(r.color || "?")}${r.grade ? " · " + esc(r.grade) : ""}${r.older ? ` · +${r.older} older run${r.older > 1 ? "s" : ""}` : ""}</div></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap"><span class="cchip"><span class="sw" style="background:${COLORS[r.color] || "transparent"}"></span>${esc(r.color || "?")}${r.grade ? " · " + esc(r.grade) : ""}</span>
+          <span class="dim mono" style="font-size:11.5px">${d.toLocaleString()}${r.older ? ` · +${r.older} older run${r.older > 1 ? "s" : ""}` : ""}</span></div></div>
         <div class="kv">
           <div><span class="eyebrow">Result</span><b>${esc(r.result || "–")}</b></div>
           <div><span class="eyebrow">Feet</span><b>${r.feet_grade ? esc(r.feet_grade) : "–"}${r.feet_score != null ? `<small class="dim" style="font-size:11px"> ${r.feet_score}</small>` : ""}</b></div>
@@ -299,13 +354,27 @@ async function loadRuns() {
         <div class="acts">
           ${r.has_report ? `<a class="btn pri" href="/runs/${encodeURI(r.id)}/report.html" target="_blank" rel="noopener">Open report</a>` : `<span class="btn" style="opacity:.5">No report yet</span>`}
           <button class="btn rerun" data-id="${esc(r.id)}">${r.has_report ? "Re-run analysis" : "Build report"}</button>
+          <span class="delwrap" data-id="${esc(r.id)}"><button class="btn danger del">Delete</button></span>
         </div>
       </div></div>`;
   }).join("") : `<div class="empty">No runs yet. Your first analysis will appear here.</div>`;
   document.querySelectorAll(".rerun").forEach(b => b.onclick = () => rerun(b.dataset.id));
+  document.querySelectorAll(".delwrap").forEach(w => w.querySelector(".del").onclick = () => askDelete(w));
   updateRunBtn();
 }
+function askDelete(w) {
+  const id = w.dataset.id;
+  w.innerHTML = `<span class="mono" style="font-size:12px;color:var(--bad)">Delete ${esc(id)}? </span><button class="btn danger solid del-yes">Yes, delete</button> <button class="btn del-no">Keep</button>`;
+  w.querySelector(".del-no").onclick = () => loadRuns();
+  w.querySelector(".del-yes").onclick = async () => {
+    const r = await fetch("/api/runs/" + id.split("/").map(encodeURIComponent).join("/"), {method:"DELETE"});
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { w.innerHTML = `<span class="mono" style="font-size:12px;color:var(--bad)">${esc(j.error || r.status)}</span>`; setTimeout(loadRuns, 3000); return; }
+    hideDup(); loadRuns();
+  };
+}
 $("refresh").onclick = () => { loadRuns(); loadClips(); };
+setInterval(() => { if (!document.hidden) loadClips(); }, 10000);
 
 (async () => {
   renderColors(); await loadClips(); await loadRuns();

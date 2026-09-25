@@ -30,7 +30,8 @@ TOKEN = "/*__SAFETY_DATA__*/null"
 
 
 def newest_run() -> Path:
-    runs = sorted((p for p in OUT.glob("*/**/poses.json")), key=lambda p: p.stat().st_mtime)
+    runs = sorted((p for p in OUT.glob("*/**/poses.json")
+                   if p.relative_to(OUT).parts[0] != "scout"), key=lambda p: p.stat().st_mtime)
     if not runs:
         sys.exit(f"no runs with poses.json under {OUT}; run main.py first")
     return runs[-1].parent
@@ -41,8 +42,19 @@ def clip_name(run: Path) -> str:
     return vids[0].name[:-len("_climb.mp4")] if vids else run.name
 
 
-def source_video(clip: str) -> Path | None:
-    """The converted portrait mp4 the poses were read on."""
+def source_video(clip: str, run: Path | None = None) -> Path | None:
+    """The converted portrait mp4 the poses were read on.
+
+    run.json's ``converted.path`` is authoritative (two clips can share a
+    filename); the newest name match in data/cache is only a fallback."""
+    for d in ([run, run.parent] if run is not None else []):
+        try:
+            conv = json.loads((d / "run.json").read_text(encoding="utf-8")).get("converted") or {}
+            p = Path(conv.get("path") or "")
+            if conv.get("path") and p.is_file():
+                return p
+        except (OSError, ValueError, AttributeError):
+            continue
     c = sorted(CACHE.glob(f"{clip}.*.mp4"), key=lambda p: p.stat().st_mtime)
     return c[-1] if c else None
 
@@ -59,6 +71,35 @@ def grab(video: Path, frames: list[int]) -> list[np.ndarray]:
     return out
 
 
+def footage_warnings(run: Path, r: dict) -> list[str]:
+    """Plain-language flags for footage the numbers shouldn't be trusted on."""
+    out = []
+    top = (r.get("judge") or {}).get("top") or {}
+    if top.get("note"):
+        out.append("The finish hold sits at the top edge of the frame: the real top may be "
+                   "out of shot, so TOP means the highest hold the camera can see.")
+    try:
+        t = safety.load_track(run)
+        seen = np.isfinite(t.xy[:, 11, 1]) | np.isfinite(t.xy[:, 12, 1])
+        if top.get("t"):
+            after = seen[int(top["t"] * t.fps):]
+            if len(after) > t.fps and after.mean() < 0.5:
+                out.append(f"The climber was tracked in only {after.mean():.0%} of frames after the "
+                           "top (out of frame or someone walked through), so the descent and "
+                           "landing may be missed.")
+        tracks = {it["track_id"] for it in json.loads((run / "poses.json").read_text())["content"]["items"]}
+        if len(tracks) > 1:
+            out.append(f"{len(tracks) - 1} other person(s) appeared in frame; keep the shot to one "
+                       "climber for the cleanest read.")
+    except Exception:  # noqa: BLE001
+        pass
+    wing = ((r.get("dyno") or {}).get("wingspan_bl") or 0)
+    if wing >= dyno.WINGSPAN_MAX_BL - 1e-3:
+        out.append("Arm length read longer than a human wingspan (camera angle or lost frames); "
+                   "reach was capped at 1.06 × height.")
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("run", nargs="?")
@@ -66,7 +107,7 @@ def main():
     a = ap.parse_args()
     run = Path(a.run).resolve() if a.run else newest_run()
     clip = clip_name(run)
-    video = source_video(clip)
+    video = source_video(clip, run)
     print(f"run   {run}\nclip  {clip}\nvideo {video}")
 
     coach = client = None
@@ -124,7 +165,8 @@ def main():
                                             "landing_score", "flags")}
             v = coach.fall_verdict(client, [str(p) for p in paths], metrics)
             fall["verdict"] = v.get("verdict")
-            fall["vlm"] = {k: v.get(k) for k in ("on_pad", "posture", "error") if v.get(k) is not None}
+            fall["vlm"] = {k: v.get(k) for k in ("on_pad", "posture", "agrees_with_metrics", "error")
+                           if v.get(k) is not None}
             cost["vlm"] += float(v.get("cost") or 0)
             print(f"fall {fall['id']} ({fall['kind']}): {fall['verdict']}")
 
@@ -185,7 +227,12 @@ def main():
     note = None
     if coach:
         feet = r["feet"]
-        summary = {"judge": {k: r["judge"][k] for k in ("result", "attempts", "zone", "top")},
+        jt = dict(r["judge"].get("top") or {})
+        if jt.get("note"):
+            # control was borrowed from the route read, not measured on the top hold
+            jt.pop("hold_s", None)
+            jt["controlled_source"] = "route read (top hold at the frame edge; hold time not measured)"
+        summary = {"judge": {**{k: r["judge"].get(k) for k in ("result", "attempts", "zone")}, "top": jt},
                    "falls": [{k: f[k] for k in ("kind", "landing_score", "flags", "knee_angle_min",
                                                 "feet_on_pad", "hands_posted")} for f in r["falls"]],
                    "silent_feet": {"score": feet["score"], "grade": feet["grade"], "per_foot": feet["per_foot"],
@@ -201,7 +248,8 @@ def main():
         try:
             res = coach.overall_coach(client, summary)
             if isinstance(res, dict):
-                note = res.get("note") or res.get("text"); cost["vlm"] += float(res.get("cost") or 0)
+                note = res.get("note") or res.get("text")
+                cost["vlm"] += float(res.get("cost") or 0)
             else:
                 note = res
         except Exception as e:  # noqa: BLE001
@@ -209,7 +257,10 @@ def main():
 
     data = {"clip": clip, "video": f"{clip}_climb.mp4", "holds_image": "holds.png", **r,
             "pad": pad, "coach": note, "cost": {k: round(v, 4) for k, v in cost.items()},
+            "warnings": footage_warnings(run, r),
             "generated_at": dt.datetime.now().isoformat(timespec="seconds")}
+    for w in data["warnings"]:
+        print(f"warn  {w}")
     (run / "safety.json").write_text(json.dumps(data, indent=1))
     if TEMPLATE.exists():
         html = TEMPLATE.read_text(encoding="utf-8")

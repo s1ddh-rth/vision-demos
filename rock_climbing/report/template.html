@@ -158,6 +158,7 @@ table.pl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
 .dbar .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--tx3)}
 .dc .thumb{width:96px;height:96px;border-radius:8px;overflow:hidden;background:#000;border:1px solid var(--line)}
 .dc .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.disagree{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--warn);background:var(--warng);border:1px solid rgba(255,176,32,.4);vertical-align:middle}
 .vlm{margin-top:10px;font-size:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .vlm .q{flex-basis:100%;border-left:2px solid var(--acc);padding-left:10px;color:var(--tx);font-size:13px;line-height:1.45}
 .dy-map-card{position:sticky;top:12px}
@@ -273,6 +274,14 @@ html += `<section class="hero">
   </div>
 </section>`;
 
+// ---------- footage warnings
+if ((DATA.warnings || []).length) {
+  html += `<section class="sec card" style="border-color:#e0a13a66">
+    <div class="sec-h"><h2 style="color:#e0a13a">Read with care</h2></div>
+    ${DATA.warnings.map(w => `<p class="dim" style="margin:6px 0">⚠ ${String(w).replace(/[<>&]/g, c => ({"<": "&lt;", ">": "&gt;", "&": "&amp;"})[c])}</p>`).join("")}
+  </section>`;
+}
+
 // ---------- video + timeline
 html += `<section class="sec card">
   <div class="sec-h"><span class="num">01</span><h2>Replay</h2></div>
@@ -302,7 +311,7 @@ html += `<section class="sec card">
       <div class="tm">${zn.reached?fmtT(zn.t):'—'}</div><div class="sub">${zn.hold!=null?'Hold #'+esc(zn.hold):'Zone hold'}${zn.reached&&startOk&&zn.t!=null?' · +'+num(zn.t-st.t,1)+'s':''}</div></div>
     <div class="arrow">→</div>
     <div class="node ${tp.reached?'done':'miss'}"><div class="ck">${tp.reached?'✓':'–'}</div><div class="eyebrow">State 3</div><div class="nm">TOP</div>
-      <div class="tm">${tp.reached?fmtT(tp.t):'—'}</div><div class="sub">${tp.hold!=null?'Hold #'+esc(tp.hold):'Top hold'}${tp.reached?(tp.controlled?' · <span class="ok">controlled '+num(tp.hold_s,1)+'s</span>':' · <span class="warn">not controlled</span>'):''}</div></div>
+      <div class="tm">${tp.reached?fmtT(tp.t):'—'}</div><div class="sub">${tp.hold!=null?'Hold #'+esc(tp.hold):'Top hold'}${tp.reached?(tp.controlled?(tp.note?' · <span class="ok">controlled</span> <span class="dim">(from route read; top hold at frame edge)</span>':' · <span class="ok">controlled '+num(tp.hold_s,1)+'s</span>'):' · <span class="warn">not controlled</span>'):''}</div></div>
   </div>
   ${(J.events||[]).length?`<ul class="evlist">${J.events.map(e=>`<li data-t="${e.t}"><span class="mono">${fmtT(e.t)}</span><span>${esc(e.label)}</span></li>`).join('')}</ul>`:''}
 </section>`;
@@ -329,7 +338,7 @@ function fallCard(f){
         <div class="m"><div class="k">Impact</div><div class="v">${num(f.impact_speed_bl_s,1)}<span class="dim" style="font-size:11px"> BL/s</span></div></div>
       </div>
       <div class="flags">${flags.length?flags.map(x=>`<span class="flag">${esc(x)}</span>`).join(''):'<span class="flag none">No issues flagged</span>'}</div>
-      ${f.verdict?`<blockquote class="quote">“${esc(f.verdict)}”<span class="src">VLM VERDICT · GATEWAY</span></blockquote>`:''}
+      ${f.verdict?`<blockquote class="quote">“${esc(f.verdict)}”<span class="src">VLM VERDICT · GATEWAY${f.vlm&&f.vlm.agrees_with_metrics===false?' <span class="disagree">VLM disagrees with metrics</span>':''}</span></blockquote>`:''}
       ${f.keyframe?`<div class="kf"><img src="${esc(f.keyframe)}" alt="Impact keyframe" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`:''}
     </div></div>`;
 }
@@ -439,7 +448,7 @@ function dcard(c){
       ${dbar('gap', c.gap_bl, gmax, 'var(--acc)')}
       ${dbar('margin', c.margin_bl, 0.5, c.margin_bl==null?'var(--tx3)':c.margin_bl>=0?'var(--ok)':'var(--bad)', true)}
       <div class="sub" style="margin-top:6px">catch: <b class="mono" style="color:var(--tx)">${esc(c.target_size||'—')}</b></div>
-      ${v?`<div class="vlm"><span class="${v.feasible?'ok':'bad'} mono" style="font-weight:700">${v.feasible?'✓ feasible':'✗ not feasible'}</span>${v.style?`<span class="dim">· ${esc(v.style)}</span>`:''}${v.confidence!=null?`<span class="dim">· ${Math.round(v.confidence*100)}% conf</span>`:''}${v.reason?`<span class="q">“${esc(v.reason)}”</span>`:''}</div>`:''}
+      ${v?`<div class="vlm"><span class="${v.feasible?'ok':'bad'} mono" style="font-weight:700">${v.feasible?'✓ feasible':'✗ not feasible'}</span>${v.style?`<span class="dim">· ${esc(v.style)}</span>`:''}${v.confidence!=null?`<span class="dim">· ${Math.round(v.confidence*100)}% conf</span>`:''}${v.agrees_with_metrics===false?`<span class="disagree">VLM disagrees</span>`:''}${v.reason?`<span class="q">“${esc(v.reason)}”</span>`:''}</div>`:''}
     </div>
     ${c.frame?`<div class="thumb"><img src="${esc(c.frame)}" alt="annotated frame" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`:''}
   </div>`;

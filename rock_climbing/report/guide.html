@@ -150,14 +150,14 @@ python app.py</pre></div>
         <div class="sec-h"><span class="num">03</span><h2>Using the dashboard</h2></div>
         <div class="card">
           <ol class="flow">
-            <li><b>Upload or pick a clip.</b> Drop a <code>.mov</code>, <code>.mp4</code>, <code>.m4v</code> or <code>.avi</code>, or select one already on disk.</li>
+            <li><b>Upload or pick a clip.</b> Drop a <code>.mov</code>, <code>.mp4</code>, <code>.m4v</code> or <code>.avi</code>, or select one already on disk. The list is newest first and the newest clip is selected by default. A clip that appears while the page is open (uploaded, or moved into <code>data/input/uploads</code> or <code>data/input/current</code>) is picked up within about 10 s (or on <b>Refresh</b>), selected automatically and tagged <span class="mono" style="color:var(--warn)">NEW CLIP</span>. The selected clip is outlined and marked <span class="mono">SELECTED</span>.</li>
             <li><b>Hold colour chip.</b> The colour of the route being climbed (blue, green, yellow, red, purple, pink, orange, black, white).</li>
             <li><b>Grade.</b> The route grade, e.g. <code>VB</code> or <code>V2</code>. It is shown in the report.</li>
             <li><b>Use VLM credits.</b> The main pipeline (SAM 3.1 hold segmentation) always costs about <b>$0.025</b> per clip. With the toggle on, the report adds <b>~$0.006</b>: crash-pad segmentation, Qwen fall verdicts, dyno checks and a coach note. Off runs the report with <code>--no-vlm</code> (floor used as the landing zone, no verdicts or coach note).</li>
-            <li><b>RUN.</b> Progress steps show live: <span class="mono dim">Segmenting holds + pose (main.py)</span>, then <span class="mono dim">Judge, safety, dyno (safety_report.py)</span>.</li>
+            <li><b>RUN.</b> The button spells out exactly what will run, e.g. <span class="mono">Run IMG_0510.MOV · black · VB</span>; check it before clicking. If that clip + colour already has a run, a yellow warning appears under the button instead of starting: <b>Run again anyway</b> or <b>Open existing report</b>. Progress steps then show live under a title naming the clip and colour: <span class="mono dim">Segmenting holds + pose (main.py)</span>, then <span class="mono dim">Judge, safety, dyno (safety_report.py)</span>. The first log line prints the resolved clip path and colour.</li>
             <li><b>Open report</b> when the run turns <span class="mono" style="color:var(--ok)">DONE</span>.</li>
           </ol>
-          <div class="note info">The runs gallery keeps <b>one card per clip + colour</b>. <b>Re-run analysis</b> redoes only the judge, safety and dyno step (<code>safety_report.py</code>) on a finished run, without re-segmenting the video.</div>
+          <div class="note info">The runs gallery keeps <b>one card per clip + colour</b>. Each card shows the hold colour as a chip. <b>Re-run analysis</b> redoes only the judge, safety and dyno step (<code>safety_report.py</code>) on a finished run, without re-segmenting the video. <b>Delete</b> asks for a second click (<b>Yes, delete</b>) and then removes that run folder from <code>data/output</code> for good; it is refused while a job is using the run or the folder was written in the last minute.</div>
         </div>
       </section>
 
