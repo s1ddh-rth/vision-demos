@@ -32,6 +32,8 @@ UPLOADS = INPUT / "uploads"
 CURRENT = INPUT / "current"
 APP_HTML = HERE / "report" / "app.html"
 GUIDE_HTML = HERE / "report" / "guide.html"
+FAVICON = HERE / "report" / "favicon.svg"
+mimetypes.add_type("image/svg+xml", ".svg")   # Windows registries sometimes lack it
 SUFFIXES = {".mov", ".mp4", ".m4v", ".avi"}
 FFMPEG_DIR = Path(sys.executable).parent / "Library" / "bin"
 ANSI = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07]*\x07|\r")
@@ -65,13 +67,18 @@ def list_runs() -> list[dict]:
                 .isoformat(timespec="seconds"),
                 "has_report": (d / "report.html").is_file(),
                 "result": None, "feet_score": None, "feet_grade": None, "falls": None,
+                "landings": None,
                 "color": None, "grade": None, "elapsed": None}
         try:
             s = json.loads((d / "safety.json").read_text(encoding="utf-8"))
             item["result"] = (s.get("judge") or {}).get("result")
             item["feet_score"] = (s.get("feet") or {}).get("score")
             item["feet_grade"] = (s.get("feet") or {}).get("grade")
-            item["falls"] = len(s.get("falls") or [])
+            # safety.json "falls" lists every landing (fall, jump_off, downclimb);
+            # only kind == "fall" is an actual fall
+            lands = s.get("falls") or []
+            item["landings"] = len(lands)
+            item["falls"] = sum(1 for f in lands if f.get("kind") == "fall")
             item["color"] = (s.get("route") or {}).get("color")
             item["grade"] = (s.get("route") or {}).get("grade")
         except Exception:  # noqa: BLE001
@@ -312,11 +319,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_file(APP_HTML, head)
         if path in ("/guide", "/guide.html"):
             return self.send_file(GUIDE_HTML, head)
-        if path == "/favicon.ico":
-            self.send_response(204)
-            self.send_header("Content-Length", "0")
-            self.end_headers()
-            return
+        if path in ("/favicon.ico", "/favicon.svg"):
+            return self.send_file(FAVICON, head)
         if path == "/api/runs":
             return self.send_json(list_runs())
         if path == "/api/clips":

@@ -232,7 +232,16 @@ def main():
             # control was borrowed from the route read, not measured on the top hold
             jt.pop("hold_s", None)
             jt["controlled_source"] = "route read (top hold at the frame edge; hold time not measured)"
-        summary = {"judge": {**{k: r["judge"].get(k) for k in ("result", "attempts", "zone")}, "top": jt},
+        # "t" is a video timestamp, not a duration: the coach once read the top's
+        # 30.3 s timestamp as "topped in 30.3 seconds" on a 17.7 s climb
+        jz = dict(r["judge"].get("zone") or {})
+        for d in (jt, jz):
+            if "t" in d:
+                d["video_timestamp_s"] = d.pop("t")
+        st = (r["judge"].get("start") or {}).get("t")
+        on_wall = round(jt["video_timestamp_s"] - st, 1) if st is not None and jt.get("video_timestamp_s") else None
+        summary = {"judge": {"result": r["judge"].get("result"), "attempts": r["judge"].get("attempts"),
+                             "time_on_wall_s": on_wall, "zone": jz, "top": jt},
                    "falls": [{k: f[k] for k in ("kind", "landing_score", "flags", "knee_angle_min",
                                                 "feet_on_pad", "hands_posted")} for f in r["falls"]],
                    "silent_feet": {"score": feet["score"], "grade": feet["grade"], "per_foot": feet["per_foot"],

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Climb Vision Judge</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjM2FkMGZmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFmN2ZmZiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwZDBmMTIiLz4KICA8cGF0aCBkPSJNOCA1NCBMMjIgMjIgTDMzIDM0IEw0MiAxNCBMNTYgNTQgWiIgZmlsbD0iIzFkMjIyYSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTkgNDcgTDI2IDM4IEwzMyA0MSBMMzkgMjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWRhc2hhcnJheT0iMSA1Ii8+CiAgPGNpcmNsZSBjeD0iMTkiIGN5PSI0NyIgcj0iMy42IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMjYiIGN5PSIzOCIgcj0iMy4yIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMzMiIGN5PSI0MSIgcj0iMy4yIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMzkiIGN5PSIyOCIgcj0iMy42IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNDkiIGN5PSIxNSIgcj0iOSIgZmlsbD0iIzJiZDY3YiIvPgogIDxwYXRoIGQ9Ik00NC44IDE1LjIgTDQ4IDE4LjIgTDUzLjQgMTIuNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGQwZjEyIiBzdHJva2Utd2lkdGg9IjIuOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -122,7 +123,7 @@ pre.log{background:#090b0e;border:1px solid var(--line);border-radius:10px;paddi
   </div>
   <div class="eyebrow">Upload a climb, pick the route, get a report</div>
   <h1>Judge a climb</h1>
-  <div class="muted">SAM 3.1 finds the holds, ViTPose tracks the climber, then the judge scores the send, falls and footwork.</div>
+  <div class="muted">SAM 3.1 finds the holds, ViTPose tracks the climber, then the judge scores the send, landings and footwork.</div>
 
   <div class="sec-h"><span class="num">01</span><h2>New analysis</h2></div>
   <div class="grid">
@@ -141,15 +142,16 @@ pre.log{background:#090b0e;border:1px solid var(--line);border-radius:10px;paddi
 
       <label class="f eyebrow">Hold colour (the route)</label>
       <div class="chips" id="colors"></div>
+      <div class="hint" id="colorHint" style="margin-top:6px">Sent to SAM 3.1 as the prompt "&lt;colour&gt; climbing hold". Check <b>holds.png</b> after the run.</div>
 
       <div class="row" style="margin-top:18px">
         <div>
-          <div class="eyebrow" style="margin-bottom:8px">Grade</div>
-          <input type="text" id="grade" value="VB" maxlength="12">
+          <div class="eyebrow" style="margin-bottom:8px" title="Label only: stored in run.json / safety.json and shown in the report. Nothing in the scoring uses it.">Grade <span class="dim" style="text-transform:none;letter-spacing:0">(label only)</span></div>
+          <input type="text" id="grade" value="VB" maxlength="12" title="Label only: stored with the run and shown in the report. Not used in scoring.">
         </div>
-        <label class="toggle" title="Spends a few cents of VLM Run credits for the crash-pad segmentation, fall verdicts and a coach note">
+        <label class="toggle" title="Controls only the report step (safety_report.py): off adds --no-vlm. Measured on our two runs: SAM crash pad $0.004 + Qwen fall/dyno verdicts and coach note $0.002-0.0025 (safety.json cost). The main step (main.py) always spends ~$0.025 regardless: SAM holds $0.012 + SAM floor $0.012 + ViTPose $0.001 (run.json).">
           <input type="checkbox" id="vlm"><span class="sl"></span>
-          <span><b style="font-weight:600">Use VLM credits</b><br><span class="dim mono" style="font-size:11px">pad, fall verdicts, coach note (~$0.01)</span></span>
+          <span><b style="font-weight:600">Use VLM credits in the report</b><br><span class="dim mono" style="font-size:11px">pad, fall/dyno verdicts, coach note (~$0.006)</span><br><span class="dim mono" style="font-size:11px">main.py always spends ~$0.025/clip</span></span>
         </label>
       </div>
 
@@ -166,8 +168,8 @@ pre.log{background:#090b0e;border:1px solid var(--line);border-radius:10px;paddi
         <span class="mono dim" style="margin-left:auto;font-size:13px" id="elapsed"></span>
       </div>
       <div class="steps">
-        <div class="stp" id="s1"><span class="b"></span>1 · Segmenting holds + pose <span class="dim mono" style="font-size:11px">main.py · ~2 min</span></div>
-        <div class="stp" id="s2"><span class="b"></span>2 · Judge, safety, dyno <span class="dim mono" style="font-size:11px">safety_report.py</span></div>
+        <div class="stp" id="s1"><span class="b"></span>1 · Segmenting holds + pose <span class="dim mono" style="font-size:11px" title="Measured total_seconds in run.json: 115 s for a 32 s clip, 239 s for a 52 s clip (local rendering is most of it)">main.py · ~2-4 min</span></div>
+        <div class="stp" id="s2"><span class="b"></span>2 · Judge, safety, dyno <span class="dim mono" style="font-size:11px">safety_report.py (writes report.html)</span></div>
       </div>
       <pre class="log" id="log">No job yet. Start one on the left, or re-run analysis on a past run below.</pre>
       <div class="done-box" id="doneBox">
@@ -196,9 +198,13 @@ try { const c = localStorage.getItem("cvj.color"); if (c && COLORS[c]) st.color 
       $("vlm").checked = localStorage.getItem("cvj.vlm") === "1"; } catch (e) {}
 const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 
+// From the wall scout (data/output/scout): white found 0 holds on all 7 photos; black also picks up volumes.
+const COLOR_NOTE = {white:"SAM found no white holds on any of our 7 scout photos: expect an empty route.",
+                    black:"SAM's black mask also picks up volumes and dark wall features: check holds.png."};
 function renderColors() {
+  $("colorHint").innerHTML = COLOR_NOTE[st.color] ? `<span style="color:var(--warn)">${COLOR_NOTE[st.color]}</span>` : `Sent to SAM 3.1 as the prompt "${st.color} climbing hold". Check <b>holds.png</b> after the run.`;
   $("colors").innerHTML = Object.entries(COLORS).map(([k, v]) =>
-    `<span class="chip ${k === st.color ? "sel" : ""}" data-c="${k}"><span class="sw" style="background:${v}"></span>${k}</span>`).join("");
+    `<span class="chip ${k === st.color ? "sel" : ""}" data-c="${k}"${COLOR_NOTE[k] ? ` title="${COLOR_NOTE[k]}"` : ""}><span class="sw" style="background:${v}"></span>${k}</span>`).join("");
   $("colors").querySelectorAll(".chip").forEach(el => el.onclick = () => { st.color = el.dataset.c; save("cvj.color", st.color); renderColors(); hideDup(); updateRunBtn(); });
 }
 $("grade").oninput = () => { save("cvj.grade", $("grade").value); updateRunBtn(); };
@@ -347,13 +353,13 @@ async function loadRuns() {
           <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap"><span class="cchip"><span class="sw" style="background:${COLORS[r.color] || "transparent"}"></span>${esc(r.color || "?")}${r.grade ? " · " + esc(r.grade) : ""}</span>
           <span class="dim mono" style="font-size:11.5px">${d.toLocaleString()}${r.older ? ` · +${r.older} older run${r.older > 1 ? "s" : ""}` : ""}</span></div></div>
         <div class="kv">
-          <div><span class="eyebrow">Result</span><b>${esc(r.result || "–")}</b></div>
-          <div><span class="eyebrow">Feet</span><b>${r.feet_grade ? esc(r.feet_grade) : "–"}${r.feet_score != null ? `<small class="dim" style="font-size:11px"> ${r.feet_score}</small>` : ""}</b></div>
-          <div><span class="eyebrow">Falls</span><b>${r.falls ?? "–"}</b></div>
+          <div title="safety.json judge.result: TOP, ZONE or NO SCORE"><span class="eyebrow">Result</span><b>${esc(r.result || "–")}</b></div>
+          <div title="safety.json feet: mean placement score /100, graded A (90+), B (80+), C (70+), D (60+), E (&lt;60)"><span class="eyebrow">Feet</span><b>${r.feet_grade ? esc(r.feet_grade) : "–"}${r.feet_score != null ? `<small class="dim" style="font-size:11px"> ${r.feet_score}</small>` : ""}</b></div>
+          <div title="Landings of kind 'fall' in safety.json${r.landings != null ? ` (${r.landings} landing${r.landings === 1 ? "" : "s"} in total, incl. jump-offs and downclimbs)` : ""}"><span class="eyebrow">Falls</span><b>${r.falls ?? "–"}${r.landings ? `<small class="dim" style="font-size:11px"> /${r.landings} landing${r.landings === 1 ? "" : "s"}</small>` : ""}</b></div>
         </div>
         <div class="acts">
           ${r.has_report ? `<a class="btn pri" href="/runs/${encodeURI(r.id)}/report.html" target="_blank" rel="noopener">Open report</a>` : `<span class="btn" style="opacity:.5">No report yet</span>`}
-          <button class="btn rerun" data-id="${esc(r.id)}">${r.has_report ? "Re-run analysis" : "Build report"}</button>
+          <button class="btn rerun" data-id="${esc(r.id)}" title="Runs only safety_report.py again on this run (judge, safety, dyno, report). Does not re-segment the video. Uses the VLM toggle above.">${r.has_report ? "Re-run analysis" : "Build report"}</button>
           <span class="delwrap" data-id="${esc(r.id)}"><button class="btn danger del">Delete</button></span>
         </div>
       </div></div>`;

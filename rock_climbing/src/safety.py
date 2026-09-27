@@ -216,7 +216,16 @@ def judge(t: Track, holds: Holds, scale: dict, floor_px, climb: dict) -> dict:
     # low -> high by image height (ids are banded rows, ordered by x inside a row)
     ids = sorted(holds.ids, key=lambda i: -holds.centroid[i][1])
     top_id = climb.get("final_hold_id") if climb.get("final_hold_id") in holds.ids else ids[-1]
-    zone_id = ids[int(round(0.6 * (len(ids) - 1)))]
+    # the zone is picked among holds the climber actually used: a colour prompt
+    # can also catch volumes or neighbouring routes' holds, and a zone on one of
+    # those could never be reached
+    # hand holds only: IFSC zones are hand holds, and footholds sit low on the
+    # wall, so counting them drags the zone towards the start
+    per_limb = (climb.get("utilization") or {}).get("per_limb") or {}
+    hand = {h for k in ("left_hand", "right_hand") for h in (per_limb.get(k) or {}).get("holds") or []}
+    used = [i for i in ids if i in (hand or set(climb.get("sequence") or []))]
+    pool = used if len(used) >= 3 else ids
+    zone_id = pool[int(round(0.6 * (len(pool) - 1)))]
 
     # attempts = lift-offs (both feet clear) lasting LIFTOFF_S, with a pose
     # pose dropouts keep the last known state, so a lost frame high on the wall
@@ -259,7 +268,7 @@ def judge(t: Track, holds: Holds, scale: dict, floor_px, climb: dict) -> dict:
     z = [r for r in _runs(touches(zone_id)) if (r[1] - r[0] + 1) / fps >= ZONE_TOUCH_S]
     zone = {"hold": zone_id, "reached": bool(z), "t": round(z[0][0] / fps, 2) if z else None}
     if z:
-        events.append({"t": zone["t"], "kind": "zone", "label": f"Zone: controlled touch on hold #{zone_id}"})
+        events.append({"t": zone["t"], "kind": "zone", "label": f"Zone: a hand on hold #{zone_id} for ≥ {ZONE_TOUCH_S:g} s"})
 
     both = np.array([hands[LWR][f] == top_id and hands[RWR][f] == top_id for f in range(t.n)])
     hip = _mid(t.xy[:, LHIP], t.xy[:, RHIP])
@@ -285,7 +294,13 @@ def judge(t: Track, holds: Holds, scale: dict, floor_px, climb: dict) -> dict:
            "hold_s": None if hold_s is None else round(hold_s, 2), "note": note}
     if reached:
         events.append({"t": t_top, "kind": "top",
-                       "label": f"Top: both hands on #{top_id}" + (" — controlled" if controlled else " — not held")})
+                       "label": f"Top: both hands on #{top_id}" + (
+                           " — control inferred from the route read (top hold at the frame edge)" if note
+                           else f" — held ≥ {TOP_CONTROL_S:g} s" if controlled else " — not held")})
+    if top["reached"] and top["controlled"] and not zone["reached"]:
+        # IFSC: a top also scores the zone, even if the zone hold was skipped
+        zone.update(reached=True, t=top["t"], note="credited by the top")
+        events.append({"t": top["t"], "kind": "zone", "label": f"Zone #{zone_id}: credited by the top"})
     result = "TOP" if top["reached"] and top["controlled"] else ("ZONE" if zone["reached"] else "NO SCORE")
     return {"result": result, "attempts": max(1, len(merged)), "start": start, "zone": zone,
             "top": top, "events": sorted(events, key=lambda e: e["t"] or 0),

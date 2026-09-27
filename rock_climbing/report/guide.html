@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How to run · Climb Vision Judge</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjM2FkMGZmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFmN2ZmZiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwZDBmMTIiLz4KICA8cGF0aCBkPSJNOCA1NCBMMjIgMjIgTDMzIDM0IEw0MiAxNCBMNTYgNTQgWiIgZmlsbD0iIzFkMjIyYSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTkgNDcgTDI2IDM4IEwzMyA0MSBMMzkgMjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWRhc2hhcnJheT0iMSA1Ii8+CiAgPGNpcmNsZSBjeD0iMTkiIGN5PSI0NyIgcj0iMy42IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMjYiIGN5PSIzOCIgcj0iMy4yIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMzMiIGN5PSI0MSIgcj0iMy4yIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMzkiIGN5PSIyOCIgcj0iMy42IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNDkiIGN5PSIxNSIgcj0iOSIgZmlsbD0iIzJiZDY3YiIvPgogIDxwYXRoIGQ9Ik00NC44IDE1LjIgTDQ4IDE4LjIgTDUzLjQgMTIuNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGQwZjEyIiBzdHJva2Utd2lkdGg9IjIuOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -94,7 +95,7 @@ li{margin-bottom:6px}
   </div>
   <div class="eyebrow">Guide</div>
   <h1>How to run</h1>
-  <div class="muted">Film a climb, run it through the dashboard, then read the report. Everything runs on your machine; only the SAM and Qwen calls go out to the VLM Run gateway.</div>
+  <div class="muted">Film a climb, run it through the dashboard, then read the report. Everything runs on your machine except the model calls: SAM 3.1 (holds, floor, crash pad), ViTPose (pose) and Qwen (verdicts, coach note) go out to the VLM Run gateway.</div>
 
   <div class="layout">
     <nav class="side" id="nav">
@@ -151,13 +152,13 @@ python app.py</pre></div>
         <div class="card">
           <ol class="flow">
             <li><b>Upload or pick a clip.</b> Drop a <code>.mov</code>, <code>.mp4</code>, <code>.m4v</code> or <code>.avi</code>, or select one already on disk. The list is newest first and the newest clip is selected by default. A clip that appears while the page is open (uploaded, or moved into <code>data/input/uploads</code> or <code>data/input/current</code>) is picked up within about 10 s (or on <b>Refresh</b>), selected automatically and tagged <span class="mono" style="color:var(--warn)">NEW CLIP</span>. The selected clip is outlined and marked <span class="mono">SELECTED</span>.</li>
-            <li><b>Hold colour chip.</b> The colour of the route being climbed (blue, green, yellow, red, purple, pink, orange, black, white).</li>
-            <li><b>Grade.</b> The route grade, e.g. <code>VB</code> or <code>V2</code>. It is shown in the report.</li>
-            <li><b>Use VLM credits.</b> The main pipeline (SAM 3.1 hold segmentation) always costs about <b>$0.025</b> per clip. With the toggle on, the report adds <b>~$0.006</b>: crash-pad segmentation, Qwen fall verdicts, dyno checks and a coach note. Off runs the report with <code>--no-vlm</code> (floor used as the landing zone, no verdicts or coach note).</li>
-            <li><b>RUN.</b> The button spells out exactly what will run, e.g. <span class="mono">Run IMG_0510.MOV · black · VB</span>; check it before clicking. If that clip + colour already has a run, a yellow warning appears under the button instead of starting: <b>Run again anyway</b> or <b>Open existing report</b>. Progress steps then show live under a title naming the clip and colour: <span class="mono dim">Segmenting holds + pose (main.py)</span>, then <span class="mono dim">Judge, safety, dyno (safety_report.py)</span>. The first log line prints the resolved clip path and colour.</li>
+            <li><b>Hold colour chip.</b> The colour of the route being climbed (blue, green, yellow, red, purple, pink, orange, black, white). It becomes the SAM prompt <code>"&lt;colour&gt; climbing hold"</code>. On our wall scout, <b>white found no holds on any photo</b> and <b>black also picks up volumes</b>, so check <code>holds.png</code> for those two.</li>
+            <li><b>Grade.</b> The route grade, e.g. <code>VB</code> or <code>V2</code>. A label only: it is stored with the run and shown in the report, but nothing in the scoring uses it.</li>
+            <li><b>Use VLM credits.</b> The toggle controls only the report step. The main pipeline (<code>main.py</code>) always spends about <b>$0.025</b> per clip (SAM holds $0.012 + SAM floor $0.012 + ViTPose $0.001, from <code>run.json</code> on our two runs). With the toggle on, the report adds <b>~$0.006</b> (SAM crash pad $0.004 + Qwen fall verdicts, dyno checks and coach note $0.002-0.0025, from <code>safety.json</code>). Off runs the report with <code>--no-vlm</code> (floor used as the landing zone, no verdicts or coach note).</li>
+            <li><b>RUN.</b> The button spells out exactly what will run, e.g. <span class="mono">Run IMG_0510.MOV · black · VB</span>; check it before clicking. If that clip + colour already has a run, a yellow warning appears under the button instead of starting: <b>Run again anyway</b> or <b>Open existing report</b>. Progress steps then show live under a title naming the clip and colour: <span class="mono dim">Segmenting holds + pose (main.py)</span> (2-4 min on our clips: 115 s for 32 s of video, 239 s for 52 s), then <span class="mono dim">Judge, safety, dyno (safety_report.py)</span>. The first log line prints the resolved clip path and colour.</li>
             <li><b>Open report</b> when the run turns <span class="mono" style="color:var(--ok)">DONE</span>.</li>
           </ol>
-          <div class="note info">The runs gallery keeps <b>one card per clip + colour</b>. Each card shows the hold colour as a chip. <b>Re-run analysis</b> redoes only the judge, safety and dyno step (<code>safety_report.py</code>) on a finished run, without re-segmenting the video. <b>Delete</b> asks for a second click (<b>Yes, delete</b>) and then removes that run folder from <code>data/output</code> for good; it is refused while a job is using the run or the folder was written in the last minute.</div>
+          <div class="note info">The runs gallery keeps <b>one card per clip + colour</b>. Each card shows the hold colour as a chip, the judge <b>Result</b>, the <b>Feet</b> grade and score, and <b>Falls</b> (landings of kind "fall" out of all landings, so jump-offs and downclimbs are not counted as falls), all read from the run's <code>safety.json</code>. <b>Re-run analysis</b> redoes only the judge, safety and dyno step (<code>safety_report.py</code>) on a finished run, without re-segmenting the video. <b>Delete</b> asks for a second click (<b>Yes, delete</b>) and then removes that run folder from <code>data/output</code> for good; it is refused while a job is using the run or the folder was written in the last minute.</div>
         </div>
       </section>
 
@@ -200,7 +201,7 @@ cloudflared tunnel --url http://localhost:8080</pre></div>
       <section id="cli">
         <div class="sec-h"><span class="num">07</span><h2>Command line</h2></div>
         <div class="card">
-          <p>The dashboard runs these two scripts for you. Without it, put clips in <code>data/input/current/</code> and run:</p>
+          <p>The dashboard runs these two scripts for you, one clip at a time (<code>CVJ_BATCH_MODE=0</code>). Without it, put clips in <code>data/input/current/</code> and run the commands below. From the command line batch mode is on by default: every clip in the folder is analysed and they are compared as attempts on one route, so keep only clips of the same route there.</p>
           <div class="cmd"><pre>python main.py                              <span class="c"># holds + pose, route read</span>
 python safety_report.py                     <span class="c"># newest run under data/output/</span>
 python safety_report.py &lt;run_dir&gt;           <span class="c"># a specific run or clip subfolder</span>

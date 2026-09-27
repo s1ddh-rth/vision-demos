@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Climb Vision Judge</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjM2FkMGZmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFmN2ZmZiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwZDBmMTIiLz4KICA8cGF0aCBkPSJNOCA1NCBMMjIgMjIgTDMzIDM0IEw0MiAxNCBMNTYgNTQgWiIgZmlsbD0iIzFkMjIyYSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTkgNDcgTDI2IDM4IEwzMyA0MSBMMzkgMjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWRhc2hhcnJheT0iMSA1Ii8+CiAgPGNpcmNsZSBjeD0iMTkiIGN5PSI0NyIgcj0iMy42IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMjYiIGN5PSIzOCIgcj0iMy4yIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMzMiIGN5PSI0MSIgcj0iMy4yIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iMzkiIGN5PSIyOCIgcj0iMy42IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNDkiIGN5PSIxNSIgcj0iOSIgZmlsbD0iIzJiZDY3YiIvPgogIDxwYXRoIGQ9Ik00NC44IDE1LjIgTDQ4IDE4LjIgTDUzLjQgMTIuNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGQwZjEyIiBzdHJva2Utd2lkdGg9IjIuOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -153,7 +154,7 @@ table.pl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
 .need{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
 .need.static{color:var(--ok);background:var(--okg)} .need.deadpoint{color:var(--acc);background:var(--accg)}
 .need.dyno{color:var(--warn);background:var(--warng)} .need.out_of_reach{color:var(--bad);background:var(--badg)}
-.dbar{display:grid;grid-template-columns:62px 1fr 72px;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--tx2);margin-top:8px}
+.dbar{display:grid;grid-template-columns:80px 1fr 72px;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--tx2);margin-top:8px}
 .dbar .bar{position:relative}
 .dbar .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--tx3)}
 .dc .thumb{width:96px;height:96px;border-radius:8px;overflow:hidden;background:#000;border:1px solid var(--line)}
@@ -172,7 +173,7 @@ table.pl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
 .chart.click{cursor:pointer}
 .rw-total{display:flex;align-items:baseline;gap:10px;margin:16px 0 8px}
 .rw-total .v{font-family:var(--mono);font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1}
-.tb{display:grid;grid-template-columns:78px 1fr 58px;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:5px}
+.tb{display:grid;grid-template-columns:104px 1fr 58px;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:5px}
 .tb .trk{position:relative;height:12px;background:var(--bg2);border:1px solid var(--line);border-radius:4px}
 .tb .trk .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--tx3)}
 .tb .trk i{position:absolute;top:1px;bottom:1px;border-radius:3px}
@@ -185,7 +186,7 @@ table.pl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
 .seg button.on{background:var(--accg);color:var(--acc)}
 .rl-map-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 8px}
 @media (max-width:900px){.rw-grid{grid-template-columns:1fr}}
-@media (max-width:620px){.rl-stats{grid-template-columns:1fr 1fr}.tb{grid-template-columns:66px 1fr 50px}.rw-total .v{font-size:36px}}
+@media (max-width:620px){.rl-stats{grid-template-columns:1fr 1fr}.tb{grid-template-columns:92px 1fr 50px}.rw-total .v{font-size:36px}}
 /* coach */
 .coach{font-size:17px;line-height:1.6;border-left:3px solid var(--acc);padding:4px 0 4px 16px}
 footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--tx3)}
@@ -210,7 +211,18 @@ footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);display
 </style>
 </head>
 <body>
+<style>
+/* "how is this computed?" affordance */
+.info{display:inline-grid;place-items:center;width:17px;height:17px;margin-left:5px;padding:0;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--tx2);font:600 11px/1 var(--sans);cursor:pointer;vertical-align:middle;letter-spacing:0;text-transform:none;position:relative}
+.info::after{content:"";position:absolute;inset:-7px}
+.info:hover,.info:focus-visible,.info[aria-expanded="true"]{color:var(--acc);border-color:var(--acc);outline:none}
+.pop{position:absolute;z-index:60;max-width:320px;background:#0b0d10;border:1px solid var(--acc);border-radius:10px;padding:10px 12px;font:400 12.5px/1.5 var(--sans);color:var(--tx);box-shadow:0 8px 28px rgba(0,0,0,.5);letter-spacing:0;text-transform:none}
+.pop b{color:var(--acc);font-weight:600}
+.pop[hidden]{display:none}
+.opinion{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);border:1px dashed var(--line2);border-radius:4px;padding:1px 5px}
+</style>
 <div class="wrap" id="app"></div>
+<div class="pop" id="pop" role="tooltip" hidden></div>
 <div class="tip" id="tip"></div>
 <script>
 const DATA = /*__SAFETY_DATA__*/null;
@@ -222,7 +234,10 @@ const tip = document.getElementById('tip');
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num = (v, d=1) => (v == null || isNaN(v)) ? '—' : Number(v).toFixed(d);
 const fmtT = t => { if (t == null || isNaN(t)) return '—'; const m = Math.floor(t/60), s = t - m*60; return m + ':' + (s < 10 ? '0' : '') + s.toFixed(1); };
-const scoreCol = s => s == null ? 'var(--tx3)' : s >= 75 ? 'var(--ok)' : s >= 50 ? 'var(--warn)' : 'var(--bad)';
+// silent-feet colours follow safety.silent_feet's grade bands: A>=90 B>=80 (green), C>=70 D>=60 (amber), E (red)
+const scoreCol = s => s == null ? 'var(--tx3)' : s >= 80 ? 'var(--ok)' : s >= 60 ? 'var(--warn)' : 'var(--bad)';
+// landing score has no bands in safety.falls; colour by how many issues it flagged (0 / 1 / 2+)
+const flagCol = n => n == null ? 'var(--tx3)' : n === 0 ? 'var(--ok)' : n === 1 ? 'var(--warn)' : 'var(--bad)';
 const COLORS = {blue:'#2f8bff',red:'#ff4d5e',green:'#35d07f',yellow:'#ffd23f',orange:'#ff8a3d',purple:'#a66bff',pink:'#ff6fb5',black:'#222',white:'#eee',gray:'#999',grey:'#999'};
 
 if (!DATA) { app.innerHTML = '<div class="card sec"><div class="eyebrow">Climb Vision Judge</div><h2>No data</h2><p class="muted">This is the report template. Run <span class="mono">safety_report.py &lt;run_dir&gt;</span> to populate it.</p></div>'; return; }
@@ -238,14 +253,66 @@ if (!duration) duration = Math.max(1, ...allT.filter(x=>x!=null)) * 1.05;
 const result = (J.result || 'NO SCORE').toUpperCase();
 const badgeCls = result === 'TOP' ? 'top' : result === 'ZONE' ? 'zone' : 'none';
 const timeOnWall = (J.start && J.start.t != null) ? ((J.top && J.top.reached && J.top.t != null) ? J.top.t - J.start.t : (falls[0] && falls[0].t_start != null ? falls[0].t_start - J.start.t : null)) : null;
-const landingAvg = falls.length ? falls.reduce((a,f)=>a+(f.landing_score||0),0)/falls.length : null;
+const scored = falls.filter(f => f.landing_score != null);
+const landingAvg = scored.length ? scored.reduce((a,f)=>a+f.landing_score,0)/scored.length : null;
+const landingFlags = scored.length ? Math.max(...scored.map(f => (f.flags||[]).length)) : null;
 const rc = COLORS[(route.color||'').toLowerCase()] || 'var(--acc)';
 
-function ring(score, size=96, stroke=9){
+// ---------- "how is this computed?" text, mirroring the constants in src/safety.py, dyno.py, reward.py, rl.py
+const BLpx = D.scale_px && D.scale_px.body ? ` Here 1 BL = ${num(D.scale_px.body,0)} px.` : '';
+const BLdef = `BL = body-length, estimated from the pose as 1.35 × torso + thigh + shin (median over the clip).${BLpx}`;
+const RWW = (D.reward && D.reward.weights) || {progress:10,zone:3,top:10,reach:-0.5,dyno_risk:-1,campus:-0.2,footwork:-0.1,fall:-10,landing:1,time:-0.01};
+const RLd = D.rl || {}, FP = RLd.fail_p || {deadpoint:0.15, dyno:0.35};
+const OPINION = 'This is a <b>model opinion</b> from a vision-language model on the gateway, reading one annotated frame. It is not a measurement and can be wrong.';
+const INFO = {
+  result: '<b>TOP</b>: both wrists on the top hold at once for ≥ 1.0 s with the hips still (median hip speed < 0.6 torso-lengths/s). If the top hold sits in the top 6% of the frame and the pipeline saw a top-out, control is taken from that route read instead. <b>ZONE</b>: a hand on the zone hold (60% of the way up the route by height) for ≥ 0.3 s. Otherwise <b>NO SCORE</b>.',
+  attempts: 'Number of lift-offs: both toes clear of the floor edge (with 1.2% of frame-height clearance) for ≥ 0.5 s, with a hand on a route hold for ≥ 0.3 s. Lift-offs less than 0.3 s apart are merged. Never shown below 1.',
+  time: 'Top time − start time. Start = first frame of the first lift-off. With no top, the end is the start of the first descent.',
+  landing: 'Each descent starts at 100: −20 per knee straighter than 150°, a sliding 0 to −10 per knee between 120° and 150°, −20 per foot off the pad, −20 if a hand posts to the mat, −10 if the feet land more than 3 frames apart, −5 if the drop is > 1 BL and faster than 3 BL/s; +5 for a downclimb. Clamped 0–100. The colour is the number of issues flagged (0 green, 1 amber, 2+ red).',
+  landingHero: 'Mean landing score over the descents in this clip (each scored from 100 with deductions for stiff knees, feet off the pad, posted hands, split feet and a high fast drop). With no descent detected there is nothing to score. Colour = most issues flagged on any one descent (0 green, 1 amber, 2+ red).',
+  knee: 'Smallest hip–knee–ankle angle in the 0.35 s after touchdown (180° = straight leg). Above 150° = stiff (−20, red); 120–150° = partly bent (0 to −10, amber); 120° or less = good (green).',
+  pad: 'Toe position (ankle + 2% of frame height) at the impact frame, tested against the crash-pad outline segmented by SAM, allowing 2.5% of frame height of tolerance at the edge. OFF costs −20.',
+  hands: 'YES when a wrist is more than 0.25 torso-lengths below the hips and within 3% of frame height of the floor edge, from 3 frames before to 0.5 s after impact. Costs −20.',
+  drop: 'Hip drop from the last frame a hand was on a hold (else the highest hip point in the 1.5 s before impact) down to impact. ' + BLdef,
+  impact: 'Peak downward hip speed over the 3 frames before touchdown, in body-lengths per second (BL/s). ' + BLdef,
+  feet: 'Mean of all foot-placement scores. Each placement = 100 − 15 × min(readjusts, 3) − min(25, 400 × jitter) − min(20, 12 × max(0, arrival speed − 0.5 BL/s)) − 20 × (1 − precision). Grades: A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, else E.',
+  readj: 'Re-placements on the same hold within 1 s, plus wiggles after a 0.2 s settle (each time toe speed rises above 0.8 shin-lengths/s). Each costs 15 points, up to 3.',
+  jitter: 'Standard deviation of the toe position after the 0.2 s settle, in body-lengths (BL). Costs 400 × jitter points, at most 25.',
+  precision: '1 − (distance from the first touch to the hold centre) ÷ (hold radius + 1 shin-length), clipped to 0–100%. Costs 20 × (1 − precision) points.',
+  span: 'Longest reach while holding on: the larger of the widest hand-to-hand span actually held on this climb and 0.75 × wingspan, capped at 0.75 × 1.06 BL. Wingspan = 2 × arm length (90th percentile) + shoulder width, capped at 1.06 × body-length (ape index +6%). ' + BLdef,
+  gain: 'Extra reach a dyno buys: flight height v²/2g with an assumed take-off speed of ' + num((D.dyno&&D.dyno.assumptions||{}).takeoff_speed_m_s||2.2,1) + ' m/s for an assumed ' + num((D.dyno&&D.dyno.assumptions||{}).height_m||1.75,2) + ' m climber, plus 0.35 × (thigh + shin) of leg drive. Per move only the upward share counts: gain × max(0.3, upward component). Assumed, not measured.',
+  need: 'From the anchor hold: gap ≤ static span → <b>static</b>; ≤ static + 0.4 × gain → <b>deadpoint</b>; ≤ static + gain → <b>dyno</b>; beyond → <b>out of reach</b> (gain scaled by how upward the move is).',
+  margin: 'Static span + direction-scaled dyno gain − gap, in BL. Positive = reach to spare; negative = short by that much. Bar full scale = static span + full gain.',
+  gap: 'Centre-to-centre distance from the anchor hold to the target hold, in body-lengths (BL).',
+  vlm: OPINION + ' The percentage is the model\'s <b>self-reported</b> confidence.',
+  verdict: OPINION,
+  coach: 'Written by a language model (qwen3.8-27b on the gateway) from the numbers in this report. It is <b>model opinion</b>; check its claims against the sections above.',
+  total: 'Sum of every reward term below (weights shown as ×). Scored on the recorded climb by src/reward.py.',
+  rlret: `Return of the learned greedy policy (no random failures) vs. your recorded hand sequence replayed in the same hands-only route model. Step reward = progress + zone + top + reach + dyno risk + ${RWW.time} × ${RLd.move_s||1.5} s per move. Feet and body position are not simulated.`,
+  toprate: `Share of 200 runs of the greedy policy that topped, with random failure on deadpoints (${Math.round((FP.deadpoint||0)*100)}%) and dynos (${Math.round((FP.dyno||0)*100)}%), each × (1 − margin/gain). Tabular Q-learning, ${RLd.episodes||4000} episodes, α ${RLd.alpha!=null?RLd.alpha:0.2}, γ ${RLd.gamma!=null?RLd.gamma:0.97}, ε ${esc(RLd.epsilon||'1.0 → 0.05 over 80% of episodes')}, max ${RLd.max_steps||40} steps.`,
+  cost: 'Gateway spend of this report stage only (pad segmentation + VLM calls incl. the coach note); gateway-reported where available, else estimated from token counts. The main pose/hold pipeline is not included.',
+};
+const TERM_INFO = {
+  progress: `${RWW.progress} × rise in height of the higher hand's hold (0 = lowest route hold, 1 = top hold).`,
+  zone: `${RWW.zone} once, the first time a hand is on the zone hold.`,
+  top: `${RWW.top} for a controlled top (both hands on the top hold).`,
+  reach: `${RWW.reach} × (gap ÷ static span)² per hand move, gap from the other hand's hold.`,
+  dyno_risk: `${RWW.dyno_risk} × (1 − clip(margin ÷ dyno gain, 0, 1)) for deadpoint / dyno moves.`,
+  campus: `${RWW.campus} per second hanging on a route hold with both feet visible and neither on a hold (spells ≥ 0.3 s).`,
+  footwork: `${RWW.footwork} per silent-feet readjust.`,
+  fall: `${RWW.fall} per uncontrolled fall (not jump-offs or downclimbs).`,
+  landing: `${RWW.landing} × (landing score − 50) ÷ 50 per descent.`,
+  time: `${RWW.time} per second on the wall (start to top).`,
+};
+let infoN = 0;
+const ii = (key, html) => { const t = html != null ? html : INFO[key]; if (!t) return ''; infoN++;
+  return `<button type="button" class="info" aria-label="How is this computed?" aria-expanded="false" aria-controls="pop" data-info="${esc(t)}">i</button>`; };
+
+function ring(score, size=96, stroke=9, col){
   const r = (size-stroke)/2, c = 2*Math.PI*r, p = score == null ? 0 : Math.max(0,Math.min(100,score))/100;
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-label="score ${score}">
     <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="${stroke}"/>
-    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${scoreCol(score)}" stroke-width="${stroke}" stroke-linecap="round"
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col||scoreCol(score)}" stroke-width="${stroke}" stroke-linecap="round"
       stroke-dasharray="${c*p} ${c}" transform="rotate(-90 ${size/2} ${size/2})"/>
     <text x="50%" y="52%" text-anchor="middle" dominant-baseline="middle" fill="var(--tx)" font-family="JetBrains Mono,monospace" font-weight="700" font-size="${size*0.28}">${score==null?'—':Math.round(score)}</text>
   </svg>`;
@@ -261,16 +328,16 @@ html += `<section class="hero">
     <h1>${esc(D.clip || 'Untitled clip')}</h1>
     <span class="route-chip"><i style="background:${rc}"></i>${esc((route.color||'route').toUpperCase())} · ${esc(route.grade||'—')}${route.holds!=null?' · '+esc(route.holds)+' holds':''}</span>
     <div class="badge ${badgeCls}">
-      <div class="eyebrow">Judge result</div>
+      <div class="eyebrow">Judge result${ii('result')}</div>
       <div class="res">${esc(result)}</div>
-      <div class="muted" style="margin-top:6px;font-size:13px">${J.top&&J.top.reached?(J.top.controlled?'Controlled top':'Top touched, not controlled'):J.zone&&J.zone.reached?'Zone hold reached':'Start not converted'}</div>
+      <div class="muted" style="margin-top:6px;font-size:13px">${J.top&&J.top.reached?(J.top.controlled?(J.top.note?'Top reached · control inferred from the route read (top hold at the frame edge), not measured':'Controlled top · both hands held '+num(J.top.hold_s,1)+' s'):'Top touched, not held ≥ 1.0 s'):J.zone&&J.zone.reached?'Zone hold reached':J.start?'Started, zone not reached':'No lift-off detected'}</div>
     </div>
   </div>
   <div class="stats">
-    <div class="stat"><div class="eyebrow">Attempts</div><div class="v">${J.attempts!=null?esc(J.attempts):'—'}</div></div>
-    <div class="stat"><div class="eyebrow">Time on wall</div><div class="v">${timeOnWall!=null?num(timeOnWall,1)+'<small>s</small>':'—'}</div></div>
-    <div class="stat"><div class="eyebrow">Landing score</div><div class="v" style="color:${falls.length?scoreCol(landingAvg):'var(--ok)'}">${falls.length?Math.round(landingAvg):'—'}<small>${falls.length?'/100':'no falls'}</small></div></div>
-    <div class="stat"><div class="eyebrow">Silent feet</div><div class="v" style="color:${scoreCol(feet.score)}">${esc(feet.grade||'—')}<small>${feet.score!=null?Math.round(feet.score)+'/100':''}</small></div></div>
+    <div class="stat"><div class="eyebrow">Attempts${ii('attempts')}</div><div class="v">${J.attempts!=null?esc(J.attempts):'—'}</div></div>
+    <div class="stat"><div class="eyebrow">Time on wall${ii('time')}</div><div class="v">${timeOnWall!=null?num(timeOnWall,1)+'<small>s</small>':'—'}</div></div>
+    <div class="stat"><div class="eyebrow">Landing score${ii('landingHero')}</div><div class="v" style="color:${flagCol(landingFlags)}">${landingAvg!=null?Math.round(landingAvg):'—'}<small>${landingAvg!=null?'/100'+(scored.length>1?' · mean of '+scored.length:''):'no descent detected'}</small></div></div>
+    <div class="stat"><div class="eyebrow">Silent feet${ii('feet')}</div><div class="v" style="color:${scoreCol(feet.score)}">${esc(feet.grade||'—')}<small>${feet.score!=null?Math.round(feet.score)+'/100':''}</small></div></div>
   </div>
 </section>`;
 
@@ -287,7 +354,7 @@ html += `<section class="sec card">
   <div class="sec-h"><span class="num">01</span><h2>Replay</h2></div>
   <div class="video-box">${D.video ? `<video id="vid" src="${esc(D.video)}" controls playsinline preload="metadata"></video>` : '<div class="noasset">No video in this run</div>'}</div>
   <div class="readout"><div class="t mono" id="cur">0:00.0 <small>/ ${fmtT(duration)}</small></div>
-    <div class="legend"><span><i style="background:var(--acc)"></i>Judge</span><span><i style="background:var(--bad);border-radius:50%"></i>Fall</span><span><i style="background:var(--ok)"></i>Foot good</span><span><i style="background:var(--warn)"></i>Foot ok</span><span><i style="background:var(--bad)"></i>Foot poor</span></div></div>
+    <div class="legend"><span><i style="background:var(--acc)"></i>Judge</span><span><i style="background:var(--bad);border-radius:50%"></i>Fall</span><span><i style="background:var(--ok)"></i>Foot A–B (≥80)</span><span><i style="background:var(--warn)"></i>Foot C–D (60–79)</span><span><i style="background:var(--bad)"></i>Foot E (&lt;60)</span></div></div>
   <div class="tl" id="tl">
     <div class="prog" id="prog"></div>
     <div class="lane" style="top:31px"></div><div class="lane" style="top:58px"></div>
@@ -301,6 +368,10 @@ html += `<section class="sec card">
 // ---------- judge scorecard
 const st = J.start || {}, zn = J.zone || {}, tp = J.top || {};
 const startOk = st.t != null;
+// the judge's own event labels say "controlled"; state what was actually measured
+const evLabel = e => String(e.label||'').replace('controlled touch on', 'hand on').replace(/(Zone: hand on hold #\d+)/, '$1 for ≥ 0.3 s')
+  .replace(' — controlled', tp.note ? ' — control inferred from route read' : ' — held ≥ 1.0 s');
+(J.events||[]).forEach(e => { e.label = evLabel(e); });
 html += `<section class="sec card">
   <div class="sec-h"><span class="num">02</span><h2>Judge scorecard</h2><span class="dim" style="font-size:13px">IFSC-style state machine</span></div>
   <div class="sm">
@@ -311,7 +382,7 @@ html += `<section class="sec card">
       <div class="tm">${zn.reached?fmtT(zn.t):'—'}</div><div class="sub">${zn.hold!=null?'Hold #'+esc(zn.hold):'Zone hold'}${zn.reached&&startOk&&zn.t!=null?' · +'+num(zn.t-st.t,1)+'s':''}</div></div>
     <div class="arrow">→</div>
     <div class="node ${tp.reached?'done':'miss'}"><div class="ck">${tp.reached?'✓':'–'}</div><div class="eyebrow">State 3</div><div class="nm">TOP</div>
-      <div class="tm">${tp.reached?fmtT(tp.t):'—'}</div><div class="sub">${tp.hold!=null?'Hold #'+esc(tp.hold):'Top hold'}${tp.reached?(tp.controlled?(tp.note?' · <span class="ok">controlled</span> <span class="dim">(from route read; top hold at frame edge)</span>':' · <span class="ok">controlled '+num(tp.hold_s,1)+'s</span>'):' · <span class="warn">not controlled</span>'):''}</div></div>
+      <div class="tm">${tp.reached?fmtT(tp.t):'—'}</div><div class="sub">${tp.hold!=null?'Hold #'+esc(tp.hold):'Top hold'}${tp.reached?(tp.controlled?(tp.note?' · <span class="warn">control inferred</span> <span class="dim">(both hands seen '+num(tp.hold_s,1)+' s of the 1.0 s needed; top hold at frame edge, so the route read\'s top-out is used)</span>':' · <span class="ok">held '+num(tp.hold_s,1)+' s ≥ 1.0 s</span>'):' · <span class="warn">held '+num(tp.hold_s,1)+' s, needs ≥ 1.0 s still</span>'):''}${ii('result')}</div></div>
   </div>
   ${(J.events||[]).length?`<ul class="evlist">${J.events.map(e=>`<li data-t="${e.t}"><span class="mono">${fmtT(e.t)}</span><span>${esc(e.label)}</span></li>`).join('')}</ul>`:''}
 </section>`;
@@ -322,23 +393,24 @@ function fallCard(f){
   const fp = Array.isArray(f.feet_on_pad) ? f.feet_on_pad : null;
   const fpTxt = v => v == null ? '—' : v ? '<span class="ok">ON</span>' : '<span class="bad">OFF</span>';
   const ka = f.knee_angle_min || {};
-  const kCol = a => a == null ? '' : a > 150 ? 'bad' : a > 130 ? 'warn' : 'ok';
+  const kCol = a => a == null ? '' : a > 150 ? 'bad' : a > 120 ? 'warn' : 'ok';   // safety.STIFF_KNEE / GOOD_KNEE
   const flags = Array.isArray(f.flags) ? f.flags : [];
   return `<div class="fall">
-    <div class="ring-wrap">${ring(f.landing_score)}<div class="eyebrow">Landing</div></div>
+    <div class="ring-wrap">${ring(f.landing_score, 96, 9, flagCol(flags.length))}<div class="eyebrow">Landing${ii('landing')}</div></div>
     <div>
       <div class="fall-h"><span class="kind ${esc(f.kind)}">${esc((f.kind||'fall').replace('_',' '))}</span><strong>#${esc(f.id)}</strong>
         <button class="seek" data-t="${f.t_impact!=null?f.t_impact-0.8:f.t_start}">▶ ${fmtT(f.t_impact)}</button></div>
       <div class="metrics">
-        <div class="m"><div class="k">Knee L</div><div class="v ${kCol(ka.left)}">${num(ka.left,0)}°</div></div>
-        <div class="m"><div class="k">Knee R</div><div class="v ${kCol(ka.right)}">${num(ka.right,0)}°</div></div>
-        <div class="m"><div class="k">Feet on pad</div><div class="v">${fp?fpTxt(fp[0])+' / '+fpTxt(fp[1]):'<span class="dim">no pad</span>'}</div></div>
-        <div class="m"><div class="k">Hands posted</div><div class="v ${f.hands_posted?'bad':'ok'}">${f.hands_posted==null?'—':f.hands_posted?'YES':'NO'}</div></div>
-        <div class="m"><div class="k">Drop</div><div class="v">${num(f.drop_body_lengths,1)}<span class="dim" style="font-size:11px"> BL</span></div></div>
-        <div class="m"><div class="k">Impact</div><div class="v">${num(f.impact_speed_bl_s,1)}<span class="dim" style="font-size:11px"> BL/s</span></div></div>
+        <div class="m"><div class="k">Knee L${ii('knee')}</div><div class="v ${kCol(ka.left)}">${num(ka.left,0)}°</div></div>
+        <div class="m"><div class="k">Knee R${ii('knee')}</div><div class="v ${kCol(ka.right)}">${num(ka.right,0)}°</div></div>
+        <div class="m"><div class="k">Feet on pad${ii('pad')}</div><div class="v">${fp?fpTxt(fp[0])+' / '+fpTxt(fp[1]):'<span class="dim">no pad</span>'}</div></div>
+        <div class="m"><div class="k">Hands posted${ii('hands')}</div><div class="v ${f.hands_posted?'bad':'ok'}">${f.hands_posted==null?'—':f.hands_posted?'YES':'NO'}</div></div>
+        <div class="m"><div class="k">Drop${ii('drop')}</div><div class="v">${num(f.drop_body_lengths,2)}<span class="dim" style="font-size:11px"> BL</span></div></div>
+        <div class="m"><div class="k">Impact${ii('impact')}</div><div class="v">${num(f.impact_speed_bl_s,1)}<span class="dim" style="font-size:11px"> BL/s</span></div></div>
       </div>
+      ${f.feet_sync_ms!=null?`<div class="dim" style="font-size:12px;margin-top:8px">Feet touched down ${esc(f.feet_sync_ms)} ms apart (flagged above ${Math.round(3000/fps)} ms = 3 frames)</div>`:''}
       <div class="flags">${flags.length?flags.map(x=>`<span class="flag">${esc(x)}</span>`).join(''):'<span class="flag none">No issues flagged</span>'}</div>
-      ${f.verdict?`<blockquote class="quote">“${esc(f.verdict)}”<span class="src">VLM VERDICT · GATEWAY${f.vlm&&f.vlm.agrees_with_metrics===false?' <span class="disagree">VLM disagrees with metrics</span>':''}</span></blockquote>`:''}
+      ${f.verdict?`<blockquote class="quote">“${esc(f.verdict)}”<span class="src">MODEL OPINION · VLM ON THE GATEWAY · NOT A MEASUREMENT${ii('verdict')}${f.vlm&&f.vlm.agrees_with_metrics===false?' <span class="disagree">VLM disagrees with metrics</span>':''}</span></blockquote>`:''}
       ${f.keyframe?`<div class="kf"><img src="${esc(f.keyframe)}" alt="Impact keyframe" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`:''}
     </div></div>`;
 }
@@ -366,7 +438,7 @@ function mapSvg(){
 html += `<section class="sec card">
   <div class="sec-h"><span class="num">03</span><h2>Landing safety</h2><span class="dim" style="font-size:13px">${falls.length} event${falls.length===1?'':'s'}</span></div>
   <div class="saf-grid">
-    <div class="falls">${falls.length?falls.map(fallCard).join(''):`<div class="clean"><div class="big">No falls detected — clean send</div><div class="muted" style="margin-top:6px">Nothing to assess on the landing zone for this clip.</div></div>`}</div>
+    <div class="falls">${falls.length?falls.map(fallCard).join(''):`<div class="clean"><div class="big">No descent detected</div><div class="muted" style="margin-top:6px">No lift-off ended back on the floor with a hip drop of at least ${(0.35*0.5).toFixed(3)} BL, so there is no landing to score. The climber may also have left the frame.</div></div>`}</div>
     <div class="map-card">
       <div class="eyebrow" style="margin-bottom:8px">Fall-zone map</div>
       <div class="map">${D.holds_image?`<img src="${esc(D.holds_image)}" alt="" onerror="this.style.display='none'">`:''}${mapSvg()}</div>
@@ -379,18 +451,18 @@ html += `<section class="sec card">
 // ---------- silent feet
 const pfoot = feet.per_foot || {};
 const footCol = f => f === 'left' ? '#2fb8ff' : '#c28bff';
-function pfCard(side){ const p = pfoot[side] || {}; return `<div class="pf"><div class="eyebrow"><span class="foot-dot" style="background:${footCol(side)}"></span>${side} foot</div>
+function pfCard(side){ const p = pfoot[side] || {}; return `<div class="pf"><div class="eyebrow"><span class="foot-dot" style="background:${footCol(side)}"></span>${side} foot · mean score</div>
   <div class="mono" style="font-size:30px;font-weight:700;margin-top:6px;color:${scoreCol(p.score)}">${p.score!=null?Math.round(p.score):'—'}</div>
   <div class="bar" style="margin-top:6px"><i style="width:${p.score||0}%;background:${scoreCol(p.score)}"></i></div>
   <div class="row"><span>Placements</span><b>${p.placements!=null?p.placements:'—'}</b></div>
-  <div class="row"><span>Readjusts</span><b>${p.readjusts!=null?p.readjusts:'—'}</b></div></div>`; }
+  <div class="row"><span>Readjusts${ii('readj')}</span><b>${p.readjusts!=null?p.readjusts:'—'}</b></div></div>`; }
 html += `<section class="sec card">
   <div class="sec-h"><span class="num">04</span><h2>Silent feet</h2><span class="dim" style="font-size:13px">precise, quiet, one-touch placements</span></div>
   <div class="feet-top">
-    <div class="grade"><div class="g" style="color:${scoreCol(feet.score)}">${esc(feet.grade||'—')}</div><div><div class="eyebrow">Score</div><div class="s">${feet.score!=null?Math.round(feet.score):'—'}<span class="dim" style="font-size:14px">/100</span></div></div></div>
+    <div class="grade"><div class="g" style="color:${scoreCol(feet.score)}">${esc(feet.grade||'—')}</div><div><div class="eyebrow">Score${ii('feet')}</div><div class="s">${feet.score!=null?Math.round(feet.score):'—'}<span class="dim" style="font-size:14px">/100</span></div></div></div>
     ${pfCard('left')}${pfCard('right')}
   </div>
-  ${places.length?`<div class="tbl-wrap"><table class="pl"><thead><tr><th>#</th><th>Foot</th><th>Hold</th><th>Time</th><th>Readj.</th><th class="hide-sm">Jitter</th><th class="hide-sm">Precision</th><th>Score</th></tr></thead><tbody>
+  ${places.length?`<div class="tbl-wrap"><table class="pl"><thead><tr><th>#</th><th>Foot</th><th>Hold</th><th>Time</th><th>Readj.${ii('readj')}</th><th class="hide-sm">Jitter (BL)${ii('jitter')}</th><th class="hide-sm">Precision${ii('precision')}</th><th>Score${ii('feet')}</th></tr></thead><tbody>
   ${places.map((p,i)=>`<tr class="r${worst.has(i)?' worst':''}" data-t="${p.t_on}"><td>${i+1}${worst.has(i)?'<span class="tag-w">WORST</span>':''}</td>
     <td><span class="foot-dot" style="background:${footCol(p.foot)}"></span>${esc(p.foot)}</td><td>${p.hold!=null?'#'+esc(p.hold):'—'}</td><td>${fmtT(p.t_on)}</td>
     <td class="${p.readjusts>1?'bad':p.readjusts>0?'warn':''}">${p.readjusts!=null?p.readjusts:'—'}</td><td class="hide-sm">${num(p.jitter,3)}</td><td class="hide-sm">${p.precision!=null?Math.round(p.precision*100)+'%':'—'}</td>
@@ -431,24 +503,26 @@ function dynoSvg(sel){
   });
   return s + '</svg>';
 }
-function dbar(label, v, max, col, signed){
+function dbar(label, v, max, col, signed, info){
   const w = v == null ? 0 : signed ? Math.min(50, Math.abs(v)/max*50) : Math.min(100, v/max*100);
   const st = signed ? (v >= 0 ? `left:50%;width:${w}%` : `left:${50-w}%;width:${w}%`) : `left:0;width:${w}%`;
-  return `<div class="dbar"><span>${label}</span><div class="bar">${signed?'<span class="mid"></span>':''}<i style="position:absolute;top:0;${st};background:${col}"></i></div><span style="color:${col}">${v==null?'—':(signed&&v>0?'+':'')+num(v,2)} BL</span></div>`;
+  return `<div class="dbar"><span>${label}${info?ii(info):''}</span><div class="bar">${signed?'<span class="mid"></span>':''}<i style="position:absolute;top:0;${st};background:${col}"></i></div><span style="color:${col}">${v==null?'—':(signed&&v>0?'+':'')+num(v,2)} BL</span></div>`;
 }
 function dcard(c){
   const k = NEED_COL[c.needed] ? c.needed : 'dyno', v = c.vlm;
   const skip = Array.isArray(c.skip) && c.skip.length ? 'skips ' + c.skip.map(esc).join(', ') : 'adjacent';
   const gmax = Math.max(1, (DY.static_span_bl||0) + (DY.dyno_gain_bl||0), ...cands.map(x=>x.gap_bl||0));
+  // margin can be at most static + gain (a zero-length gap); scale the bar to that instead of a fixed 0.5 BL
+  const mmax = Math.max(1e-6, (DY.static_span_bl||0) + (DY.dyno_gain_bl||0), ...cands.map(x=>Math.abs(x.margin_bl||0)));
   return `<div class="dc" data-cid="${c.id}" data-t="${c.t}">
     <div>
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><div class="ttl">#${esc(c.from_hold)} → #${esc(c.to_hold)}</div>
         <div class="sub">${esc(c.hand||'?')} hand · ${skip}${c.climbed?' · <span class="ok">climbed</span>':''}${c.t!=null?' · '+fmtT(c.t):''}</div></div>
-        <span class="need ${k}">${esc(String(c.needed||'?').replace(/_/g,' '))}</span></div>
-      ${dbar('gap', c.gap_bl, gmax, 'var(--acc)')}
-      ${dbar('margin', c.margin_bl, 0.5, c.margin_bl==null?'var(--tx3)':c.margin_bl>=0?'var(--ok)':'var(--bad)', true)}
-      <div class="sub" style="margin-top:6px">catch: <b class="mono" style="color:var(--tx)">${esc(c.target_size||'—')}</b></div>
-      ${v?`<div class="vlm"><span class="${v.feasible?'ok':'bad'} mono" style="font-weight:700">${v.feasible?'✓ feasible':'✗ not feasible'}</span>${v.style?`<span class="dim">· ${esc(v.style)}</span>`:''}${v.confidence!=null?`<span class="dim">· ${Math.round(v.confidence*100)}% conf</span>`:''}${v.agrees_with_metrics===false?`<span class="disagree">VLM disagrees</span>`:''}${v.reason?`<span class="q">“${esc(v.reason)}”</span>`:''}</div>`:''}
+        <span style="white-space:nowrap"><span class="need ${k}">${esc(String(c.needed||'?').replace(/_/g,' '))}</span>${ii('need')}</span></div>
+      ${dbar('gap', c.gap_bl, gmax, 'var(--acc)', false, 'gap')}
+      ${dbar('margin', c.margin_bl, mmax, c.margin_bl==null?'var(--tx3)':c.margin_bl>=0?'var(--ok)':'var(--bad)', true, 'margin')}
+      <div class="sub" style="margin-top:6px">catch: <b class="mono" style="color:var(--tx)">${esc(c.target_size||'—')}</b>${ii(null,'Target hold size from its segmented area: equivalent radius &lt; 0.035 BL = small, &lt; 0.06 BL = medium, else large.')}</div>
+      ${v?`<div class="vlm"><span class="opinion">model opinion</span>${v.feasible==null?`<span class="dim mono">no answer${v.error?' ('+esc(String(v.error).slice(0,60))+')':''}</span>`:`<span class="${v.feasible?'ok':'bad'} mono" style="font-weight:700">${v.feasible?'would commit':'would not commit'}</span>`}${v.style?`<span class="dim">· ${esc(v.style)}</span>`:''}${v.confidence!=null?`<span class="dim">· self-reported ${Math.round(v.confidence*100)}%</span>`:''}${ii('vlm')}${v.agrees_with_metrics===false?`<span class="disagree">model disagrees with metrics</span>`:''}${v.reason?`<span class="q">“${esc(v.reason)}”</span>`:''}</div>`:''}
     </div>
     ${c.frame?`<div class="thumb"><img src="${esc(c.frame)}" alt="annotated frame" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`:''}
   </div>`;
@@ -457,9 +531,9 @@ const asum = (DY && DY.assumptions) || {};
 html += `<section class="sec card" id="dyno">
   <div class="sec-h"><span class="num">05</span><h2>Dyno lab</h2><span class="dim" style="font-size:13px">is a dyno possible?</span></div>
   ${cands.length ? `<div class="dy-stats">
-    <div class="stat"><div class="eyebrow">Static span</div><div class="v" style="color:var(--ok)">${num(DY.static_span_bl,2)}<small>BL</small></div></div>
-    <div class="stat"><div class="eyebrow">Dyno gain</div><div class="v" style="color:var(--warn)">+${num(DY.dyno_gain_bl,2)}<small>BL</small></div></div>
-    <div class="stat"><div class="eyebrow">Assumptions</div><div class="mono" style="font-size:13px;margin-top:10px;line-height:1.6;color:var(--tx2)">height ${num(asum.height_m,2)} m<br>takeoff ${num(asum.takeoff_speed_m_s,1)} m/s</div></div>
+    <div class="stat"><div class="eyebrow">Static span${ii('span')}</div><div class="v" style="color:var(--ok)">${num(DY.static_span_bl,2)}<small>BL</small></div></div>
+    <div class="stat"><div class="eyebrow">Dyno gain (max, straight up)${ii('gain')}</div><div class="v" style="color:var(--warn)">+${num(DY.dyno_gain_bl,2)}<small>BL</small></div></div>
+    <div class="stat"><div class="eyebrow">Assumed, not measured</div><div class="mono" style="font-size:13px;margin-top:10px;line-height:1.6;color:var(--tx2)">height ${num(asum.height_m,2)} m<br>takeoff ${num(asum.takeoff_speed_m_s,1)} m/s<br>leg drive ${asum.leg_drive!=null?Math.round(asum.leg_drive*100)+'%':'—'} · static ${asum.static_wingspan_share!=null?Math.round(asum.static_wingspan_share*100)+'%':'—'} of wingspan</div></div>
   </div>
   <div class="dy-grid">
     <div class="dy-list">${cands.map(dcard).join('')}</div>
@@ -489,7 +563,7 @@ function termBars(){
   if (!rwTerms.length) return '<p class="dim" style="font-size:13px">No reward terms recorded.</p>';
   const mx = Math.max(1e-6, ...rwTerms.map(([,v]) => Math.abs(v)));
   return rwTerms.map(([k,v]) => { const w = Math.abs(v)/mx*50; const st = v >= 0 ? `left:50%;width:${w}%` : `left:${50-w}%;width:${w}%`;
-    return `<div class="tb" data-tip="${esc(k.replace(/_/g,' ')+' '+sgn(v)+(rwWeights[k]!=null?' · weight '+rwWeights[k]:''))}"><span>${esc(k.replace(/_/g,' '))}${rwWeights[k]!=null?` <span class="w">×${esc(rwWeights[k])}</span>`:''}</span>
+    return `<div class="tb"><span>${esc(k.replace(/_/g,' '))}${rwWeights[k]!=null?` <span class="w">×${esc(rwWeights[k])}</span>`:''}${TERM_INFO[k]?ii(null, '<b>'+esc(k.replace(/_/g,' '))+'</b>: '+TERM_INFO[k]):''}</span>
       <div class="trk"><span class="mid"></span><i style="${st};background:${termCol(v)}"></i></div><span style="color:${termCol(v)};text-align:right">${sgn(v)}</span></div>`; }).join('');
 }
 function rlStat(k, v, col){ return `<div class="m"><div class="k">${k}</div><div class="v"${col?` style="color:${col}"`:''}>${v}</div></div>`; }
@@ -500,7 +574,7 @@ html += `<section class="sec card" id="reward">
     <div>
       <div class="eyebrow" style="margin-bottom:8px">Reward over the climb</div>
       ${rwCurve.length ? `<div class="chart click" id="rwchart"></div><div class="legend" style="margin-top:8px"><span><i style="background:var(--acc)"></i>Cumulative return</span>${[...new Set(rwEvents.map(e=>e.term))].map(k=>`<span><i style="background:${EV_COL[k]||'#c28bff'};border-radius:50%"></i>${esc(String(k).replace(/_/g,' '))}</span>`).join('')}<span class="dim">click to seek</span></div>` : '<div class="noasset" style="padding:30px 10px">No reward curve for this run</div>'}
-      <div class="rw-total"><span class="v" style="color:${termCol(rwTotal)}">${RW?sgn(rwTotal,1):'—'}</span><span class="eyebrow">total return</span></div>
+      <div class="rw-total"><span class="v" style="color:${termCol(rwTotal)}">${RW?sgn(rwTotal,1):'—'}</span><span class="eyebrow">total return${ii('total')}</span></div>
       ${termBars()}
     </div>
     <div>
@@ -509,9 +583,9 @@ html += `<section class="sec card" id="reward">
       ${hasRL ? `<div class="rl-stats">
         ${rlStat('Algorithm', `<span style="font-size:12px">${esc(RL.algo||'—')}</span>`)}
         ${rlStat('Episodes', RL.episodes!=null?Number(RL.episodes).toLocaleString():'—')}
-        ${rlStat('Greedy top-rate', RL.policy_top_rate!=null?Math.round(RL.policy_top_rate*100)+'%':'—', RL.policy_top_rate!=null?scoreCol(RL.policy_top_rate*100):'')}
+        ${rlStat('Top rate · 200 runs'+ii('toprate'), RL.policy_top_rate!=null?Math.round(RL.policy_top_rate*100)+'%':'—')}
         ${rlStat('Moves you / agent', `<span style="color:${WHO_COL.human}">${RL.human_moves!=null?esc(RL.human_moves):rlBeta.human.length||'—'}</span> <span class="dim">/</span> <span style="color:${WHO_COL.agent}">${RL.learned_moves!=null?esc(RL.learned_moves):rlBeta.agent.length||'—'}</span>`)}
-        ${rlStat('Return you / agent', `<span style="color:${WHO_COL.human}">${num(RL.human_return,1)}</span> <span class="dim">/</span> <span style="color:${WHO_COL.agent}">${num(RL.learned_return,1)}</span>`)}
+        ${rlStat('Return you / agent'+ii('rlret'), `<span style="color:${WHO_COL.human}">${num(RL.human_return,1)}</span> <span class="dim">/</span> <span style="color:${WHO_COL.agent}">${num(RL.learned_return,1)}</span>`)}
         ${rlStat('States × actions', `${RL.state_space!=null?esc(RL.state_space):'—'} × ${RL.action_space!=null?esc(RL.action_space):'—'}`)}
       </div>
       ${rlCurve.length ? `<div class="eyebrow" style="margin:4px 0 6px">Training curve · mean return per episode${RL.seed!=null?' · seed '+esc(RL.seed):''}</div><div class="chart" id="rlchart"></div>` : ''}
@@ -594,10 +668,11 @@ function setRwHead(t){ lastT = t; const h = document.getElementById('rwhead'); i
 
 // ---------- coach + footer
 html += `<section class="sec card"><div class="sec-h"><span class="num">07</span><h2>Coach note</h2></div>
+  ${D.coach?`<div style="margin:-4px 0 10px"><span class="opinion">model opinion · written by an LLM</span>${ii('coach')}</div>`:''}
   <div class="coach">${D.coach?esc(D.coach):'<span class="dim">No coaching note generated for this run.</span>'}</div></section>`;
 const cost = D.cost || {}; const costTot = Object.values(cost).reduce((a,v)=>a+(+v||0),0);
 html += `<footer><span>Powered by VLM Run Gateway · SAM 3.1 · ViTPose+ · Qwen3.8</span>
-  <span>${Object.keys(cost).length?'Cost $'+costTot.toFixed(4)+' ('+Object.entries(cost).map(([k,v])=>esc(k)+' $'+num(v,3)).join(', ')+')':''}${D.fps?' · '+num(D.fps,2)+' fps':''}${D.size?' · '+D.size.join('×'):''}</span></footer>`;
+  <span>${Object.keys(cost).length?'Report-stage gateway cost $'+costTot.toFixed(4)+' ('+Object.entries(cost).map(([k,v])=>esc(k.replace(/_/g,' '))+' $'+num(v,4)).join(', ')+')'+ii('cost'):''}${D.fps?' · '+num(D.fps,2)+' fps':''}${D.size?' · '+D.size.join('×'):''}</span></footer>`;
 
 app.innerHTML = html;
 
@@ -651,6 +726,36 @@ if (rwc) rwc.addEventListener('click', e => { const mk = e.target.closest('[data
   if (!rwGeo) return; const svg = rwc.querySelector('svg'); const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (svg.viewBox.baseVal.width / r.width);
   const f = (px - rwGeo.ml) / rwGeo.iw; if (f < 0 || f > 1) return; seek(rwGeo.x0 + f * (rwGeo.x1 - rwGeo.x0)); });
 let rsz; window.addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(drawRL, 120); });
+// ---------- ⓘ popovers: click/tap toggles (pinned), hover and keyboard focus preview, Esc / outside click closes
+const pop = document.getElementById('pop');
+let popFor = null, pinned = false;
+function showPop(btn, pin){
+  if (popFor && popFor !== btn) popFor.setAttribute('aria-expanded', 'false');
+  pop.innerHTML = btn.dataset.info; pop.hidden = false; popFor = btn; pinned = !!pin;
+  btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-describedby', 'pop');
+  const r = btn.getBoundingClientRect(), w = Math.min(320, window.innerWidth - 24);
+  pop.style.maxWidth = w + 'px';
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  const x = Math.max(12, Math.min(window.innerWidth - pw - 12, r.left + r.width/2 - pw/2));
+  const below = r.bottom + 8 + ph < window.innerHeight || r.top < ph + 16;
+  pop.style.left = (x + window.scrollX) + 'px';
+  pop.style.top = ((below ? r.bottom + 8 : r.top - ph - 8) + window.scrollY) + 'px';
+}
+function hidePop(){ if (popFor) { popFor.setAttribute('aria-expanded', 'false'); popFor.removeAttribute('aria-describedby'); } pop.hidden = true; popFor = null; pinned = false; }
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('.info');
+  if (b) { e.stopPropagation(); e.preventDefault(); if (popFor === b && pinned) hidePop(); else showPop(b, true); return; }
+  if (!pop.hidden && !pop.contains(e.target)) hidePop();
+}, true);   // capture: an ⓘ inside a clickable card must not also seek the video / select the card
+const finePointer = window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+if (finePointer) {
+  document.addEventListener('mouseover', e => { const b = e.target.closest && e.target.closest('.info'); if (b && !pinned) showPop(b, false); });
+  document.addEventListener('mouseout', e => { const b = e.target.closest && e.target.closest('.info'); if (b && !pinned && popFor === b) hidePop(); });
+}
+document.addEventListener('focusin', e => { if (e.target.classList && e.target.classList.contains('info') && !pinned) showPop(e.target, false); });
+document.addEventListener('focusout', e => { if (e.target === popFor && !pinned) hidePop(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) hidePop(); });
+window.addEventListener('scroll', () => { if (!pop.hidden && !pinned) hidePop(); }, {passive:true});
 document.addEventListener('mousemove', e => {
   const el = e.target.closest && e.target.closest('[data-tip]');
   if (!el) { tip.style.display = 'none'; return; }
